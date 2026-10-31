@@ -27,14 +27,16 @@ export function ListPickerSheet({
 }: {
   shopId: string;
   mode: ListPickerMode;
-  /** 閉じるとき（完了・背景タップ・Esc）。親は表示の更新を行う。 */
-  onClose: () => void;
+  /** 閉じるとき（完了・背景タップ・Esc）。このシートの中で保存した変更があったかを渡す。 */
+  onClose: (changed: boolean) => void;
 }) {
   const toast = useToast();
   const [lists, setLists] = useState<PickerList[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Set<string>>(new Set());
   const [creating, setCreating] = useState(false);
+  const [changed, setChanged] = useState(false);
+  const close = () => onClose(changed);
 
   useEffect(() => {
     let alive = true;
@@ -52,11 +54,11 @@ export function ListPickerSheet({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onClose(changed);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, changed]);
 
   const patch = (id: string, included: boolean) =>
     setLists((prev) => prev && prev.map((l) => (l.id === id ? { ...l, included } : l)));
@@ -76,7 +78,7 @@ export function ListPickerSheet({
       if ("error" in res) {
         patch(list.id, !included);
         toast.show(res.error, "error");
-      }
+      } else setChanged(true);
     } catch {
       patch(list.id, !included);
       toast.show("保存に失敗しました。時間をおいてもう一度お試しください", "error");
@@ -88,6 +90,7 @@ export function ListPickerSheet({
   async function onCreated(list: PickerList) {
     setLists((prev) => sortPickerLists([...(prev ?? []), list]));
     setCreating(false);
+    setChanged(true);
     // 作ったリストにはそのまま今の店を入れる。
     setBusyFor(list.id, true);
     try {
@@ -131,7 +134,7 @@ export function ListPickerSheet({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={close}>
       <div
         role="dialog"
         aria-modal="true"
@@ -170,7 +173,7 @@ export function ListPickerSheet({
               ＋ 新しいリストを作る
             </button>
           ))}
-        <button type="button" className="btn btn-primary" onClick={onClose}>
+        <button type="button" className="btn btn-primary" onClick={close}>
           完了
         </button>
       </div>

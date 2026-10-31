@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/current-user";
 import { isUuid } from "@/lib/ids";
+import { addShopToDefaultList } from "@/lib/lists/default-list";
 import { createServerClient } from "@/lib/supabase/server";
 import {
   LIST_NAME_MAX,
@@ -212,4 +213,41 @@ export async function updateNicknameAction(nickname: string): Promise<{ ok: true
   if (!data || data.length === 0) return { error: "ユーザーが見つかりませんでした" };
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+/**
+ * 「気になる」「お気に入り」を押したとき、その種類のどのリストにも入っていなければ既定のリストに入れる。
+ * すでにどこかに入っていれば何もしない。入れたときだけ added: true を返す。
+ */
+export async function ensureInDefaultListAction(
+  shopId: string,
+  kind: ListKind,
+): Promise<{ added: boolean } | ActionError> {
+  const user = await requireUser();
+  if (!isUuid(shopId)) return { error: "店の情報が正しくありません" };
+  if (!isKind(kind)) return { error: "リストの種類が正しくありません" };
+
+  const supabase = await createServerClient();
+  const { data: existing, error: existingError } = await supabase
+    .from("lists")
+    .select("id, list_items!inner(shop_id)")
+    .eq("owner_id", user.id)
+    .eq("kind", kind)
+    .eq("list_items.shop_id", shopId)
+    .limit(1);
+  if (existingError) {
+    console.error("ensureInDefaultList lookup failed", existingError);
+    return { error: SERVER_ERROR };
+  }
+  if ((existing ?? []).length > 0) return { added: false };
+
+  try {
+    await addShopToDefaultList(supabase, user.id, shopId, kind);
+  } catch (e) {
+    console.error("ensureInDefaultList failed", e);
+    return { error: SERVER_ERROR };
+  }
+  revalidatePath(`/shops/${shopId}`);
+  revalidatePath("/me");
+  return { added: true };
 }

@@ -7,6 +7,38 @@ const SIGNED_URL_SECONDS = 3600;
 // .in() の URL が長くなりすぎないよう、写真の問い合わせは店 ID をこの件数ずつに分ける。
 const PHOTO_CHUNK = 100;
 
+const CARD_COLUMNS = "id, name, genre, styles, visit_count, smoking, price_range";
+
+type CardRow = {
+  id: string;
+  name: string;
+  genre: string;
+  styles: string[] | null;
+  visit_count: number;
+  smoking: string;
+  price_range: string;
+};
+
+/** shop_index の 1 行を店カード用のデータにする。 */
+function toCardData(r: CardRow, thumbUrl: string | null): ShopCardData {
+  return {
+    id: r.id,
+    name: r.name,
+    genre: r.genre,
+    styles: r.styles ?? [],
+    visitCount: r.visit_count,
+    smoking: r.smoking,
+    priceRange: r.price_range,
+    thumbUrl,
+  };
+}
+
+function chunked<T>(items: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
+}
+
 export type ListedShop = ShopCardData & { lat: number; lng: number; placeId: string | null };
 
 /** shop_index を絞り込み、各店の最新の写真 1 枚を一括で署名して返す。 */
@@ -14,7 +46,7 @@ export async function listShops(supabase: SupabaseClient, filters: ShopFilters):
   const { data, error } = await applyShopFilters(
     supabase
       .from("shop_index")
-      .select("id, name, genre, styles, visit_count, smoking, price_range, lat, lng, place_id"),
+      .select(`${CARD_COLUMNS}, lat, lng, place_id`),
     filters,
   );
   if (error) throw error;
@@ -25,14 +57,7 @@ export async function listShops(supabase: SupabaseClient, filters: ShopFilters):
   );
 
   return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    genre: r.genre,
-    styles: r.styles ?? [],
-    visitCount: r.visit_count,
-    smoking: r.smoking,
-    priceRange: r.price_range,
-    thumbUrl: thumbs.get(r.id) ?? null,
+    ...toCardData(r as CardRow, thumbs.get(r.id) ?? null),
     lat: r.lat,
     lng: r.lng,
     placeId: r.place_id,
@@ -45,46 +70,18 @@ export async function listShops(supabase: SupabaseClient, filters: ShopFilters):
  */
 export async function shopCardsByIds(supabase: SupabaseClient, shopIds: string[]): Promise<ShopCardData[]> {
   if (shopIds.length === 0) return [];
-  const chunks: string[][] = [];
-  for (let i = 0; i < shopIds.length; i += PHOTO_CHUNK) chunks.push(shopIds.slice(i, i + PHOTO_CHUNK));
   const results = await Promise.all(
-    chunks.map((ids) =>
-      supabase
-        .from("shop_index")
-        .select("id, name, genre, styles, visit_count, smoking, price_range")
-        .in("id", ids),
-    ),
+    chunked(shopIds, PHOTO_CHUNK).map((ids) => supabase.from("shop_index").select(CARD_COLUMNS).in("id", ids)),
   );
-  type Row = {
-    id: string;
-    name: string;
-    genre: string;
-    styles: string[] | null;
-    visit_count: number;
-    smoking: string;
-    price_range: string;
-  };
-  const rows = new Map<string, Row>();
+  const rows = new Map<string, CardRow>();
   for (const res of results) {
     if (res.error) throw res.error;
-    for (const r of (res.data ?? []) as Row[]) rows.set(r.id, r);
+    for (const r of (res.data ?? []) as unknown as CardRow[]) rows.set(r.id, r);
   }
   const thumbs = await thumbnailUrls(supabase, [...rows.keys()]);
   return shopIds.flatMap((id) => {
     const r = rows.get(id);
-    if (!r) return [];
-    return [
-      {
-        id: r.id,
-        name: r.name,
-        genre: r.genre,
-        styles: r.styles ?? [],
-        visitCount: r.visit_count,
-        smoking: r.smoking,
-        priceRange: r.price_range,
-        thumbUrl: thumbs.get(id) ?? null,
-      },
-    ];
+    return r ? [toCardData(r, thumbs.get(id) ?? null)] : [];
   });
 }
 
@@ -93,10 +90,8 @@ async function thumbnailUrls(supabase: SupabaseClient, shopIds: string[]): Promi
   const out = new Map<string, string>();
   if (shopIds.length === 0) return out;
 
-  const chunks: string[][] = [];
-  for (let i = 0; i < shopIds.length; i += PHOTO_CHUNK) chunks.push(shopIds.slice(i, i + PHOTO_CHUNK));
   const results = await Promise.all(
-    chunks.map((ids) =>
+    chunked(shopIds, PHOTO_CHUNK).map((ids) =>
       supabase
         .from("photos")
         .select("shop_id, storage_path, created_at, visits!inner(deleted_at)")

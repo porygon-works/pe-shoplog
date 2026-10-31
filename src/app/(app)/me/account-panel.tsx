@@ -57,7 +57,13 @@ export function AccountPanel({ nickname, isAdmin }: { nickname: string; isAdmin:
       const { error } = await createBrowserClient().auth.updateUser({ password: pw });
       if (error) {
         console.error("updateUser(password) failed", error);
-        setPwError("パスワードを変更できませんでした。時間をおいてもう一度お試しください");
+        setPwError(
+          error.code === "same_password"
+            ? "今と同じパスワードは使えません"
+            : error.code === "weak_password"
+              ? "パスワードが弱すぎます"
+              : "パスワードを変更できませんでした。時間をおいてもう一度お試しください",
+        );
         return;
       }
       setPw("");

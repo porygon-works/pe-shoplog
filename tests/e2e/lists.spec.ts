@@ -228,3 +228,47 @@ test("マイページ: マイリスト・自分の記録・アカウント（ニ
   await expect(A.page).toHaveURL(/\/login/);
   await A.context.close();
 });
+
+test("どのリストにも入っていない店で「気になる」を押すと、既定のリストに入った状態でシートが開く。外して閉じ、もう一度押すと入れ直される", async ({
+  browser,
+}) => {
+  const a = await newUser("lh");
+  const lists = await createDefaultLists(a.id);
+  const shopId = await createShop(a.id, { name: "自動追加テスト酒場" });
+  const itemCount = async () => {
+    const r = await adminClient().from("list_items").select("list_id").eq("shop_id", shopId);
+    return (r.data ?? []).filter((i) => i.list_id === lists.want).length;
+  };
+
+  const A = await asUser(browser, a.loginId);
+  await A.page.goto(`/shops/${shopId}`);
+  await expect(A.page.getByRole("button", { name: /☆ 気になる/ })).toHaveAttribute("aria-pressed", "false");
+
+  // (a) 押すと既定の「気になる」に入り、チェック済みで開く。閉じるとボタンが塗りつぶし
+  await A.page.getByRole("button", { name: /気になる/ }).click();
+  const sheet = A.page.getByRole("dialog", { name: "「気になる」のリストに追加" });
+  await expect(sheet.getByRole("checkbox", { name: /気になる.*既定/ })).toBeChecked();
+  expect(await itemCount()).toBe(1);
+  await sheet.getByRole("button", { name: "完了" }).click();
+  await expect(A.page.getByRole("button", { name: /★ 気になる/ })).toHaveAttribute("aria-pressed", "true");
+
+  // (b) 外して閉じる → どのリストにも入っていない → もう一度押すと入れ直される
+  await A.page.getByRole("button", { name: /気になる/ }).click();
+  await sheet.getByRole("checkbox", { name: /気になる.*既定/ }).uncheck();
+  await expect.poll(itemCount).toBe(0);
+  await sheet.getByRole("button", { name: "完了" }).click();
+  await expect(A.page.getByRole("button", { name: /☆ 気になる/ })).toHaveAttribute("aria-pressed", "false");
+  await A.page.getByRole("button", { name: /気になる/ }).click();
+  await expect(sheet.getByRole("checkbox", { name: /気になる.*既定/ })).toBeChecked();
+  expect(await itemCount()).toBe(1);
+  await sheet.getByRole("button", { name: "完了" }).click();
+
+  // 「＋ リスト」は自動で追加しない（お気に入りの既定リストは空のまま）
+  await A.page.getByRole("button", { name: "＋ リスト" }).click();
+  const any = A.page.getByRole("dialog", { name: "リストに追加" });
+  await expect(any.getByRole("checkbox", { name: /お気に入り/ })).not.toBeChecked();
+  await any.getByRole("button", { name: "完了" }).click();
+  const fav = await adminClient().from("list_items").select("id").eq("list_id", lists.favorite);
+  expect(fav.data).toEqual([]);
+  await A.context.close();
+});
