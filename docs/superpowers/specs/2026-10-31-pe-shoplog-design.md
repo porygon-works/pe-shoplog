@@ -1,7 +1,7 @@
 # PE ショップログ 設計書
 
 - 作成日: 2026-10-31
-- 状態: レビュー待ち
+- 状態: 承認済み
 - 参考資料: `docs/reference/NEW_PROJECT_PLAYBOOK.md`（先輩の gyoza 開発プレイブック）
 
 ---
@@ -69,7 +69,7 @@
 
 ### 3.4 店の詳細ページ
 - 店名、ジャンル、形態
-- 集計（§5.3）: 喫煙、値段感、用途の内訳（例: 打ち上げ ×2、チーム会議 ×1）、何次会で使われたか、最大人数、予約の要否、支払い方法
+- 集計（§5.3）: 喫煙、値段感、用途の内訳（例: 打ち上げ ×2、チーム会議 ×1）、最大人数、予約の要否、支払い方法
 - 写真ギャラリー（メニュー / 席 / 料理 / 外観 で切り替え）
 - 行った記録とコメントの一覧（新しい順）
 - ボタン類
@@ -90,7 +90,6 @@
 | 喫煙 | 単一選択 | 喫煙可 / 分煙・喫煙室あり / 加熱式のみ / 禁煙 / 不明 |
 | 値段感（1 人あたり） | 単一選択 | 〜2,999 / 3,000〜4,999 / 5,000〜6,999 / 7,000〜9,999 / 10,000〜 / 不明 |
 | 用途（実際に使ったもの） | 単一選択 | チーム会議 / 社員総会 / 打ち上げ / 歓送迎会 / 同期のみ / 接待 / プライベート / その他 / 不明 |
-| 何次会 | 単一選択 | 1次会 / 2次会 / 3次会以降 / 不明 |
 | 人数 | 数値（任意） | 何人で行ったか |
 | 予約 | 単一選択 | 予約した / 予約なしで入れた / 不明 |
 | 支払い方法 | 複数選択 | クレジットカード / QR決済 / 交通系IC / 現金のみ / 不明（何も選ばない） |
@@ -160,7 +159,7 @@
 |---|---|
 | `profiles` | `id`（auth.users と 1:1）, `login_id`（unique）, `nickname`, `is_admin`, `disabled_at` |
 | `shops` | `place_id`（unique、NULL 可 = 手入力の店）, `name`, `lat`, `lng`, `location_fetched_at`, `genre`, `styles text[]`, `reference_url`, `created_by` |
-| `visits` | `shop_id`, `user_id`, `visited_on`, `smoking`, `price_range`, `purpose`, `party_round`, `party_size`, `reservation`, `payment_methods text[]`, `comment` |
+| `visits` | `shop_id`, `user_id`, `visited_on`, `smoking`, `price_range`, `purpose`, `party_size`, `reservation`, `payment_methods text[]`, `comment` |
 | `photos` | `visit_id`, `shop_id`, `user_id`, `kind`, `storage_path`, `width`, `height` |
 | `lists` | `owner_id`, `name`, `kind`（want / favorite）, `is_public`, `is_default` |
 | `list_items` | `list_id`, `shop_id`, `added_at`（`(list_id, shop_id)` で unique） |
@@ -197,7 +196,7 @@
 
 - **喫煙**: 「不明」以外で最も新しい記録の値（店の喫煙ルールは変わるため）。全件の内訳も表示する。
 - **値段感**: 「不明」以外で最も多い値。同数なら新しい方。
-- **用途・何次会**: 件数の内訳。絞り込みでは、該当する記録が 1 件でもあれば一致とする。
+- **用途**: 件数の内訳。絞り込みでは、該当する記録が 1 件でもあれば一致とする。
 - **人数**: 最大値。
 - **予約・支払い方法**: 件数の内訳。
 
