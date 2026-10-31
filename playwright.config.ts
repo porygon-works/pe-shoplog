@@ -9,11 +9,22 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",
-    ...devices["Pixel 7"],
     launchOptions: process.env.PW_CHROMIUM_PATH
       ? { executablePath: process.env.PW_CHROMIUM_PATH }
       : {},
   },
+  projects: [
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
+    {
+      name: "mobile",
+      testIgnore: /auth\.setup\.ts/,
+      dependencies: ["setup"],
+      use: {
+        ...devices["Pixel 7"],
+        storageState: "playwright/.auth/user.json",
+      },
+    },
+  ],
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",

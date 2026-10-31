@@ -2,7 +2,11 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
-const alias = { "@": fileURLToPath(new URL("./src", import.meta.url)) };
+const alias = {
+  "@": fileURLToPath(new URL("./src", import.meta.url)),
+  // server-only は Next のバンドラ用。vitest では空モジュールにする。
+  "server-only": fileURLToPath(new URL("./tests/empty-module.ts", import.meta.url)),
+};
 
 export default defineConfig({
   plugins: [react()],

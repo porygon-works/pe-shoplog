@@ -1,16 +1,89 @@
 @import "tailwindcss";
 
+/* 藍を基調に、朱をピンと強調に使う。画面モック（docs/mock/shoplog-mock.html）と同じ値。 */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #eef0f3;
+  --surface: #ffffff;
+  --surface-2: #f4f5f8;
+  --ink: #1b2230;
+  --muted: #677085;
+  --line: #dde1e8;
+  --ai: #24407a;
+  --ai-soft: #e3e9f6;
+  --shu: #d4472a;
+  --shu-soft: #fbe6e1;
+  --ok: #2f7d4f;
+  --ok-soft: #e1f2e7;
+  --warn: #9a6a00;
+  --warn-soft: #fbf0d4;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f131b;
+    --surface: #171c27;
+    --surface-2: #1e2431;
+    --ink: #e8ebf2;
+    --muted: #9aa3b6;
+    --line: #2b3242;
+    --ai: #8fa9e6;
+    --ai-soft: #24304b;
+    --shu: #ff7a5c;
+    --shu-soft: #3a221d;
+    --ok: #6fcf97;
+    --ok-soft: #1c3326;
+    --warn: #f0c45a;
+    --warn-soft: #362d14;
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-ai: var(--ai);
+  --color-ai-soft: var(--ai-soft);
+  --color-shu: var(--shu);
+  --color-shu-soft: var(--shu-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --font-display: var(--font-dela), "Dela Gothic One", "Zen Kaku Gothic New", sans-serif;
+  --font-body: var(--font-zen), "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", system-ui,
+    sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ai);
+  outline-offset: 2px;
+}
+
+/* 共通の部品。モックの .input / .btn に対応。 */
+@layer components {
+  .input {
+    @apply w-full rounded-[10px] border border-line bg-surface px-3 py-2.5;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface px-3.5 py-3 text-center font-bold text-ink no-underline;
+  }
+  .btn-primary {
+    @apply border-ai bg-ai text-white;
+  }
+  .btn-accent {
+    @apply border-shu bg-shu text-white;
+  }
 }
