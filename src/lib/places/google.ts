@@ -33,7 +33,13 @@ async function request(url: string, init: RequestInit & { headers: Record<string
   return res.json();
 }
 
+/** Places の place id は英数字・- ・_ のみ。パス組み立てに使う前に必ず検証する。 */
+export function isValidPlaceId(placeId: string): boolean {
+  return /^[A-Za-z0-9_-]+$/.test(placeId);
+}
+
 function getDetails(placeId: string, fieldMask: string, sessionToken?: string) {
+  if (!isValidPlaceId(placeId)) throw new PlacesError(400, "Invalid place id");
   const qs = sessionToken ? `?sessionToken=${encodeURIComponent(sessionToken)}` : "";
   return request(`${BASE}/places/${encodeURIComponent(placeId)}${qs}`, {
     method: "GET",

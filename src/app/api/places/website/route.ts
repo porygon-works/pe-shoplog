@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPlaceWebsite } from "@/lib/places/google";
+import { getPlaceWebsite, isValidPlaceId } from "@/lib/places/google";
 import { badRequest, placesFailure, requireUser } from "@/lib/places/route-helpers";
 
 export async function GET(request: Request) {
@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   if (denied) return denied;
 
   const id = new URL(request.url).searchParams.get("id")?.trim() ?? "";
-  if (!id) return badRequest();
+  if (!id || !isValidPlaceId(id)) return badRequest();
 
   try {
     return NextResponse.json({ url: await getPlaceWebsite(id) });

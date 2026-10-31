@@ -108,3 +108,18 @@ describe("autocomplete", () => {
     expect(await autocomplete("x", "tok")).toEqual([]);
   });
 });
+
+describe("placeId の検証", () => {
+  it.each(["..", "a/b", "a?b=1", "a b", ""])("不正な placeId %j は 400 で拒否し fetch しない", async (id) => {
+    await expect(getPlaceBasics(id)).rejects.toMatchObject({ status: 400 });
+    await expect(getPlaceWebsite(id)).rejects.toMatchObject({ status: 400 });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("英数字・-・_ の placeId は受け付ける", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ id: "ChIJ-a_1", displayName: { text: "x" }, location: { latitude: 1, longitude: 2 } }),
+    );
+    await expect(getPlaceBasics("ChIJ-a_1")).resolves.toMatchObject({ placeId: "ChIJ-a_1" });
+  });
+});

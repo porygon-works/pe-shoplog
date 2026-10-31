@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPlaceBasics } from "@/lib/places/google";
+import { getPlaceBasics, isValidPlaceId } from "@/lib/places/google";
 import { badRequest, placesFailure, requireUser } from "@/lib/places/route-helpers";
 
 export async function GET(request: Request) {
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
   const params = new URL(request.url).searchParams;
   const id = params.get("id")?.trim() ?? "";
-  if (!id) return badRequest();
+  if (!id || !isValidPlaceId(id)) return badRequest();
   const session = params.get("session")?.trim() || undefined;
 
   try {
