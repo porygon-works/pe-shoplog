@@ -20,6 +20,9 @@ export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
   };
   const shop = sel?.type === "shop" ? shops.find((s) => s.id === sel.id) : undefined;
   const close = () => setSel(null);
+  // 絞り込みで選択中の店が一覧から消えたら、選択を外す（凡例を戻す）。
+  const gone = sel?.type === "shop" && !shop;
+  if (gone) setSel(null);
 
   return (
     <div className="relative flex-1">

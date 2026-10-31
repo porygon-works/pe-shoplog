@@ -1,22 +1,49 @@
 import {
+  createParser,
   createSearchParamsCache,
   parseAsArrayOf,
   parseAsBoolean,
-  parseAsString,
   parseAsStringLiteral,
 } from "nuqs/server";
+
+import { GENRES, PRICE_RANGES, PURPOSES, SMOKING, STYLES, type Option } from "@/lib/options";
+
+/** 絞り込みの選択肢。「不明」では絞り込めないので外す。URL の値の検証にもこれを使う。 */
+const known = <O extends readonly Option<string>[]>(o: O) => o.filter((x) => x.value !== "unknown");
+export const GENRE_FILTER_OPTIONS = known(GENRES);
+export const STYLE_FILTER_OPTIONS = known(STYLES);
+export const SMOKING_FILTER_OPTIONS = known(SMOKING);
+export const PRICE_FILTER_OPTIONS = known(PRICE_RANGES);
+export const PURPOSE_FILTER_OPTIONS = known(PURPOSES);
+
+export const MAX_Q_LENGTH = 100;
+
+/** 許可した値だけを残す配列パーサー。URL 由来の不正な値は捨てる（PostgREST の 400 を防ぐ）。 */
+function allowedArray(options: readonly Option<string>[]) {
+  const allowed = new Set(options.map((o) => o.value));
+  const item = createParser<string>({
+    parse: (v) => (allowed.has(v) ? v : null),
+    serialize: (v) => v,
+  });
+  return parseAsArrayOf(item).withDefault([]);
+}
+
+const qParser = createParser<string>({
+  parse: (v) => v.slice(0, MAX_Q_LENGTH),
+  serialize: (v) => v,
+}).withDefault("");
 
 export const SORTS = ["new", "visits"] as const;
 export type ShopSort = (typeof SORTS)[number];
 
 /** URL クエリで持つ絞り込み条件。マップとさがすで共通。 */
 export const shopFilterParsers = {
-  q: parseAsString.withDefault(""),
-  genre: parseAsArrayOf(parseAsString).withDefault([]),
-  styles: parseAsArrayOf(parseAsString).withDefault([]),
-  smoking: parseAsArrayOf(parseAsString).withDefault([]),
-  price: parseAsArrayOf(parseAsString).withDefault([]),
-  purpose: parseAsArrayOf(parseAsString).withDefault([]),
+  q: qParser,
+  genre: allowedArray(GENRE_FILTER_OPTIONS),
+  styles: allowedArray(STYLE_FILTER_OPTIONS),
+  smoking: allowedArray(SMOKING_FILTER_OPTIONS),
+  price: allowedArray(PRICE_FILTER_OPTIONS),
+  purpose: allowedArray(PURPOSE_FILTER_OPTIONS),
   want: parseAsBoolean.withDefault(false),
   sort: parseAsStringLiteral(SORTS).withDefault("new"),
 };

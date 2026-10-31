@@ -3,6 +3,7 @@ import {
   applyShopFilters,
   escapeLike,
   hasAll,
+  shopFilterCache,
   SMOKABLE,
   toggleValues,
   type ShopFilters,
@@ -105,5 +106,32 @@ describe("クイックチップの切り替え", () => {
   it("hasAll", () => {
     expect(hasAll(["a", "b"], ["a"])).toBe(true);
     expect(hasAll(["a"], ["a", "b"])).toBe(false);
+  });
+});
+
+describe("URL パラメータの検証", () => {
+  it("許可されていない値・unknown・引用符つきの値は捨てる", () => {
+    const f = shopFilterCache.parse({
+      smoking: '"x,no_smoking,unknown,bogus',
+      genre: "unknown,ramen",
+      styles: "izakaya;evil,bar",
+      price: "unknown,under_3000",
+      purpose: "x),celebration",
+    });
+    expect(f.smoking).toEqual(["no_smoking"]);
+    expect(f.genre).toEqual(["ramen"]);
+    expect(f.styles).toEqual(["bar"]);
+    expect(f.price).toEqual(["under_3000"]);
+    expect(f.purpose).toEqual(["celebration"]);
+  });
+
+  it("捨てた値はクエリビルダーに渡らない", () => {
+    const { q, calls } = recorder();
+    applyShopFilters(q, shopFilterCache.parse({ smoking: '"x,unknown' }));
+    expect(calls.map((c) => c[0])).toEqual(["order"]);
+  });
+
+  it("q は 100 文字までに切る", () => {
+    expect(shopFilterCache.parse({ q: "あ".repeat(150) }).q).toHaveLength(100);
   });
 });

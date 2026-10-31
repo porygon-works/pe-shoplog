@@ -5,19 +5,16 @@ import { useQueryStates } from "nuqs";
 import { ChipGroup } from "@/components/chip-group";
 import {
   CELEBRATION,
+  GENRE_FILTER_OPTIONS,
+  PRICE_FILTER_OPTIONS,
+  PURPOSE_FILTER_OPTIONS,
+  SMOKING_FILTER_OPTIONS,
+  STYLE_FILTER_OPTIONS,
   SMOKABLE,
   hasAll,
   shopFilterParsers,
   toggleValues,
 } from "@/lib/filters/shop-filters";
-import { GENRES, PRICE_RANGES, PURPOSES, SMOKING, STYLES, type Option } from "@/lib/options";
-
-// 「不明」で絞り込んでも役に立たないので、選択肢から外す。
-const known = <O extends readonly Option<string>[]>(o: O) => o.filter((x) => x.value !== "unknown");
-const GENRE_OPTIONS = known(GENRES);
-const SMOKING_OPTIONS = known(SMOKING);
-const PRICE_OPTIONS = known(PRICE_RANGES);
-const PURPOSE_OPTIONS = known(PURPOSES);
 
 type Draft = {
   genre: string[];
@@ -67,19 +64,19 @@ function FilterSheet({
       >
         <h2 className="m-0 text-base font-bold">絞り込み</h2>
         <Field label="ジャンル">
-          <ChipGroup multiple name="genre" aria-label="ジャンル" options={GENRE_OPTIONS} value={d.genre} onChange={(genre) => setD({ ...d, genre })} />
+          <ChipGroup multiple name="genre" aria-label="ジャンル" options={GENRE_FILTER_OPTIONS} value={d.genre} onChange={(genre) => setD({ ...d, genre })} />
         </Field>
         <Field label="店の形態">
-          <ChipGroup multiple name="styles" aria-label="店の形態" options={STYLES} value={d.styles} onChange={(styles) => setD({ ...d, styles })} />
+          <ChipGroup multiple name="styles" aria-label="店の形態" options={STYLE_FILTER_OPTIONS} value={d.styles} onChange={(styles) => setD({ ...d, styles })} />
         </Field>
         <Field label="喫煙">
-          <ChipGroup multiple name="smoking" aria-label="喫煙" options={SMOKING_OPTIONS} value={d.smoking} onChange={(smoking) => setD({ ...d, smoking })} />
+          <ChipGroup multiple name="smoking" aria-label="喫煙" options={SMOKING_FILTER_OPTIONS} value={d.smoking} onChange={(smoking) => setD({ ...d, smoking })} />
         </Field>
         <Field label="値段感">
-          <ChipGroup multiple name="price" aria-label="値段感" options={PRICE_OPTIONS} value={d.price} onChange={(price) => setD({ ...d, price })} />
+          <ChipGroup multiple name="price" aria-label="値段感" options={PRICE_FILTER_OPTIONS} value={d.price} onChange={(price) => setD({ ...d, price })} />
         </Field>
         <Field label="用途">
-          <ChipGroup multiple name="purpose" aria-label="用途" options={PURPOSE_OPTIONS} value={d.purpose} onChange={(purpose) => setD({ ...d, purpose })} />
+          <ChipGroup multiple name="purpose" aria-label="用途" options={PURPOSE_FILTER_OPTIONS} value={d.purpose} onChange={(purpose) => setD({ ...d, purpose })} />
         </Field>
         <button
           type="button"

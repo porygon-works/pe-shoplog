@@ -55,3 +55,11 @@ test("地図キーがない環境では地図の読み込みエラーを出し�
   await expect(page).toHaveURL(/want=true/);
   await expect(page.getByText("地図を読み込めませんでした")).toBeVisible();
 });
+
+test("不正なクエリ値は無視され、500 にならず通常表示される", async ({ page }) => {
+  const res = await page.goto("/search?smoking=%22x&genre=unknown,%29&q=" + "a".repeat(300));
+  expect(res?.status()).toBe(200);
+  await expect(page.getByTestId("result-count")).toBeVisible();
+  const res2 = await page.goto("/map?smoking=%22x");
+  expect(res2?.status()).toBe(200);
+});
