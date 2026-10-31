@@ -37,6 +37,7 @@ export function ListPickerSheet({
   const [shared, setShared] = useState<SharedPickerList[]>([]);
   const [sharedError, setSharedError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [noteBusy, setNoteBusy] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<Set<string>>(new Set());
   const [creating, setCreating] = useState(false);
   const [changed, setChanged] = useState(false);
@@ -109,13 +110,13 @@ export function ListPickerSheet({
   const patchShared = (id: string, change: Partial<SharedPickerList>) =>
     setShared((prev) => prev.map((l) => (l.id === id ? { ...l, ...change } : l)));
 
-  /** 共有リストに入れる・外す・メモを付け直す。入っていない間のメモは入力だけを保持する。 */
-  async function saveShared(list: SharedPickerList, included: boolean, note: string) {
-    const before = { included: list.included, note: list.note };
-    patchShared(list.id, { included, note });
+  /** 共有リストに入れる・外す。入れるときは入力中のメモも一緒に保存する。 */
+  async function toggleShared(list: SharedPickerList, included: boolean) {
+    const before = { included: list.included, savedNote: list.savedNote, canEditNote: list.canEditNote };
+    patchShared(list.id, { included, savedNote: included ? list.note : list.savedNote, canEditNote: true });
     setBusyFor(list.id, true);
     try {
-      const res = await setSharedListItemAction(list.id, shopId, included, note);
+      const res = await setSharedListItemAction(list.id, shopId, included, list.note);
       if ("error" in res) {
         patchShared(list.id, before);
         toast.show(res.error, "error");
@@ -125,6 +126,29 @@ export function ListPickerSheet({
       toast.show("保存に失敗しました。時間をおいてもう一度お試しください", "error");
     } finally {
       setBusyFor(list.id, false);
+    }
+  }
+
+  /** 入っている共有リストのメモだけを保存する（チェックボックスは止めない）。 */
+  async function saveNote(list: SharedPickerList) {
+    const note = list.note;
+    setNoteBusy((prev) => new Set(prev).add(list.id));
+    try {
+      const res = await setSharedListItemAction(list.id, shopId, true, note);
+      if ("error" in res) toast.show(res.error, "error");
+      else {
+        patchShared(list.id, { savedNote: note });
+        setChanged(true);
+        toast.show("メモを保存しました");
+      }
+    } catch {
+      toast.show("メモを保存できませんでした。時間をおいてもう一度お試しください", "error");
+    } finally {
+      setNoteBusy((prev) => {
+        const next = new Set(prev);
+        next.delete(list.id);
+        return next;
+      });
     }
   }
 
@@ -191,23 +215,40 @@ export function ListPickerSheet({
                         className="h-[18px] w-[18px] accent-ai"
                         checked={l.included}
                         disabled={busy.has(l.id)}
-                        onChange={(e) => void saveShared(l, e.target.checked, l.note)}
+                        onChange={(e) => void toggleShared(l, e.target.checked)}
                       />
                       <span className="min-w-0 flex-1 break-words">{l.name}</span>
                       <span className="text-xs text-muted">メンバー{l.memberCount}人</span>
                     </label>
-                    <input
-                      className="input mt-1.5 w-full !py-1.5 text-[13px]"
-                      aria-label={`メモ（${l.name}）`}
-                      placeholder="メモ（任意）例：個室あり"
-                      maxLength={SHARED_NOTE_MAX}
-                      value={l.note}
-                      disabled={busy.has(l.id)}
-                      onChange={(e) => patchShared(l.id, { note: e.target.value })}
-                      onBlur={(e) => {
-                        if (l.included) void saveShared(l, true, e.target.value);
-                      }}
-                    />
+                    {l.included && !l.canEditNote ? (
+                      l.savedNote && (
+                        <p className="m-0 mt-1.5 rounded-lg bg-surface-2 px-2 py-1.5 text-xs text-muted">
+                          {l.adderNickname ?? "退会したユーザー"}：{l.savedNote}
+                        </p>
+                      )
+                    ) : (
+                      <div className="mt-1.5 flex gap-2">
+                        <input
+                          className="input min-w-0 flex-1 !py-1.5 text-[13px]"
+                          aria-label={`メモ（${l.name}）`}
+                          placeholder="メモ（任意）例：個室あり"
+                          maxLength={SHARED_NOTE_MAX}
+                          value={l.note}
+                          onChange={(e) => patchShared(l.id, { note: e.target.value })}
+                        />
+                        {l.included && (
+                          <button
+                            type="button"
+                            className="btn !px-3 !py-1.5 text-[13px]"
+                            aria-label={`メモを保存（${l.name}）`}
+                            disabled={l.note === l.savedNote || noteBusy.has(l.id)}
+                            onClick={() => void saveNote(l)}
+                          >
+                            保存
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

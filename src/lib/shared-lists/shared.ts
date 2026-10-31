@@ -22,6 +22,11 @@ export type SharedPickerList = {
   memberCount: number;
   included: boolean;
   note: string;
+  /** 保存済みのメモ（入力中の note と比べて変更を判定する） */
+  savedNote: string;
+  /** 自分が追加した（または未追加の）ときだけメモを編集できる */
+  canEditNote: boolean;
+  adderNickname: string | null;
 };
 
 /** 招待リンクの先頭（origin）と token から URL を作る。 */

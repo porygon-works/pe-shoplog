@@ -18,6 +18,7 @@ import {
 const SERVER_ERROR = "保存に失敗しました。時間をおいてもう一度お試しください";
 const NAME_ERROR = `リスト名は1〜${LIST_NAME_MAX}文字で入力してください`;
 const DESC_ERROR = `説明は${SHARED_DESCRIPTION_MAX}文字までで入力してください`;
+const NOTE_OWNER_ERROR = "メモは追加した人だけが編集できます";
 const BAD_ID = "リストの情報が正しくありません";
 
 export type ActionError = { error: string };
@@ -211,7 +212,7 @@ export async function sharedPickerDataAction(
   const ids = rows.map((r) => r.id);
 
   const [items, members] = await Promise.all([
-    supabase.from("shared_list_items").select("shared_list_id, note").eq("shop_id", shopId).in("shared_list_id", ids),
+    supabase.from("shared_list_items").select("shared_list_id, note, added_by, profiles(nickname)").eq("shop_id", shopId).in("shared_list_id", ids),
     supabase.from("shared_list_members").select("shared_list_id").in("shared_list_id", ids).limit(10000),
   ]);
   if (items.error || members.error) {
@@ -219,7 +220,13 @@ export async function sharedPickerDataAction(
     return { error: "共有リストを読み込めませんでした。時間をおいてもう一度お試しください" };
   }
   const noteOf = new Map<string, string>();
-  for (const i of items.data ?? []) noteOf.set(i.shared_list_id as string, (i.note as string | null) ?? "");
+  const adderOf = new Map<string, { own: boolean; nickname: string | null }>();
+  for (const i of items.data ?? []) {
+    const lid = i.shared_list_id as string;
+    noteOf.set(lid, (i.note as string | null) ?? "");
+    const p = (Array.isArray(i.profiles) ? i.profiles[0] : i.profiles) as { nickname: string } | null;
+    adderOf.set(lid, { own: i.added_by === user.id, nickname: p?.nickname ?? null });
+  }
   const counts = new Map<string, number>();
   for (const m of members.data ?? []) counts.set(m.shared_list_id as string, (counts.get(m.shared_list_id as string) ?? 0) + 1);
 
@@ -231,6 +238,9 @@ export async function sharedPickerDataAction(
         memberCount: counts.get(r.id) ?? 1,
         included: noteOf.has(r.id),
         note: noteOf.get(r.id) ?? "",
+        savedNote: noteOf.get(r.id) ?? "",
+        canEditNote: adderOf.get(r.id)?.own ?? true,
+        adderNickname: adderOf.get(r.id)?.nickname ?? null,
       }))
       .sort((a, b) => a.name.localeCompare(b.name, "ja")),
   };
@@ -274,21 +284,37 @@ export async function setSharedListItemAction(
     }
     if (!shop) return { error: "店が見つかりませんでした" };
 
+    const { data: existing, error: existingError } = await supabase
+      .from("shared_list_items")
+      .select("added_by, note")
+      .eq("shared_list_id", listId)
+      .eq("shop_id", shopId)
+      .maybeSingle();
+    if (existingError) {
+      console.error("setSharedListItem lookup failed", existingError);
+      return { error: SERVER_ERROR };
+    }
     const updateNote = async () => {
       const { data, error } = await supabase
         .from("shared_list_items")
         .update({ note: noteValue })
         .eq("shared_list_id", listId)
         .eq("shop_id", shopId)
+        .eq("added_by", user.id)
         .select("shop_id");
       return { rows: data?.length ?? 0, error };
     };
-    const existing = await updateNote();
-    if (existing.error) {
-      console.error("setSharedListItem update failed", existing.error);
-      return { error: SERVER_ERROR };
-    }
-    if (existing.rows === 0) {
+    if (existing) {
+      // 追加した本人だけがメモを編集できる。変わらない場合は何も書かない。
+      if (noteValue === ((existing.note as string | null) ?? null)) return { ok: true };
+      if (existing.added_by !== user.id) return { error: NOTE_OWNER_ERROR };
+      const res = await updateNote();
+      if (res.error) {
+        console.error("setSharedListItem update failed", res.error);
+        return { error: SERVER_ERROR };
+      }
+      if (res.rows === 0) return { error: SERVER_ERROR };
+    } else {
       const { error } = await supabase
         .from("shared_list_items")
         .insert({ shared_list_id: listId, shop_id: shopId, added_by: user.id, note: noteValue });
@@ -297,9 +323,16 @@ export async function setSharedListItemAction(
         return { error: SERVER_ERROR };
       }
       if (error) {
-        // 同時に別の人が入れた。メモだけ付け直す。
-        const retry = await updateNote();
-        if (retry.error || retry.rows === 0) return { error: SERVER_ERROR };
+        // 同時に別の人が先に入れた。その人のメモは書き換えない。
+        const { data: raced } = await supabase
+          .from("shared_list_items")
+          .select("added_by, note")
+          .eq("shared_list_id", listId)
+          .eq("shop_id", shopId)
+          .maybeSingle();
+        if (raced && raced.added_by !== user.id && noteValue !== ((raced.note as string | null) ?? null)) {
+          return { error: NOTE_OWNER_ERROR };
+        }
       }
     }
   } else {
