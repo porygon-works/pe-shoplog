@@ -195,7 +195,7 @@ test("マイページ: マイリスト・自分の記録・アカウント（ニ
   await A.page.goto("/me");
   await expect(A.page.getByRole("link", { name: /気になる/ })).toBeVisible();
   await A.page.getByRole("tab", { name: "共有リスト" }).click();
-  await expect(A.page.getByText("準備中")).toBeVisible();
+  await expect(A.page.getByRole("button", { name: "＋ 共有リストを作る" })).toBeVisible();
 
   await A.page.getByRole("tab", { name: "自分の記録" }).click();
   const log = A.page.getByRole("link", { name: /記録タブ酒場/ });

@@ -1,7 +1,8 @@
 import { ListCard } from "@/components/list-card";
+import { SharedListTab } from "@/components/shared-list-tab";
 import { VisitLogList } from "@/components/visit-log-list";
 import { requireUser } from "@/lib/auth/current-user";
-import { listSummariesOf, visitLogOf } from "@/lib/lists/queries";
+import { listSummariesOf, sharedListSummariesOf, visitLogOf } from "@/lib/lists/queries";
 import { createServerClient } from "@/lib/supabase/server";
 import { AccountPanel } from "./account-panel";
 import { MeTabs } from "./me-tabs";
@@ -12,7 +13,11 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
   const user = await requireUser();
   const { tab } = await searchParams;
   const supabase = await createServerClient();
-  const [lists, visits] = await Promise.all([listSummariesOf(supabase, user.id), visitLogOf(supabase, user.id)]);
+  const [lists, shared, visits] = await Promise.all([
+    listSummariesOf(supabase, user.id),
+    sharedListSummariesOf(supabase, user.id),
+    visitLogOf(supabase, user.id),
+  ]);
 
   return (
     <main className="flex flex-1 flex-col bg-surface">
@@ -32,8 +37,7 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
                 ))}
               </>
             ),
-            // 共有リストは Task 13 で実装する。
-            shared: <p className="m-0 rounded-[10px] bg-surface-2 p-4 text-center text-[13px] text-muted">準備中</p>,
+            shared: <SharedListTab lists={shared} />,
             logs: <VisitLogList entries={visits} />,
             account: <AccountPanel nickname={user.nickname} isAdmin={user.isAdmin} />,
           }}

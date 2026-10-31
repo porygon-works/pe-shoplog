@@ -336,3 +336,45 @@ describe("共有リスト", () => {
     expect(leave.data).toHaveLength(1);
   });
 });
+
+describe("get_invite_preview", () => {
+  it("有効なトークンなら行を返し、トークン自体は含めない。参加後は is_member になる", async () => {
+    const list = await createShared(a);
+    const token = await tokenOf(list);
+    const shop = await createShop(a.id);
+    const deletedShop = await createShop(a.id, { deleted_at: new Date().toISOString() });
+    await adminClient()
+      .from("shared_list_items")
+      .insert([
+        { shared_list_id: list, shop_id: shop, added_by: a.id },
+        { shared_list_id: list, shop_id: deletedShop, added_by: a.id },
+      ]);
+
+    const before = await b.client.rpc("get_invite_preview", { p_token: token });
+    expect(before.error).toBeNull();
+    expect(before.data).toHaveLength(1);
+    const row = before.data[0];
+    expect(row.id).toBe(list);
+    expect(Number(row.member_count)).toBe(1);
+    expect(Number(row.shop_count)).toBe(1);
+    expect(row.is_member).toBe(false);
+    expect(JSON.stringify(row)).not.toContain(token);
+
+    await b.client.rpc("join_shared_list", { p_token: token });
+    const after = await b.client.rpc("get_invite_preview", { p_token: token });
+    expect(after.data[0].is_member).toBe(true);
+    expect(Number(after.data[0].member_count)).toBe(2);
+  });
+
+  it("無効なトークンなら空", async () => {
+    const res = await b.client.rpc("get_invite_preview", { p_token: "no-such-token" });
+    expect(res.error).toBeNull();
+    expect(res.data).toEqual([]);
+  });
+
+  it("anon は実行できない", async () => {
+    const list = await createShared(a);
+    const res = await anonClient().rpc("get_invite_preview", { p_token: await tokenOf(list) });
+    expect(res.error).not.toBeNull();
+  });
+});

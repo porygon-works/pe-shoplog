@@ -7,6 +7,8 @@ import {
   listPickerDataAction,
   setListItemAction,
 } from "@/lib/lists/actions";
+import { setSharedListItemAction, sharedPickerDataAction } from "@/lib/shared-lists/actions";
+import { SHARED_NOTE_MAX, type SharedPickerList } from "@/lib/shared-lists/shared";
 import { LIST_KIND_LABEL, LIST_NAME_MAX, type ListKind, type PickerList, sortPickerLists } from "@/lib/lists/shared";
 
 export type ListPickerMode = ListKind | "any";
@@ -18,7 +20,7 @@ function titleOf(mode: ListPickerMode): string {
 /**
  * 店をマイリストに入れる・外すシート。チェックを変えるとその場で保存する。
  * 開いた時点ではチェックを変えず、すでに入っているリストにチェックが付いた状態で開く。
- * mode が 'any' のときは種類を問わず自分のリストを出す（共有リストの区画は Task 13 で追加する）。
+ * mode が 'any' のときは種類を問わず自分のリストを出す（参加中の共有リストの区画も出す）。
  */
 export function ListPickerSheet({
   shopId,
@@ -32,6 +34,8 @@ export function ListPickerSheet({
 }) {
   const toast = useToast();
   const [lists, setLists] = useState<PickerList[] | null>(null);
+  const [shared, setShared] = useState<SharedPickerList[]>([]);
+  const [sharedError, setSharedError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Set<string>>(new Set());
   const [creating, setCreating] = useState(false);
@@ -47,6 +51,21 @@ export function ListPickerSheet({
         else setLists(sortPickerLists(res.lists));
       })
       .catch(() => alive && setLoadError("リストを読み込めませんでした。時間をおいてもう一度お試しください"));
+    return () => {
+      alive = false;
+    };
+  }, [shopId, mode]);
+
+  useEffect(() => {
+    if (mode !== "any") return;
+    let alive = true;
+    sharedPickerDataAction(shopId)
+      .then((res) => {
+        if (!alive) return;
+        if ("error" in res) setSharedError(res.error);
+        else setShared(res.lists);
+      })
+      .catch(() => alive && setSharedError("共有リストを読み込めませんでした。時間をおいてもう一度お試しください"));
     return () => {
       alive = false;
     };
@@ -87,6 +106,28 @@ export function ListPickerSheet({
     }
   }
 
+  const patchShared = (id: string, change: Partial<SharedPickerList>) =>
+    setShared((prev) => prev.map((l) => (l.id === id ? { ...l, ...change } : l)));
+
+  /** 共有リストに入れる・外す・メモを付け直す。入っていない間のメモは入力だけを保持する。 */
+  async function saveShared(list: SharedPickerList, included: boolean, note: string) {
+    const before = { included: list.included, note: list.note };
+    patchShared(list.id, { included, note });
+    setBusyFor(list.id, true);
+    try {
+      const res = await setSharedListItemAction(list.id, shopId, included, note);
+      if ("error" in res) {
+        patchShared(list.id, before);
+        toast.show(res.error, "error");
+      } else setChanged(true);
+    } catch {
+      patchShared(list.id, before);
+      toast.show("保存に失敗しました。時間をおいてもう一度お試しください", "error");
+    } finally {
+      setBusyFor(list.id, false);
+    }
+  }
+
   async function onCreated(list: PickerList) {
     setLists((prev) => sortPickerLists([...(prev ?? []), list]));
     setCreating(false);
@@ -105,7 +146,6 @@ export function ListPickerSheet({
   }
 
   const title = titleOf(mode);
-  // 区画の配列にしてあるので、共有リストの区画は後から追加できる。
   const sections: { key: string; heading?: string; body: React.ReactNode }[] = [
     {
       key: "personal",
@@ -131,6 +171,50 @@ export function ListPickerSheet({
         </div>
       ),
     },
+    ...(mode === "any" && (shared.length > 0 || sharedError)
+      ? [
+          {
+            key: "shared",
+            heading: "共有リスト",
+            body: (
+              <div className="flex flex-col">
+                {sharedError && (
+                  <p role="alert" className="m-0 text-[13px] text-shu">
+                    {sharedError}
+                  </p>
+                )}
+                {shared.map((l) => (
+                  <div key={l.id} className="border-b border-line py-2.5 text-sm">
+                    <label className="flex items-center gap-2.5">
+                      <input
+                        type="checkbox"
+                        className="h-[18px] w-[18px] accent-ai"
+                        checked={l.included}
+                        disabled={busy.has(l.id)}
+                        onChange={(e) => void saveShared(l, e.target.checked, l.note)}
+                      />
+                      <span className="min-w-0 flex-1 break-words">{l.name}</span>
+                      <span className="text-xs text-muted">メンバー{l.memberCount}人</span>
+                    </label>
+                    <input
+                      className="input mt-1.5 w-full !py-1.5 text-[13px]"
+                      aria-label={`メモ（${l.name}）`}
+                      placeholder="メモ（任意）例：個室あり"
+                      maxLength={SHARED_NOTE_MAX}
+                      value={l.note}
+                      disabled={busy.has(l.id)}
+                      onChange={(e) => patchShared(l.id, { note: e.target.value })}
+                      onBlur={(e) => {
+                        if (l.included) void saveShared(l, true, e.target.value);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (

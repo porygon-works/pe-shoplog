@@ -85,3 +85,55 @@ export async function visitLogOf(supabase: SupabaseClient, userId: string): Prom
     };
   });
 }
+
+export type SharedListSummary = {
+  id: string;
+  name: string;
+  description: string | null;
+  isPublic: boolean;
+  memberCount: number;
+  shopCount: number;
+};
+
+/** 自分が参加している共有リスト（新しく入った順）。店数は削除されていない店だけ。 */
+export async function sharedListSummariesOf(supabase: SupabaseClient, userId: string): Promise<SharedListSummary[]> {
+  const { data, error } = await supabase
+    .from("shared_list_members")
+    .select("joined_at, shared_lists(id, name, description, is_public)")
+    .eq("user_id", userId)
+    .order("joined_at", { ascending: false });
+  if (error) throw error;
+  type L = { id: string; name: string; description: string | null; is_public: boolean };
+  const lists = (data ?? []).flatMap((m) => {
+    const l = (Array.isArray(m.shared_lists) ? m.shared_lists[0] : m.shared_lists) as L | null;
+    return l ? [l] : [];
+  });
+  if (lists.length === 0) return [];
+  const ids = lists.map((l) => l.id);
+  const [members, items] = await Promise.all([
+    supabase.from("shared_list_members").select("shared_list_id").in("shared_list_id", ids).limit(10000),
+    supabase
+      .from("shared_list_items")
+      .select("shared_list_id, shops!inner(deleted_at)")
+      .in("shared_list_id", ids)
+      .is("shops.deleted_at", null)
+      .limit(10000),
+  ]);
+  if (members.error) throw members.error;
+  if (items.error) throw items.error;
+  const count = (rows: { shared_list_id: string }[] | null) => {
+    const m = new Map<string, number>();
+    for (const r of rows ?? []) m.set(r.shared_list_id, (m.get(r.shared_list_id) ?? 0) + 1);
+    return m;
+  };
+  const mc = count(members.data);
+  const ic = count(items.data);
+  return lists.map((l) => ({
+    id: l.id,
+    name: l.name,
+    description: l.description,
+    isPublic: l.is_public,
+    memberCount: mc.get(l.id) ?? 1,
+    shopCount: ic.get(l.id) ?? 0,
+  }));
+}
