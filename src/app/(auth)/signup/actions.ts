@@ -28,6 +28,7 @@ const ERROR_MESSAGES: Record<RegisterError, string> = {
   bad_passphrase: "合言葉が違います",
   login_id_taken: "そのIDは使われています",
   invalid: "入力内容を確認してください",
+  server_error: "登録に失敗しました。時間をおいてもう一度お試しください",
 };
 
 async function clientIp(): Promise<string> {

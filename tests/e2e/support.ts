@@ -13,6 +13,12 @@ export function uniqueLoginId(prefix = "e2e"): string {
 /** 合言葉を既知の値にし、IP ごとの試行制限を空にする（e2e を繰り返し実行できるように）。 */
 export async function prepareSignup(): Promise<void> {
   const env = loadSupabaseEnv();
+  const host = new URL(env.url).hostname;
+  if (host !== "localhost" && host !== "127.0.0.1") {
+    throw new Error(
+      `prepareSignup は signup_attempts を全削除し合言葉を上書きするため、ローカルの Supabase でのみ実行できます（現在の接続先: ${host}）`,
+    );
+  }
   const admin = createClient(env.url, env.secretKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });

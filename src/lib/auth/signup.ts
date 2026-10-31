@@ -8,7 +8,8 @@ export type RegisterError =
   | "rate_limited"
   | "bad_passphrase"
   | "login_id_taken"
-  | "invalid";
+  | "invalid"
+  | "server_error";
 
 export type RegisterResult =
   | { ok: true; userId: string }
@@ -26,6 +27,19 @@ export async function registerUser(
   input: SignupInput,
   ip: string,
   admin: SupabaseClient = createAdminClient(),
+): Promise<RegisterResult> {
+  try {
+    return await register(input, ip, admin);
+  } catch (e) {
+    console.error("registerUser failed", e);
+    return { ok: false, error: "server_error" };
+  }
+}
+
+async function register(
+  input: SignupInput,
+  ip: string,
+  admin: SupabaseClient,
 ): Promise<RegisterResult> {
   const parsed = signupInputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
@@ -64,7 +78,7 @@ export async function registerUser(
   });
   if (created.error || !created.data.user) {
     const e = created.error;
-    if (e && (e.code === "email_exists" || e.status === 422)) {
+    if (e && (e.code === "email_exists" || e.code === "user_already_exists")) {
       return { ok: false, error: "login_id_taken" };
     }
     throw e ?? new Error("createUser failed");
@@ -82,7 +96,13 @@ export async function registerUser(
         { owner_id: userId, name: "お気に入り", kind: "favorite", is_public: false, is_default: true },
       ]);
   if (profile.error || lists?.error) {
-    await admin.auth.admin.deleteUser(userId);
+    const removed = await admin.auth.admin.deleteUser(userId);
+    if (removed.error) {
+      console.error(
+        `registerUser rollback failed: orphan auth user ${userId}`,
+        removed.error,
+      );
+    }
     if (profile.error?.code === "23505") {
       return { ok: false, error: "login_id_taken" };
     }

@@ -1,4 +1,5 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { hashPassphrase } from "@/lib/auth/passphrase";
 import { registerUser } from "@/lib/auth/signup";
 import { adminClient, uniqueId } from "./helpers";
@@ -89,5 +90,52 @@ describe("registerUser", () => {
   it("他のIPには影響しない", async () => {
     const res = await registerUser(input(uniqueId("o")), ip());
     expect(res.ok).toBe(true);
+  });
+});
+
+describe("registerUser の失敗処理", () => {
+  /** 本物の admin を土台に、一部だけ差し替えた偽クライアント。 */
+  function fakeAdmin(
+    createUser: () => Promise<unknown>,
+    from?: SupabaseClient["from"],
+  ): SupabaseClient {
+    return {
+      from: from ?? admin.from.bind(admin),
+      auth: { admin: { createUser } },
+    } as unknown as SupabaseClient;
+  }
+
+  it("422 weak_password は login_id_taken にならない", async () => {
+    const fake = fakeAdmin(async () => ({
+      data: { user: null },
+      error: { code: "weak_password", status: 422, message: "weak" },
+    }));
+    const res = await registerUser(input(uniqueId("w")), ip(), fake);
+    expect(res).toEqual({ ok: false, error: "server_error" });
+  });
+
+  it("user_already_exists は login_id_taken", async () => {
+    const fake = fakeAdmin(async () => ({
+      data: { user: null },
+      error: { code: "user_already_exists", status: 422, message: "dup" },
+    }));
+    const res = await registerUser(input(uniqueId("d")), ip(), fake);
+    expect(res).toEqual({ ok: false, error: "login_id_taken" });
+  });
+
+  it("依存先が失敗しても throw せず server_error を返す", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const fake = fakeAdmin(
+      async () => {
+        throw new Error("unused");
+      },
+      () => {
+        throw new Error("db down");
+      },
+    );
+    const res = await registerUser(input(uniqueId("f")), ip(), fake);
+    expect(res).toEqual({ ok: false, error: "server_error" });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 });
