@@ -37,5 +37,6 @@ jobs:
           supabase status -o env \
             --override-name api.url=NEXT_PUBLIC_SUPABASE_URL \
             --override-name auth.publishable_key=NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
-            --override-name auth.secret_key=SUPABASE_SECRET_KEY >> "$GITHUB_ENV"
+            --override-name auth.secret_key=SUPABASE_SECRET_KEY \
+            | tr -d '"' >> "$GITHUB_ENV"
       - run: npm run test:db
