@@ -5,7 +5,8 @@ import { loadSupabaseEnv } from "./env";
 
 const env = loadSupabaseEnv();
 export { AUTH_EMAIL_DOMAIN };
-const PASSWORD = "test-password-1234";
+export const TEST_PASSWORD = "test-password-1234";
+const PASSWORD = TEST_PASSWORD;
 
 const clientOptions = {
   auth: { persistSession: false, autoRefreshToken: false },

@@ -39,6 +39,55 @@ export async function listShops(supabase: SupabaseClient, filters: ShopFilters):
   }));
 }
 
+/**
+ * 店 ID の配列から店カード用のデータを返す（渡した順を保つ）。削除済みの店は shop_index に
+ * 出てこないので、結果から自然に外れる。リスト画面など ID が先に決まっている一覧で使う。
+ */
+export async function shopCardsByIds(supabase: SupabaseClient, shopIds: string[]): Promise<ShopCardData[]> {
+  if (shopIds.length === 0) return [];
+  const chunks: string[][] = [];
+  for (let i = 0; i < shopIds.length; i += PHOTO_CHUNK) chunks.push(shopIds.slice(i, i + PHOTO_CHUNK));
+  const results = await Promise.all(
+    chunks.map((ids) =>
+      supabase
+        .from("shop_index")
+        .select("id, name, genre, styles, visit_count, smoking, price_range")
+        .in("id", ids),
+    ),
+  );
+  type Row = {
+    id: string;
+    name: string;
+    genre: string;
+    styles: string[] | null;
+    visit_count: number;
+    smoking: string;
+    price_range: string;
+  };
+  const rows = new Map<string, Row>();
+  for (const res of results) {
+    if (res.error) throw res.error;
+    for (const r of (res.data ?? []) as Row[]) rows.set(r.id, r);
+  }
+  const thumbs = await thumbnailUrls(supabase, [...rows.keys()]);
+  return shopIds.flatMap((id) => {
+    const r = rows.get(id);
+    if (!r) return [];
+    return [
+      {
+        id: r.id,
+        name: r.name,
+        genre: r.genre,
+        styles: r.styles ?? [],
+        visitCount: r.visit_count,
+        smoking: r.smoking,
+        priceRange: r.price_range,
+        thumbUrl: thumbs.get(id) ?? null,
+      },
+    ];
+  });
+}
+
 /** 店 ID → 最新の有効な写真の署名付き URL。削除済みの記録・写真は除く。 */
 async function thumbnailUrls(supabase: SupabaseClient, shopIds: string[]): Promise<Map<string, string>> {
   const out = new Map<string, string>();

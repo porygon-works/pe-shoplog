@@ -194,7 +194,7 @@ export default async function ShopPage({
           </div>
         </div>
 
-        <ShopListButtons inWant={inWant} inFavorite={inFavorite} />
+        <ShopListButtons shopId={id} inWant={inWant} inFavorite={inFavorite} />
 
         <div className="flex gap-2">
           {shop.place_id && <WebsiteButton shopId={id} />}
