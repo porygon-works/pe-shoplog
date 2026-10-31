@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { AUTH_EMAIL_DOMAIN, toAuthEmail } from "@/lib/auth/login-id";
 import { loadSupabaseEnv } from "./env";
 
 const env = loadSupabaseEnv();
-export const AUTH_EMAIL_DOMAIN = "users.pe-shoplog.invalid";
+export { AUTH_EMAIL_DOMAIN };
 const PASSWORD = "test-password-1234";
 
 const clientOptions = {
@@ -29,7 +30,7 @@ export async function createTestUser(
   opts: { admin?: boolean } = {},
 ): Promise<{ id: string; client: SupabaseClient }> {
   const admin = adminClient();
-  const email = `${loginId}@${AUTH_EMAIL_DOMAIN}`;
+  const email = toAuthEmail(loginId);
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password: PASSWORD,
