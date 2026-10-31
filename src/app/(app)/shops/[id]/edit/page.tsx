@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/ids";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { createServerClient } from "@/lib/supabase/server";
@@ -7,7 +8,7 @@ import { EditShopForm } from "./edit-form";
 export default async function EditShopPage({ params }: { params: Promise<{ id: string }> }) {
   await requireUser();
   const { id } = await params;
-  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  if (!isUuid(id)) notFound();
 
   const supabase = await createServerClient();
   const { data: shop, error } = await supabase

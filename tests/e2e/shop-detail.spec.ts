@@ -51,25 +51,37 @@ test("詳細ページに喫煙・値段感の代表値と内訳、行った記�
   );
 });
 
-test("公式サイトの取得に失敗したらエラーのトーストが出る", async ({ page }) => {
+test("公式サイトは新しいタブで開くリンクになっている", async ({ page }) => {
   const { shopId } = await fixture();
-  await page.route("**/api/places/website**", (route) =>
-    route.fulfill({
-      status: 502,
-      contentType: "application/json",
-      body: JSON.stringify({ error: "places_unavailable" }),
-    }),
-  );
   await page.goto(`/shops/${shopId}`);
-  await page.getByRole("button", { name: /公式サイト/ }).click();
-  await expect(page.getByText("サイト情報を取得できませんでした")).toBeVisible();
+  const link = page.getByRole("link", { name: /公式サイト/ });
+  await expect(link).toHaveAttribute("href", `/shops/${shopId}/website`);
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", /noopener/);
+});
+
+test("サイト情報の取得に失敗したページはエラーメッセージを出す", async ({ page }) => {
+  // e2e では GOOGLE_PLACES_API_KEY がなく getPlaceWebsite が PlacesError になる。
+  test.skip(!!process.env.GOOGLE_PLACES_API_KEY, "Places キーがある環境ではスキップ");
+  const { shopId } = await fixture();
+  await page.goto(`/shops/${shopId}/website`);
+  await expect(
+    page.getByText("サイト情報を取得できませんでした。時間をおいてもう一度お試しください"),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "店の詳細に戻る" })).toBeVisible();
+});
+
+test("place_id のない店のサイト用ページは 404", async ({ page }) => {
+  const { shopId } = await fixture(false);
+  const res = await page.goto(`/shops/${shopId}/website`);
+  expect(res?.status()).toBe(404);
 });
 
 test("place_id のない店では公式サイトのボタンを出さない", async ({ page }) => {
   const { shopId } = await fixture(false);
   await page.goto(`/shops/${shopId}`);
   await expect(page.getByTestId("shop-name")).toBeVisible();
-  await expect(page.getByRole("button", { name: /公式サイト/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /公式サイト/ })).toHaveCount(0);
 });
 
 test("まだ誰も行っていない店は案内を出し、集計は出さない", async ({ page }) => {
@@ -144,4 +156,9 @@ test("写真は署名付き URL で表示され、種類で切り替えられる
   await gallery.getByRole("button", { name: "席", exact: true }).click();
   await expect(gallery.getByRole("img")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "メニュー", exact: true })).toHaveCount(0);
+});
+
+test("UUID でない店 ID は 500 ではなく 404", async ({ page }) => {
+  const res = await page.goto(`/shops/${"a".repeat(8)}-aaaa-aaaa-aaaa-${"-".repeat(0)}zzzzzzzzzzzz`);
+  expect(res?.status()).toBe(404);
 });

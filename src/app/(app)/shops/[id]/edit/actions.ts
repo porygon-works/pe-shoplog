@@ -1,5 +1,6 @@
 "use server";
 
+import { isUuid } from "@/lib/ids";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { createServerClient } from "@/lib/supabase/server";
@@ -22,7 +23,7 @@ export async function updateShopAction(
   await requireUser();
 
   const shopId = text(formData, "shopId");
-  if (!/^[0-9a-f-]{36}$/i.test(shopId)) return { error: "店の情報が正しくありません" };
+  if (!isUuid(shopId)) return { error: "店の情報が正しくありません" };
 
   const parsed = shopInputSchema.safeParse({
     name: text(formData, "name"),

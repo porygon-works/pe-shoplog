@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/ids";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
@@ -73,7 +74,7 @@ export default async function ShopPage({
   const user = await requireUser();
   const { id } = await params;
   const { notice } = await searchParams;
-  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  if (!isUuid(id)) notFound();
 
   const supabase = await createServerClient();
   const { data: shop, error: shopError } = await supabase
@@ -195,7 +196,7 @@ export default async function ShopPage({
         <ShopListButtons inWant={inWant} inFavorite={inFavorite} />
 
         <div className="flex gap-2">
-          {shop.place_id && <WebsiteButton placeId={shop.place_id} />}
+          {shop.place_id && <WebsiteButton shopId={id} />}
           <a
             href={googleMapsUrl({ name: shop.name, lat: shop.lat, lng: shop.lng, placeId: shop.place_id })}
             target="_blank"
@@ -209,9 +210,13 @@ export default async function ShopPage({
         {shop.reference_url && (
           <div className="text-xs text-muted">
             予約・参考リンク:{" "}
-            <a href={shop.reference_url} target="_blank" rel="noopener noreferrer" className="break-all text-ai">
-              {shop.reference_url}
-            </a>
+            {/^https?:\/\//i.test(shop.reference_url) ? (
+              <a href={shop.reference_url} target="_blank" rel="noopener noreferrer" className="break-all text-ai">
+                {shop.reference_url}
+              </a>
+            ) : (
+              <span className="break-all">{shop.reference_url}</span>
+            )}
           </div>
         )}
 
