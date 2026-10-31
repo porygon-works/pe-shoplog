@@ -20,6 +20,7 @@ import { NoticeToast } from "./notice-toast";
 import { PhotoGallery, type GalleryPhoto } from "./photo-gallery";
 import { ShopHeader } from "./shop-header";
 import { ShopListButtons } from "./shop-list-buttons";
+import { VisitOwnerActions } from "./visit-owner-actions";
 import { WebsiteButton } from "./website-button";
 
 type VisitRow = {
@@ -299,6 +300,7 @@ export default async function ShopPage({
                     {v.visited_on}
                     {v.party_size !== null && `・${v.party_size}人`}
                   </span>
+                  {v.user_id === user.id && <VisitOwnerActions visitId={v.id} />}
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {v.purpose !== "unknown" && (
