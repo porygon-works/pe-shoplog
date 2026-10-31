@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createShop, createTestUser, createVisit, uniqueId } from "../db/helpers";
+import { adminClient, createShop, createTestUser, createVisit, uniqueId } from "../db/helpers";
 
 async function fixture() {
   const user = await createTestUser(uniqueId("e2e"));
@@ -32,11 +32,8 @@ test("「吸える」で絞り込むと該当の店だけが残り、URL に残�
   await expect(cards).toHaveCount(3);
 });
 
-test("リストタブは準備中、絞り込みシートから適用できる", async ({ page }) => {
+test("絞り込みシートから適用できる", async ({ page }) => {
   const { tag } = await fixture();
-  await page.goto("/search?tab=lists");
-  await expect(page.getByText("準備中")).toBeVisible();
-
   await page.goto(`/search?q=${tag}`);
   await page.getByRole("button", { name: /ジャンル/ }).click();
   const dialog = page.getByRole("dialog", { name: "絞り込み" });
@@ -62,4 +59,29 @@ test("不正なクエリ値は無視され、500 にならず通常表示され�
   await expect(page.getByTestId("result-count")).toBeVisible();
   const res2 = await page.goto("/map?smoking=%22x");
   expect(res2?.status()).toBe(200);
+});
+
+test("リストタブで公開リストだけが出て、タブは URL に残る", async ({ page }) => {
+  const owner = await createTestUser(uniqueId("lo"));
+  const tag = uniqueId("pl");
+  const admin = adminClient();
+  const { error } = await admin.from("lists").insert([
+    { owner_id: owner.id, name: `${tag}公開`, kind: "favorite", is_public: true },
+    { owner_id: owner.id, name: `${tag}非公開`, kind: "favorite", is_public: false },
+  ]);
+  if (error) throw error;
+
+  await page.goto("/search");
+  await page.getByRole("tab", { name: "リスト" }).click();
+  await expect(page).toHaveURL(/tab=lists/);
+  await page.getByRole("searchbox", { name: "リスト名でさがす" }).fill(tag);
+  const cards = page.getByTestId("public-list-card");
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText(`${tag}公開`);
+  await expect(cards.first()).toContainText("マイリスト・お気に入り");
+  await expect(page.getByText(`${tag}非公開`)).toHaveCount(0);
+
+  await page.reload();
+  await expect(page).toHaveURL(/tab=lists/);
+  await expect(cards).toHaveCount(1);
 });
