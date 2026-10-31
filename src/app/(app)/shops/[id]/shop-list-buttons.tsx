@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ListPickerSheet, type ListPickerMode } from "@/components/list-picker-sheet";
+import {
+  ListPickerSheet,
+  type ListPickerMode,
+} from "@/components/list-picker-sheet";
 import { useToast } from "@/components/toast";
 import { ensureInDefaultListAction } from "@/lib/lists/actions";
 import type { ListKind } from "@/lib/lists/shared";
@@ -40,7 +43,10 @@ export function ShopListButtons({
         }
         setAutoAdded(res.added);
       } catch {
-        toast.show("リストに追加できませんでした。時間をおいてもう一度お試しください", "error");
+        toast.show(
+          "リストに追加できませんでした。時間をおいてもう一度お試しください",
+          "error",
+        );
         return;
       } finally {
         setOpening(false);
@@ -81,10 +87,14 @@ export function ShopListButtons({
         >
           {inFavorite ? "♥" : "♡"} お気に入り
         </button>
-        <button type="button" onClick={() => {
+        <button
+          type="button"
+          onClick={() => {
             setAutoAdded(false);
             setMode("any");
-          }} className={base}>
+          }}
+          className={base}
+        >
           ＋ リスト
         </button>
       </div>
