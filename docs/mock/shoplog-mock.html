@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PEショップログ モック</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<style>
+/* 藍（インディゴ）を基調に、朱をピンと強調に使う。スマホ1画面を中央に置き、下部タブで画面を切り替える。 */
+:root {
+  --bg: #eef0f3;
+  --surface: #ffffff;
+  --surface-2: #f4f5f8;
+  --ink: #1b2230;
+  --muted: #677085;
+  --line: #dde1e8;
+  --ai: #24407a;
+  --ai-soft: #e3e9f6;
+  --shu: #d4472a;
+  --shu-soft: #fbe6e1;
+  --ok: #2f7d4f;
+  --ok-soft: #e1f2e7;
+  --warn: #9a6a00;
+  --warn-soft: #fbf0d4;
+  --map-land: #eef0e6;
+  --map-road: #ffffff;
+  --map-water: #cfe0ee;
+  --map-park: #d7e8cf;
+  --font-display: "Dela Gothic One", "Zen Kaku Gothic New", sans-serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f131b; --surface: #171c27; --surface-2: #1e2431; --ink: #e8ebf2; --muted: #9aa3b6; --line: #2b3242;
+    --ai: #8fa9e6; --ai-soft: #24304b; --shu: #ff7a5c; --shu-soft: #3a221d; --ok: #6fcf97; --ok-soft: #1c3326;
+    --warn: #f0c45a; --warn-soft: #362d14; --map-land: #1d2330; --map-road: #2b3344; --map-water: #1b2c40; --map-park: #1f3026;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f131b; --surface: #171c27; --surface-2: #1e2431; --ink: #e8ebf2; --muted: #9aa3b6; --line: #2b3242;
+  --ai: #8fa9e6; --ai-soft: #24304b; --shu: #ff7a5c; --shu-soft: #3a221d; --ok: #6fcf97; --ok-soft: #1c3326;
+  --warn: #f0c45a; --warn-soft: #362d14; --map-land: #1d2330; --map-road: #2b3344; --map-water: #1b2c40; --map-park: #1f3026;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; display: flex; gap: 32px; justify-content: center; align-items: flex-start; padding: 24px 16px; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
+
+.notes { max-width: 300px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 12px; position: sticky; top: 24px; }
+.notes h1 { font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--ink); margin: 0; letter-spacing: .02em; }
+.notes nav { display: flex; flex-direction: column; gap: 4px; }
+.notes nav a { color: var(--ai); text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+.notes nav a:hover, .notes nav a.on { background: var(--ai-soft); }
+.notes p { margin: 0; }
+@media (max-width: 760px) { .notes { display: none; } body { padding: 0; } }
+
+.phone { width: 390px; max-width: 100%; height: 800px; max-height: calc(100vh - 48px); background: var(--surface); border-radius: 28px; border: 1px solid var(--line); box-shadow: 0 20px 50px rgba(20, 30, 60, .14); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+@media (max-width: 760px) { .phone { width: 100%; height: 100%; max-height: none; border-radius: 0; border: 0; } }
+
+.topbar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); min-height: 52px; }
+.topbar h2 { margin: 0; font-size: 17px; font-weight: 700; flex: 1; text-wrap: balance; }
+.logo { font-family: var(--font-display); color: var(--ai); font-size: 18px; letter-spacing: .03em; }
+.logo b { color: var(--shu); font-weight: 400; }
+.iconbtn { border: 0; background: none; padding: 6px 8px; border-radius: 8px; color: var(--muted); font-size: 15px; }
+.iconbtn:hover { background: var(--surface-2); }
+
+.screen { flex: 1; overflow-y: auto; position: relative; }
+.pad { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+.tabbar { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: var(--surface); }
+.tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 10px; font-size: 11px; color: var(--muted); text-decoration: none; }
+.tabbar a svg { width: 22px; height: 22px; }
+.tabbar a.on { color: var(--ai); font-weight: 700; }
+.tabbar a.add span.plus { width: 34px; height: 26px; border-radius: 9px; background: var(--shu); color: #fff; display: grid; place-items: center; font-size: 20px; line-height: 1; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips.scroll { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; white-space: nowrap; }
+.chip.on { background: var(--ai); border-color: var(--ai); color: #fff; }
+:root[data-theme="dark"] .chip.on { color: #0f131b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip.on { color: #0f131b; } }
+.chip.filter::after { content: " ▾"; color: var(--muted); }
+.chip.on.filter::after { color: inherit; }
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field > label, .field > .label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.field .hint { font-size: 12px; color: var(--muted); }
+.input { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface); }
+textarea.input { min-height: 88px; resize: vertical; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 12px 14px; font-weight: 700; text-align: center; text-decoration: none; color: var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn.primary { background: var(--ai); border-color: var(--ai); color: #fff; }
+.btn.accent { background: var(--shu); border-color: var(--shu); color: #fff; }
+.btn.small { padding: 7px 10px; font-size: 13px; border-radius: 10px; }
+.btn.on { background: var(--shu-soft); border-color: var(--shu); color: var(--shu); }
+.btn.want.on { background: var(--ai-soft); border-color: var(--ai); color: var(--ai); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > .btn { flex: 1; }
+
+.card { border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; gap: 12px; background: var(--surface); text-decoration: none; color: inherit; }
+.card:hover { border-color: var(--ai); }
+.thumb { width: 72px; height: 72px; border-radius: 10px; flex: none; display: grid; place-items: end start; padding: 6px; font-size: 11px; color: #fff; font-weight: 700; }
+.card .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.card .name { font-weight: 700; font-size: 15px; }
+.meta { font-size: 12px; color: var(--muted); }
+.pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pill.smoke-ok { background: var(--warn-soft); color: var(--warn); }
+.pill.smoke-no { background: var(--ok-soft); color: var(--ok); }
+.pill.want { background: var(--ai-soft); color: var(--ai); font-weight: 700; }
+.pill.price { background: var(--shu-soft); color: var(--shu); }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 3px; }
+.seg button { border: 0; background: none; border-radius: 8px; padding: 7px 4px; font-size: 13px; color: var(--muted); }
+.seg button.on { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.section-title { font-size: 13px; font-weight: 700; color: var(--muted); margin: 0; display: flex; justify-content: space-between; align-items: baseline; }
+
+/* map */
+.map { position: absolute; inset: 0; background: var(--map-land); overflow: hidden; }
+.map svg.base { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map .overlay-top { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 3; }
+.map .search-fake { background: var(--surface); border-radius: 12px; padding: 10px 12px; color: var(--muted); box-shadow: 0 2px 10px rgba(0,0,0,.12); font-size: 14px; }
+.map .chips .chip { box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+.pin { position: absolute; transform: translate(-50%, -100%); border: 0; background: none; padding: 0; z-index: 2; }
+.pin span { display: block; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid var(--surface); box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.pin span i { display: block; transform: rotate(45deg); color: #fff; font-style: normal; font-size: 12px; font-weight: 700; text-align: center; line-height: 24px; }
+.pin.visited span { background: var(--shu); }
+.pin.want span { background: var(--ai); }
+.poi { position: absolute; transform: translate(-50%, -50%); border: 0; background: none; padding: 0; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #8a6d3b; z-index: 1; white-space: nowrap; }
+.poi b { width: 16px; height: 16px; border-radius: 50%; background: #e2903a; color: #fff; display: grid; place-items: center; font-size: 9px; }
+.legend { position: absolute; left: 10px; bottom: 10px; background: var(--surface); border-radius: 10px; padding: 6px 10px; font-size: 11px; color: var(--muted); display: flex; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.12); z-index: 2; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.sheet { position: absolute; left: 10px; right: 10px; bottom: 10px; background: var(--surface); border-radius: 16px; padding: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.2); z-index: 4; display: flex; flex-direction: column; gap: 10px; }
+
+/* detail */
+.hero-photos { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; height: 190px; }
+.hero-photos div { border-radius: 0; display: grid; place-items: end start; padding: 6px 8px; color: #fff; font-size: 11px; font-weight: 700; }
+.hero-photos div:first-child { grid-row: span 2; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.stat .k { font-size: 11px; color: var(--muted); }
+.stat .v { font-weight: 700; font-size: 15px; }
+.stat .sub { font-size: 11px; color: var(--muted); }
+.bars { display: flex; flex-direction: column; gap: 6px; }
+.bar { display: grid; grid-template-columns: 84px 1fr 28px; gap: 8px; align-items: center; font-size: 13px; }
+.bar .track { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--ai); border-radius: 999px; }
+.bar .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.gallery div { aspect-ratio: 1; border-radius: 8px; display: grid; place-items: end start; padding: 5px; color: #fff; font-size: 10px; font-weight: 700; }
+.visit { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.visit .who { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--ai-soft); color: var(--ai); display: grid; place-items: center; font-weight: 700; font-size: 12px; flex: none; }
+.visit p { margin: 0; font-size: 14px; }
+.sticky-actions { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 16px; display: flex; gap: 8px; z-index: 2; }
+.sticky-actions .btn { flex: 1; }
+
+.suggest { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.suggest button { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: var(--surface); padding: 10px 12px; }
+.suggest button:last-child { border-bottom: 0; }
+.suggest button small { display: block; color: var(--muted); font-size: 12px; }
+.notice { background: var(--warn-soft); color: var(--warn); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+.notice.info { background: var(--ai-soft); color: var(--ai); }
+
+.modal-bg { position: absolute; inset: 0; background: rgba(10, 15, 25, .45); z-index: 10; display: flex; align-items: flex-end; }
+.modal { background: var(--surface); width: 100%; border-radius: 18px 18px 0 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 80%; overflow-y: auto; }
+.modal h3 { margin: 0; font-size: 16px; }
+.check { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+.check input { width: 18px; height: 18px; accent-color: var(--ai); }
+.check .lname { flex: 1; }
+.lock { font-size: 11px; color: var(--muted); }
+
+.toast { position: absolute; left: 50%; bottom: 76px; transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 8px 14px; border-radius: 999px; font-size: 13px; z-index: 20; white-space: nowrap; }
+
+.auth { padding: 32px 24px; display: flex; flex-direction: column; gap: 18px; }
+.auth .big { font-family: var(--font-display); font-size: 30px; color: var(--ai); line-height: 1.2; margin: 24px 0 0; }
+.auth .big b { color: var(--shu); font-weight: 400; }
+.auth .lead { color: var(--muted); margin: 0; font-size: 14px; }
+.linkish { color: var(--ai); background: none; border: 0; padding: 0; text-decoration: underline; font-size: 14px; }
+.member-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.member-row .role { margin-left: auto; font-size: 12px; color: var(--muted); }
+.note-line { font-size: 12px; color: var(--muted); background: var(--surface-2); border-radius: 8px; padding: 6px 8px; }
+@media (prefers-reduced-motion: no-preference) { .sheet, .modal { animation: up .18s ease-out; } @keyframes up { from { transform: translateY(12px); opacity: .6; } to { transform: none; opacity: 1; } } }
+</style>
+</head>
+<body>
+<aside class="notes">
+  <h1>PEショップログ</h1>
+  <p>画面遷移を確認するためのモックです。データは架空の例で、保存はされません。気になる点はそのままチャットで指摘してください。</p>
+  <nav id="jump" aria-label="画面一覧"></nav>
+  <p>マップでは、朱色のピンが行った記録のある店、藍色のピンが「気になる」だけの店です。オレンジの小さな丸はGoogleの店舗アイコン（未登録）を表しています。</p>
+</aside>
+
+<div class="phone" id="phone">
+  <div class="topbar" id="topbar"></div>
+  <div class="screen" id="screen"></div>
+  <nav class="tabbar" id="tabbar" aria-label="メインメニュー"></nav>
+</div>
+
+<script>
+const PHOTO = {
+  food: "linear-gradient(135deg,#c8553d,#e79a56)",
+  seat: "linear-gradient(135deg,#5a4a3a,#a08463)",
+  menu: "linear-gradient(135deg,#3d5a80,#7d9cc4)",
+  exterior: "linear-gradient(135deg,#3f6b4f,#86ad8f)",
+};
+const PHOTO_LABEL = { food: "料理", seat: "席", menu: "メニュー", exterior: "外観" };
+
+const SHOPS = [
+  { id: "torikizoku", name: "炭火やきとり ひの字", genre: "焼き鳥・串", styles: ["大衆居酒屋", "個室あり"], x: 34, y: 38, smoking: "加熱式のみ", price: "3,000〜4,999", visits: 4, max: 24,
+    purposes: [["打ち上げ", 2], ["同期のみ", 1], ["チーム会議", 1]], reservation: [["予約した", 3], ["予約なしで入れた", 1]], pay: ["クレジットカード", "QR決済"],
+    smokeBreak: [["加熱式のみ", 3], ["喫煙可", 1]], photos: ["food", "seat", "menu", "food", "exterior"], ref: "hotpepper.jp/…",
+    log: [
+      { who: "たなか", date: "2026-10-24", purpose: "打ち上げ", smoking: "加熱式のみ", price: "3,000〜4,999", size: 18, text: "つくねとレバーが当たり。2階の座敷は18人でぎりぎり。紙巻きは外の灰皿まで行く必要あり。" },
+      { who: "すずき", date: "2026-09-12", purpose: "同期のみ", smoking: "加熱式のみ", price: "3,000〜4,999", size: 4, text: "ハイボールが安い。手羽先はいまいち。" },
+    ] },
+  { id: "rairai", name: "中華食堂 来々軒", genre: "中華", styles: ["大衆居酒屋"], x: 62, y: 30, smoking: "喫煙可", price: "〜2,999", visits: 2, max: 8,
+    purposes: [["チーム会議", 1], ["プライベート", 1]], reservation: [["予約なしで入れた", 2]], pay: ["現金のみ"],
+    smokeBreak: [["喫煙可", 2]], photos: ["food", "menu"], ref: "",
+    log: [{ who: "やまだ", date: "2026-10-02", purpose: "チーム会議", smoking: "喫煙可", price: "〜2,999", size: 6, text: "餃子と麻婆豆腐。全席喫煙なので吸わない人がいるときは注意。" }] },
+  { id: "bar-k", name: "Bar 灯", genre: "その他", styles: ["バー"], x: 50, y: 60, smoking: "分煙・喫煙室あり", price: "5,000〜6,999", visits: 3, max: 12,
+    purposes: [["打ち上げ", 2], ["接待", 1]], reservation: [["予約した", 2], ["不明", 1]], pay: ["クレジットカード"],
+    smokeBreak: [["分煙・喫煙室あり", 3]], photos: ["seat", "exterior", "menu"], ref: "bar-akari.example",
+    log: [{ who: "さとう", date: "2026-10-18", purpose: "打ち上げ", smoking: "分煙・喫煙室あり", price: "5,000〜6,999", size: 12, text: "2次会で12人、奥のソファ席を確保してもらえた。カクテルが丁寧。" }] },
+  { id: "kaisen", name: "海鮮酒場 しおさい", genre: "寿司・海鮮", styles: ["居酒屋"], x: 24, y: 66, smoking: "不明", price: "不明", visits: 0, max: null,
+    purposes: [], reservation: [], pay: [], smokeBreak: [], photos: [], ref: "", log: [] },
+  { id: "motsu", name: "もつ鍋 まる", genre: "鍋", styles: ["居酒屋", "個室あり"], x: 74, y: 52, smoking: "禁煙", price: "5,000〜6,999", visits: 1, max: 10,
+    purposes: [["歓送迎会", 1]], reservation: [["予約した", 1]], pay: ["クレジットカード", "交通系IC"],
+    smokeBreak: [["禁煙", 1]], photos: ["food", "seat"], ref: "",
+    log: [{ who: "たなか", date: "2026-08-29", purpose: "歓送迎会", smoking: "禁煙", price: "5,000〜6,999", size: 10, text: "個室で10人。〆のちゃんぽんまで食べて満腹。" }] },
+  { id: "spice", name: "スパイスカレー 夜鳴き", genre: "カレー", styles: ["その他"], x: 44, y: 22, smoking: "不明", price: "不明", visits: 0, max: null,
+    purposes: [], reservation: [], pay: [], smokeBreak: [], photos: [], ref: "", log: [] },
+];
+const POIS = [
+  { x: 56, y: 44, name: "鉄板焼 ふじ", sub: "東京都千代田区…" },
+  { x: 30, y: 52, name: "立ち飲み いっぽ", sub: "東京都千代田区…" },
+  { x: 68, y: 72, name: "韓国料理 ソウル家", sub: "東京都千代田区…" },
+  { x: 80, y: 36, name: "ビストロ ルポ", sub: "東京都千代田区…" },
+];
+
+const state = {
+  myLists: [
+    { id: "want", name: "気になる", kind: "気になる", public: false, def: true, shops: ["kaisen", "spice"] },
+    { id: "fav", name: "お気に入り", kind: "お気に入り", public: false, def: true, shops: ["torikizoku"] },
+    { id: "nijikai", name: "2次会向き", kind: "お気に入り", public: true, def: false, shops: ["bar-k", "torikizoku"] },
+  ],
+  shared: [
+    { id: "teamq4", name: "Q4 打ち上げ候補", desc: "開発チーム 15人前後・喫煙者あり", public: false, owner: "あなた",
+      members: [["あなた", "オーナー"], ["たなか", "メンバー"], ["すずき", "メンバー"]],
+      items: [["torikizoku", "たなか", "2階座敷で18人まで"], ["motsu", "あなた", "個室あるけど禁煙"], ["kaisen", "すずき", "まだ誰も行ってない"]] },
+  ],
+  publicLists: [
+    { id: "tanaka-smoke", name: "吸える店まとめ", by: "たなか", kind: "マイリスト・お気に入り", count: 7 },
+    { id: "nijikai", name: "2次会向き", by: "あなた", kind: "マイリスト・お気に入り", count: 2 },
+    { id: "lunch", name: "新橋 気になる開拓", by: "すずき", kind: "マイリスト・気になる", count: 11 },
+    { id: "sales", name: "接待で外さない店", by: "営業有志", kind: "共有リスト・メンバー5人", count: 6 },
+  ],
+  mapFilter: [],
+  mapSelect: null,
+  newStep: "search",
+  newPick: null,
+  searchTab: "shops",
+  meTab: "lists",
+  visitDraft: {},
+  signup: false,
+};
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const shopById = (id) => SHOPS.find((s) => s.id === id);
+const inKind = (shopId, kind) => state.myLists.some((l) => l.kind === kind && l.shops.includes(shopId));
+
+const ICONS = {
+  map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>',
+  me: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+};
+
+const SCREENS = [
+  ["login", "ログイン・新規登録"],
+  ["map", "マップ"],
+  ["search", "さがす（お店／リスト）"],
+  ["new", "＋登録"],
+  ["shop-torikizoku", "店の詳細（記録あり）"],
+  ["shop-kaisen", "店の詳細（気になるだけ）"],
+  ["visit-torikizoku", "行った記録を付ける"],
+  ["me", "マイページ"],
+  ["shared-teamq4", "共有リスト"],
+  ["invite", "招待リンクを開いたとき"],
+];
+
+function smokeClass(v) { return v === "禁煙" ? "smoke-no" : v === "不明" ? "" : "smoke-ok"; }
+function shopPills(s) {
+  const p = [];
+  if (s.visits === 0) p.push('<span class="pill want">気になる（未訪問）</span>');
+  p.push(`<span class="pill ${smokeClass(s.smoking)}">${s.smoking === "不明" ? "喫煙 不明" : esc(s.smoking)}</span>`);
+  if (s.price !== "不明") p.push(`<span class="pill price">¥${esc(s.price)}</span>`);
+  return `<div class="pills">${p.join("")}</div>`;
+}
+function thumb(s) {
+  const k = s.photos[0];
+  return k ? `<div class="thumb" style="background:${PHOTO[k]}">${PHOTO_LABEL[k]}</div>`
+           : `<div class="thumb" style="background:var(--surface-2);color:var(--muted);place-items:center;padding:0">写真なし</div>`;
+}
+function shopCard(s) {
+  return `<a class="card" href="#shop-${s.id}">${thumb(s)}<div class="body"><div class="name">${esc(s.name)}</div>
+    <div class="meta">${esc(s.genre)}・${esc(s.styles.join("・"))}・記録 ${s.visits}件</div>${shopPills(s)}</div></a>`;
+}
+
+function setTop(html) { $("#topbar").innerHTML = html; }
+function setTabs(active) {
+  const tabs = [["map", "マップ", ICONS.map], ["search", "さがす", ICONS.search], ["new", "登録", ""], ["me", "マイページ", ICONS.me]];
+  $("#tabbar").style.display = active === null ? "none" : "grid";
+  $("#tabbar").innerHTML = tabs.map(([k, l, ic]) => k === "new"
+    ? `<a href="#new" class="add ${active === k ? "on" : ""}"><span class="plus">＋</span>${l}</a>`
+    : `<a href="#${k}" class="${active === k ? "on" : ""}">${ic}${l}</a>`).join("");
+}
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; t.setAttribute("role", "status");
+  $("#phone").appendChild(t); setTimeout(() => t.remove(), 1800);
+}
+
+/* ---------- screens ---------- */
+function renderLogin() {
+  setTabs(null); setTop("");
+  $("#topbar").style.display = "none";
+  const s = state.signup;
+  $("#screen").innerHTML = `<form class="auth" id="authform">
+    <p class="big">PE<b>ショップ</b>ログ</p>
+    <p class="lead">社内のみんなで作る、お店の記録帳。</p>
+    <div class="seg" role="tablist"><button type="button" class="${s ? "" : "on"}" data-auth="0">ログイン</button><button type="button" class="${s ? "on" : ""}" data-auth="1">新規登録</button></div>
+    <div class="field"><label for="uid">ユーザーID</label><input class="input" id="uid" value="${s ? "" : "hiro_k"}" placeholder="半角英小文字・数字・_ で3〜20文字" autocomplete="username"></div>
+    ${s ? `<div class="field"><label for="nick">ニックネーム</label><input class="input" id="nick" placeholder="みんなに表示される名前"></div>` : ""}
+    <div class="field"><label for="pw">パスワード</label><input class="input" id="pw" type="password" value="${s ? "" : "password"}" placeholder="8文字以上" autocomplete="${s ? "new-password" : "current-password"}"></div>
+    ${s ? `<div class="field"><label for="pass">合言葉</label><input class="input" id="pass" placeholder="いつもの2文字を入れてね" autocomplete="off"><span class="hint">社内の人ならわかるはず。大文字・小文字はどちらでもOK。</span></div>` : ""}
+    <button class="btn primary" type="submit">${s ? "登録してはじめる" : "ログイン"}</button>
+    ${s ? "" : `<p class="lead" style="font-size:12px">パスワードを忘れたら管理者に仮パスワードを発行してもらってください。</p>`}
+  </form>`;
+  document.querySelectorAll("[data-auth]").forEach((b) => b.onclick = () => { state.signup = b.dataset.auth === "1"; renderLogin(); });
+  $("#authform").onsubmit = (e) => {
+    e.preventDefault();
+    if (state.signup) {
+      const v = $("#pass").value.trim().toLowerCase();
+      if (v !== "pe") { toast("合言葉が違います"); return; }
+    }
+    location.hash = "map";
+  };
+}
+
+function mapSvg() {
+  return `<svg class="base" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <rect width="100" height="100" fill="var(--map-land)"/>
+    <path d="M0 84 C 20 78, 40 92, 60 86 S 90 80, 100 84 V100 H0Z" fill="var(--map-water)"/>
+    <rect x="6" y="6" width="18" height="14" rx="2" fill="var(--map-park)"/>
+    <rect x="78" y="60" width="16" height="12" rx="2" fill="var(--map-park)"/>
+    <g stroke="var(--map-road)" stroke-linecap="round">
+      <path d="M0 44 H100" stroke-width="3.2"/><path d="M40 0 V100" stroke-width="3.2"/>
+      <path d="M0 26 H100 M0 62 H100 M18 0 V100 M64 0 V100 M86 0 V100" stroke-width="1.4"/>
+      <path d="M0 10 L100 74" stroke-width="2"/>
+    </g>
+    <text x="42" y="42" font-size="2.4" fill="var(--muted)">外堀通り</text>
+    <text x="88" y="98" font-size="2.4" fill="var(--muted)" text-anchor="end">新橋駅 →</text>
+  </svg>`;
+}
+function mapShops() {
+  const f = state.mapFilter;
+  return SHOPS.filter((s) => {
+    if (f.includes("want") && s.visits !== 0) return false;
+    if (f.includes("smoke") && !["喫煙可", "加熱式のみ", "分煙・喫煙室あり"].includes(s.smoking)) return false;
+    if (f.includes("party") && !s.purposes.some(([p]) => p === "打ち上げ")) return false;
+    return true;
+  });
+}
+function renderMap() {
+  setTabs("map");
+  setTop(`<span class="logo">PE<b>ショップ</b>ログ</span><span style="flex:1"></span><a class="iconbtn" href="#login">ログアウト</a>`);
+  const f = state.mapFilter;
+  const chip = (k, l) => `<button class="chip ${f.includes(k) ? "on" : ""}" data-f="${k}">${l}</button>`;
+  const sel = state.mapSelect;
+  let sheet = "";
+  if (sel && sel.type === "shop") {
+    const s = shopById(sel.id);
+    sheet = `<div class="sheet"><div style="display:flex;gap:12px">${thumb(s)}<div class="body" style="flex:1;display:flex;flex-direction:column;gap:4px">
+      <div class="name" style="font-weight:700">${esc(s.name)}</div><div class="meta">${esc(s.genre)}・記録 ${s.visits}件</div>${shopPills(s)}</div></div>
+      <div class="row"><a class="btn small primary" href="#shop-${s.id}">詳しく見る</a><button class="btn small" data-close>閉じる</button></div></div>`;
+  } else if (sel && sel.type === "poi") {
+    const p = POIS[sel.i];
+    sheet = `<div class="sheet"><div><div style="font-weight:700">${esc(p.name)}</div><div class="meta">${esc(p.sub)}・まだ誰も登録していません</div></div>
+      <div class="row"><a class="btn small accent" href="#new" data-poi="${sel.i}">この店を登録</a><button class="btn small" data-close>閉じる</button></div></div>`;
+  }
+  $("#screen").innerHTML = `<div class="map">${mapSvg()}
+    <div class="overlay-top"><a class="search-fake" href="#search" style="text-decoration:none">店名・ジャンルでさがす</a>
+      <div class="chips scroll">${chip("smoke", "吸える")}${chip("party", "打ち上げ実績")}${chip("want", "気になるだけ")}<button class="chip filter">ジャンル</button><button class="chip filter">値段感</button><button class="chip filter">用途</button></div></div>
+    ${POIS.map((p, i) => `<button class="poi" style="left:${p.x}%;top:${p.y}%" data-poi-i="${i}" aria-label="${esc(p.name)}（未登録）"><b>食</b>${esc(p.name)}</button>`).join("")}
+    ${mapShops().map((s) => `<button class="pin ${s.visits ? "visited" : "want"}" style="left:${s.x}%;top:${s.y}%" data-shop="${s.id}" aria-label="${esc(s.name)}"><span><i>${s.visits || "?"}</i></span></button>`).join("")}
+    ${sheet ? "" : `<div class="legend"><span><i style="background:var(--shu)"></i>記録あり（数字は件数）</span><span><i style="background:var(--ai)"></i>気になる</span></div>`}
+    ${sheet}</div>`;
+  document.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { const k = b.dataset.f; state.mapFilter = f.includes(k) ? f.filter((x) => x !== k) : [...f, k]; state.mapSelect = null; renderMap(); });
+  document.querySelectorAll("[data-shop]").forEach((b) => b.onclick = () => { state.mapSelect = { type: "shop", id: b.dataset.shop }; renderMap(); });
+  document.querySelectorAll("[data-poi-i]").forEach((b) => b.onclick = () => { state.mapSelect = { type: "poi", i: +b.dataset.poiI }; renderMap(); });
+  document.querySelectorAll("[data-close]").forEach((b) => b.onclick = () => { state.mapSelect = null; renderMap(); });
+  document.querySelectorAll("[data-poi]").forEach((b) => b.onclick = () => { const p = POIS[+b.dataset.poi]; state.newStep = "form"; state.newPick = { name: p.name, sub: p.sub }; });
+}
+
+function renderSearch() {
+  setTabs("search"); setTop(`<h2>さがす</h2>`);
+  const t = state.searchTab;
+  const body = t === "shops"
+    ? `<input class="input" placeholder="店名でさがす" aria-label="店名でさがす">
+       <div class="chips scroll"><button class="chip filter on">喫煙: 吸える</button><button class="chip filter">ジャンル</button><button class="chip filter">値段感</button><button class="chip filter">用途</button><button class="chip">気になるだけ</button></div>
+       <p class="section-title"><span>${SHOPS.length}件</span><span>新着順 ▾</span></p>
+       ${SHOPS.map(shopCard).join("")}`
+    : `<input class="input" placeholder="リスト名でさがす" aria-label="リスト名でさがす">
+       <p class="section-title"><span>公開されているリスト</span><span>更新順 ▾</span></p>
+       ${state.publicLists.map((l) => `<a class="card" href="${l.id === "nijikai" ? "#list-nijikai" : "#search"}"><div class="body"><div class="name">${esc(l.name)}</div>
+         <div class="meta">${esc(l.by)}・${l.count}店</div><div class="pills"><span class="pill ${l.kind.startsWith("共有") ? "want" : ""}">${esc(l.kind)}</span></div></div></a>`).join("")}`;
+  $("#screen").innerHTML = `<div class="pad"><div class="seg"><button class="${t === "shops" ? "on" : ""}" data-t="shops">お店</button><button class="${t === "lists" ? "on" : ""}" data-t="lists">リスト</button></div>${body}</div>`;
+  document.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { state.searchTab = b.dataset.t; renderSearch(); });
+}
+
+function chipGroup(name, options, multi) {
+  const cur = state.visitDraft[name] || (multi ? [] : null);
+  return `<div class="chips" role="group">${options.map((o) => {
+    const on = multi ? cur.includes(o) : cur === o;
+    return `<button type="button" class="chip ${on ? "on" : ""}" data-g="${name}" data-v="${esc(o)}" data-m="${multi ? 1 : 0}" aria-pressed="${on}">${esc(o)}</button>`;
+  }).join("")}</div>`;
+}
+function bindChips(rerender) {
+  document.querySelectorAll("[data-g]").forEach((b) => b.onclick = () => {
+    const g = b.dataset.g, v = b.dataset.v, d = state.visitDraft;
+    if (b.dataset.m === "1") { const a = d[g] || []; d[g] = a.includes(v) ? a.filter((x) => x !== v) : [...a, v]; }
+    else d[g] = d[g] === v ? null : v;
+    rerender();
+  });
+}
+
+function renderNew() {
+  setTabs("new");
+  if (state.newStep === "search") {
+    setTop(`<h2>お店を登録</h2>`);
+    $("#screen").innerHTML = `<div class="pad">
+      <div class="field"><label for="q">店名でさがす</label><input class="input" id="q" value="しおさ" autocomplete="off"><span class="hint">Googleマップの店舗から選ぶと、店名と場所が自動で入ります。</span></div>
+      <div class="suggest">
+        <button data-pick="海鮮酒場 しおさい|東京都港区新橋2丁目">海鮮酒場 しおさい<small>東京都港区新橋2丁目</small></button>
+        <button data-pick="しおさい食堂|東京都港区西新橋1丁目">しおさい食堂<small>東京都港区西新橋1丁目</small></button>
+        <button data-pick="潮騒バル|東京都千代田区内幸町1丁目">潮騒バル<small>東京都千代田区内幸町1丁目</small></button>
+      </div>
+      <button class="linkish" data-manual>候補にない店を手入力する（地図で場所を指定）</button></div>`;
+    document.querySelectorAll("[data-pick]").forEach((b) => b.onclick = () => {
+      const [name, sub] = b.dataset.pick.split("|");
+      if (name === "海鮮酒場 しおさい") { toast("すでに登録されています"); location.hash = "shop-kaisen"; return; }
+      state.newPick = { name, sub }; state.newStep = "form"; renderNew();
+    });
+    $("[data-manual]").onclick = () => { state.newPick = { name: "", sub: "地図で指定した場所" }; state.newStep = "form"; renderNew(); };
+    return;
+  }
+  const p = state.newPick || { name: "", sub: "" };
+  setTop(`<button class="iconbtn" data-back>← 戻る</button><h2>お店を登録</h2>`);
+  $("#screen").innerHTML = `<div class="pad">
+    <div class="notice info">${esc(p.sub)}</div>
+    <div class="field"><label for="nm">店名（必須）</label><input class="input" id="nm" value="${esc(p.name)}"></div>
+    <div class="field"><span class="label">ジャンル</span>${chipGroup("genre", ["和食", "寿司・海鮮", "焼肉・ホルモン", "焼き鳥・串", "鍋", "中華", "韓国", "アジア・エスニック", "イタリアン", "フレンチ・ビストロ", "洋食", "ラーメン", "カレー", "カフェ", "その他"], false)}<span class="hint">選ばなければ「不明」になります。</span></div>
+    <div class="field"><span class="label">店の形態（複数可）</span>${chipGroup("styles", ["大衆居酒屋", "居酒屋", "ダイニングバー", "バー", "立ち飲み", "個室あり", "カラオケ", "その他"], true)}</div>
+    <div class="field"><label for="ref">予約・参考リンク</label><input class="input" id="ref" placeholder="ホットペッパーや食べログのURL（任意）"></div>
+    <div class="row"><button class="btn want" data-save="want">気になるで登録</button><button class="btn accent" data-save="visit">行った記録を付ける</button></div>
+    <p class="meta" style="margin:0">「気になるで登録」は、自分の「気になる」リストにも追加します。</p></div>`;
+  bindChips(renderNew);
+  $("[data-back]").onclick = () => { state.newStep = "search"; renderNew(); };
+  document.querySelectorAll("[data-save]").forEach((b) => b.onclick = () => {
+    state.newStep = "search"; state.visitDraft = {};
+    if (b.dataset.save === "want") { toast("気になるに登録しました"); location.hash = "shop-kaisen"; } else location.hash = "visit-kaisen";
+  });
+}
+
+function bars(list) {
+  if (!list.length) return `<p class="meta" style="margin:0">まだ記録がありません</p>`;
+  const max = Math.max(...list.map(([, n]) => n));
+  return `<div class="bars">${list.map(([k, n]) => `<div class="bar"><span>${esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${(n / max) * 100}%"></span></span><span class="n">${n}</span></div>`).join("")}</div>`;
+}
+function renderShop(id) {
+  const s = shopById(id); if (!s) return renderMap();
+  setTabs(null);
+  setTop(`<a class="iconbtn" href="#map">← 戻る</a><h2>${esc(s.name)}</h2><button class="iconbtn" data-edit>編集</button>`);
+  const want = inKind(s.id, "気になる"), fav = inKind(s.id, "お気に入り");
+  const photos = s.photos.length
+    ? `<div class="hero-photos">${s.photos.slice(0, 3).map((k) => `<div style="background:${PHOTO[k]}">${PHOTO_LABEL[k]}</div>`).join("")}</div>`
+    : `<div style="height:120px;background:var(--surface-2);display:grid;place-items:center;color:var(--muted);font-size:13px">写真はまだありません。行った人が追加できます。</div>`;
+  $("#screen").innerHTML = `${photos}<div class="pad">
+    <div style="display:flex;flex-direction:column;gap:6px"><div class="meta">${esc(s.genre)}・${esc(s.styles.join("・"))}</div>${shopPills(s)}</div>
+    <div class="row"><button class="btn small want ${want ? "on" : ""}" data-pick-list="気になる">${want ? "★" : "☆"} 気になる</button><button class="btn small ${fav ? "on" : ""}" data-pick-list="お気に入り">${fav ? "♥" : "♡"} お気に入り</button><button class="btn small" data-pick-list="all">＋ リスト</button></div>
+    <div class="row"><button class="btn small" data-web>🌐 公式サイト</button><a class="btn small" href="#shop-${s.id}" data-gmap>Googleマップで開く</a></div>
+    ${s.ref ? `<div class="meta">予約・参考リンク: <a href="#shop-${s.id}" style="color:var(--ai)">${esc(s.ref)}</a></div>` : ""}
+    ${s.visits === 0 ? `<div class="notice info">まだ誰も行っていない「気になる」店です。行ったら記録を付けてみんなに教えてください。</div>` : `
+    <div class="stats">
+      <div class="stat"><span class="k">喫煙（最新の記録）</span><span class="v">${esc(s.smoking)}</span><span class="sub">${s.smokeBreak.map(([k, n]) => `${k} ${n}件`).join("・")}</span></div>
+      <div class="stat"><span class="k">値段感（1人あたり）</span><span class="v">¥${esc(s.price)}</span><span class="sub">いちばん多い回答</span></div>
+      <div class="stat"><span class="k">最大人数の実績</span><span class="v">${s.max}人</span></div>
+      <div class="stat"><span class="k">支払い</span><span class="v" style="font-size:13px">${esc(s.pay.join("・"))}</span></div>
+    </div>
+    <div class="field"><p class="section-title">使った用途</p>${bars(s.purposes)}</div>
+    <div class="field"><p class="section-title">予約</p>${bars(s.reservation)}</div>
+    <div class="field"><p class="section-title"><span>写真</span><span>${s.photos.length}枚</span></p>
+      <div class="chips scroll"><button class="chip on">すべて</button><button class="chip">料理</button><button class="chip">席</button><button class="chip">メニュー</button><button class="chip">外観</button></div>
+      <div class="gallery">${s.photos.map((k) => `<div style="background:${PHOTO[k]}">${PHOTO_LABEL[k]}</div>`).join("")}</div></div>`}
+    <div class="field"><p class="section-title"><span>行った記録</span><span>${s.visits}件</span></p>
+      ${s.log.map((v) => `<div class="visit"><div class="who"><span class="avatar">${esc(v.who[0])}</span><b>${esc(v.who)}</b><span class="meta">${v.date}・${v.size}人</span></div>
+        <div class="pills"><span class="pill">${esc(v.purpose)}</span><span class="pill ${smokeClass(v.smoking)}">${esc(v.smoking)}</span><span class="pill price">¥${esc(v.price)}</span></div><p>${esc(v.text)}</p></div>`).join("")}
+    </div></div>
+    <div class="sticky-actions"><a class="btn accent" href="#visit-${s.id}">行った記録を付ける</a></div>`;
+  document.querySelectorAll("[data-pick-list]").forEach((b) => b.onclick = () => openListPicker(s.id, b.dataset.pickList));
+  $("[data-web]").onclick = () => toast(s.id === "rairai" ? "サイト情報がありません" : "公式サイトを開きます（タップ時だけ取得）");
+  $("[data-gmap]").onclick = (e) => { e.preventDefault(); toast("Googleマップアプリで開きます"); };
+  $("[data-edit]").onclick = () => toast("店名・ジャンル・形態・参考リンクはだれでも編集できます");
+}
+
+function openListPicker(shopId, kind) {
+  const lists = kind === "all" ? state.myLists : state.myLists.filter((l) => l.kind === kind);
+  const shared = kind === "all" ? state.shared : [];
+  const bg = document.createElement("div"); bg.className = "modal-bg";
+  bg.innerHTML = `<div class="modal" role="dialog" aria-label="リストに追加"><h3>${kind === "all" ? "リストに追加" : `「${kind}」のリストに追加`}</h3>
+    <div>${lists.map((l) => `<label class="check"><input type="checkbox" data-l="${l.id}" ${l.shops.includes(shopId) ? "checked" : ""}><span class="lname">${esc(l.name)}${l.def ? '<span class="lock">（既定）</span>' : ""}</span><span class="lock">${l.public ? "公開" : "非公開"}</span></label>`).join("")}
+    ${shared.length ? `<p class="section-title" style="margin-top:12px">共有リスト</p>` + shared.map((l) => `<label class="check"><input type="checkbox" ${l.items.some(([id]) => id === shopId) ? "checked" : ""}><span class="lname">${esc(l.name)}</span><span class="lock">メンバー${l.members.length}人</span></label>`).join("") : ""}</div>
+    <button class="linkish" style="align-self:flex-start">＋ 新しいリストを作る</button>
+    <button class="btn primary" data-done>完了</button></div>`;
+  $("#phone").appendChild(bg);
+  bg.querySelectorAll("[data-l]").forEach((c) => c.onchange = () => {
+    const l = state.myLists.find((x) => x.id === c.dataset.l);
+    l.shops = c.checked ? [...l.shops, shopId] : l.shops.filter((x) => x !== shopId);
+  });
+  bg.querySelector("[data-done]").onclick = () => { bg.remove(); renderShop(shopId); toast("リストを更新しました"); };
+  bg.onclick = (e) => { if (e.target === bg) { bg.remove(); renderShop(shopId); } };
+}
+
+function renderVisit(id) {
+  const s = shopById(id) || SHOPS[0];
+  setTabs(null);
+  setTop(`<a class="iconbtn" href="#shop-${s.id}">← 戻る</a><h2>行った記録</h2>`);
+  const rerender = () => { const y = $("#screen").scrollTop; renderVisit(id); $("#screen").scrollTop = y; };
+  $("#screen").innerHTML = `<div class="pad">
+    <div><div style="font-weight:700">${esc(s.name)}</div><div class="meta">選ばなかった項目は「不明」として保存されます。</div></div>
+    <div class="field"><label for="vd">行った日</label><input class="input" id="vd" type="date" value="2026-10-31"></div>
+    <div class="field"><span class="label">喫煙（行ったときの状況）</span>${chipGroup("smoking", ["喫煙可", "分煙・喫煙室あり", "加熱式のみ", "禁煙"], false)}</div>
+    <div class="field"><span class="label">値段感（1人あたり）</span>${chipGroup("price", ["〜2,999", "3,000〜4,999", "5,000〜6,999", "7,000〜9,999", "10,000〜"], false)}</div>
+    <div class="field"><span class="label">用途（実際に使ったもの）</span>${chipGroup("purpose", ["チーム会議", "社員総会", "打ち上げ", "歓送迎会", "同期のみ", "接待", "プライベート", "その他"], false)}</div>
+    <div class="field"><label for="ps">人数</label><input class="input" id="ps" inputmode="numeric" placeholder="何人で行ったか（任意）" style="max-width:160px"></div>
+    <div class="field"><span class="label">予約</span>${chipGroup("resv", ["予約した", "予約なしで入れた"], false)}</div>
+    <div class="field"><span class="label">支払い方法（複数可）</span>${chipGroup("pay", ["クレジットカード", "QR決済", "交通系IC", "現金のみ"], true)}</div>
+    <div class="field"><label for="cm">コメント</label><textarea class="input" id="cm" placeholder="おすすめの料理、いまいちだった点など（1,000文字まで）"></textarea></div>
+    <div class="field"><span class="label">写真（10枚まで）</span>
+      <div class="gallery">
+        <div style="background:${PHOTO.food}">料理 ✓</div>
+        <div style="background:${PHOTO.seat}">席 ✓</div>
+        <div style="background:var(--shu-soft);color:var(--shu);place-items:center;text-align:center;font-size:11px">送信できませんでした<br><button class="btn small" style="margin-top:4px" data-retry>再送</button></div>
+        <label style="border:1.5px dashed var(--line);color:var(--muted);display:grid;place-items:center;aspect-ratio:1;border-radius:8px;font-size:12px;cursor:pointer">＋ 追加<input type="file" accept="image/*" multiple hidden></label>
+      </div><span class="hint">写真ごとに種類（メニュー・席・料理・外観・その他）を選べます。撮影場所の情報は自動で消えます。</span></div>
+    <button class="btn accent" data-save>記録を保存</button></div>`;
+  bindChips(rerender);
+  $("[data-retry]").onclick = () => toast("再送しました");
+  $("[data-save]").onclick = () => { state.visitDraft = {}; toast("記録を保存しました"); location.hash = `shop-${s.id}`; };
+}
+
+function renderMe() {
+  setTabs("me"); setTop(`<h2>マイページ</h2><span class="meta">hiro_k</span>`);
+  const t = state.meTab;
+  let body = "";
+  if (t === "lists") body = `<p class="section-title"><span>マイリスト</span><button class="linkish">＋ 新しいリスト</button></p>
+    ${state.myLists.map((l) => `<a class="card" href="#list-${l.id}"><div class="body"><div class="name">${esc(l.name)}</div><div class="meta">${l.kind}・${l.shops.length}店</div>
+      <div class="pills"><span class="pill ${l.public ? "want" : ""}">${l.public ? "公開" : "非公開"}</span>${l.def ? '<span class="pill">既定</span>' : ""}</div></div></a>`).join("")}`;
+  if (t === "shared") body = `<p class="section-title"><span>参加中の共有リスト</span><button class="linkish">＋ 共有リストを作る</button></p>
+    ${state.shared.map((l) => `<a class="card" href="#shared-${l.id}"><div class="body"><div class="name">${esc(l.name)}</div><div class="meta">${esc(l.desc)}</div>
+      <div class="pills"><span class="pill want">メンバー${l.members.length}人</span><span class="pill">${l.items.length}店</span><span class="pill">${l.public ? "公開" : "メンバーのみ"}</span></div></div></a>`).join("")}`;
+  if (t === "logs") body = `${[SHOPS[0], SHOPS[4]].map((s) => `<a class="card" href="#shop-${s.id}">${thumb(s)}<div class="body"><div class="name">${esc(s.name)}</div><div class="meta">2026-10-24・打ち上げ</div><div class="meta">「つくねとレバーが当たり。」</div></div></a>`).join("")}`;
+  if (t === "account") body = `<div class="field"><label for="nn">ニックネーム</label><input class="input" id="nn" value="ひろ"></div>
+    <button class="btn">パスワードを変更</button><a class="btn" href="#login">ログアウト</a>
+    <p class="section-title" style="margin-top:8px">管理者メニュー</p>
+    <div class="card"><div class="body"><div class="name">管理画面</div><div class="meta">合言葉の変更、仮パスワードの発行、ユーザーの停止、投稿の削除</div></div></div>`;
+  $("#screen").innerHTML = `<div class="pad"><div class="seg">
+    ${[["lists", "マイリスト"], ["shared", "共有リスト"], ["logs", "自分の記録"], ["account", "アカウント"]].map(([k, l]) => `<button class="${t === k ? "on" : ""}" data-me="${k}">${l}</button>`).join("")}</div>${body}</div>`;
+  document.querySelectorAll("[data-me]").forEach((b) => b.onclick = () => { state.meTab = b.dataset.me; renderMe(); });
+}
+
+function renderList(id) {
+  const l = state.myLists.find((x) => x.id === id) || state.myLists[2];
+  setTabs(null);
+  setTop(`<a class="iconbtn" href="#me">← 戻る</a><h2>${esc(l.name)}</h2><button class="iconbtn">編集</button>`);
+  $("#screen").innerHTML = `<div class="pad"><div class="meta">ひろ のリスト・${l.kind}・${l.public ? "公開（だれでも見られます）" : "非公開（自分だけ）"}</div>
+    ${l.shops.map((sid) => shopCard(shopById(sid))).join("") || '<p class="meta">まだ店がありません</p>'}</div>`;
+}
+
+function renderShared(id) {
+  const l = state.shared.find((x) => x.id === id) || state.shared[0];
+  setTabs(null);
+  setTop(`<a class="iconbtn" href="#me">← 戻る</a><h2>${esc(l.name)}</h2><button class="iconbtn" data-menu>設定</button>`);
+  $("#screen").innerHTML = `<div class="pad">
+    <div class="meta">${esc(l.desc)}・${l.public ? "公開" : "メンバーのみ閲覧"}</div>
+    <div class="card" style="flex-direction:column;gap:8px"><div style="font-weight:700;font-size:14px">メンバーを招待</div>
+      <div class="row"><input class="input" value="https://pe-shoplog.vercel.app/invite/7f3a…c21" readonly aria-label="招待リンク" style="flex:2"><button class="btn small primary" data-copy>コピー</button></div>
+      <button class="linkish" style="align-self:flex-start;font-size:12px" data-regen>リンクを作り直す（古いリンクは使えなくなります）</button></div>
+    <p class="section-title"><span>お店</span><span>${l.items.length}店・みんなで追加できます</span></p>
+    ${l.items.map(([sid, who, note]) => `<div style="display:flex;flex-direction:column;gap:6px">${shopCard(shopById(sid))}<div class="note-line">${esc(who)}：${esc(note)}</div></div>`).join("")}
+    <p class="section-title">メンバー</p>
+    ${l.members.map(([n, r]) => `<div class="member-row"><span class="avatar">${esc(n[0])}</span>${esc(n)}<span class="role">${r}${r === "メンバー" ? ' ・<button class="linkish" style="font-size:12px">外す</button>' : ""}</span></div>`).join("")}
+  </div>`;
+  $("[data-copy]").onclick = () => toast("招待リンクをコピーしました");
+  $("[data-regen]").onclick = () => toast("新しいリンクを作りました");
+  $("[data-menu]").onclick = () => toast("名前・説明・公開設定の変更と削除（オーナーのみ）");
+}
+
+function renderInvite() {
+  setTabs(null); setTop(`<h2>共有リストへの招待</h2>`);
+  $("#screen").innerHTML = `<div class="pad" style="padding-top:40px;align-items:stretch;text-align:center">
+    <div style="font-size:13px;color:var(--muted)">ひろ さんから招待されています</div>
+    <div style="font-family:var(--font-display);font-size:24px;color:var(--ai)">Q4 打ち上げ候補</div>
+    <div class="meta">開発チーム 15人前後・喫煙者あり・メンバー3人・3店</div>
+    <a class="btn primary" href="#shared-teamq4">参加する</a>
+    <div class="notice" style="text-align:left">古いリンクを開いた場合は「この招待リンクは無効です」と表示されます。すでに参加している人は、そのままリストが開きます。</div>
+  </div>`;
+}
+
+function route() {
+  const h = (location.hash || "#map").slice(1);
+  $("#topbar").style.display = "flex";
+  document.querySelectorAll(".modal-bg").forEach((m) => m.remove());
+  document.querySelectorAll("#jump a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + h));
+  if (h === "login") return renderLogin();
+  if (h === "map") return renderMap();
+  if (h === "search") return renderSearch();
+  if (h === "new") return renderNew();
+  if (h === "me") return renderMe();
+  if (h === "invite") return renderInvite();
+  if (h.startsWith("shop-")) return renderShop(h.slice(5));
+  if (h.startsWith("visit-")) return renderVisit(h.slice(6));
+  if (h.startsWith("list-")) return renderList(h.slice(5));
+  if (h.startsWith("shared-")) return renderShared(h.slice(7));
+  renderMap();
+}
+$("#jump").innerHTML = SCREENS.map(([k, l]) => `<a href="#${k}">${l}</a>`).join("");
+window.addEventListener("hashchange", () => { $("#screen").scrollTop = 0; route(); });
+route();
+</script>
+</body>
+</html>
