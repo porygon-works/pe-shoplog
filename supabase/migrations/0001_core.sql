@@ -30,7 +30,7 @@ create trigger profiles_updated_at before update on public.profiles
 -- ---------------------------------------------------------------- shops
 create table public.shops (
   id uuid primary key default gen_random_uuid(),
-  place_id text unique,
+  place_id text,
   name text not null,
   lat double precision not null,
   lng double precision not null,
@@ -49,6 +49,9 @@ create table public.shops (
   deleted_at timestamptz
 );
 create index shops_created_by_idx on public.shops (created_by);
+-- 論理削除済みの店の place_id は再登録できるよう、生きている店だけに一意制約をかける。
+create unique index shops_place_id_live_idx on public.shops (place_id)
+  where deleted_at is null and place_id is not null;
 create trigger shops_updated_at before update on public.shops
   for each row execute function public.set_updated_at();
 

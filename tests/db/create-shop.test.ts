@@ -47,6 +47,18 @@ describe("createShop", () => {
     expect([r1.existed, r2.existed].sort()).toEqual([false, true]);
   });
 
+  it("論理削除された店の placeId は、あらためて新規登録できる", async () => {
+    const placeId = uniqueId("pl");
+    const first = await createShop(a.client, { ...base, userId: a.id, placeId });
+    const admin = await createTestUser(uniqueId("adm"), { admin: true });
+    const del = await admin.client.rpc("soft_delete_shop", { p_shop: first.shopId });
+    expect(del.error).toBeNull();
+
+    const again = await createShop(b.client, { ...base, userId: b.id, placeId });
+    expect(again.existed).toBe(false);
+    expect(again.shopId).not.toBe(first.shopId);
+  });
+
   it("placeId が null なら 2 回とも新規作成になり、location_fetched_at は null", async () => {
     const r1 = await createShop(a.client, { ...base, userId: a.id, placeId: null });
     const r2 = await createShop(a.client, { ...base, userId: a.id, placeId: null });
