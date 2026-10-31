@@ -20,6 +20,7 @@ import { NoticeToast } from "./notice-toast";
 import { PhotoGallery, type GalleryPhoto } from "./photo-gallery";
 import { ShopHeader } from "./shop-header";
 import { ShopListButtons } from "./shop-list-buttons";
+import { VisitAdminActions } from "./visit-admin-actions";
 import { VisitOwnerActions } from "./visit-owner-actions";
 import { WebsiteButton } from "./website-button";
 
@@ -160,7 +161,7 @@ export default async function ShopPage({
   return (
     <main className="flex flex-1 flex-col bg-surface">
       <NoticeToast notice={notice} />
-      <ShopHeader shopId={id} name={shop.name} />
+      <ShopHeader shopId={id} name={shop.name} isAdmin={user.isAdmin} />
 
       {heroPhotos.length > 0 ? (
         <div className="grid h-[190px] grid-cols-[2fr_1fr] grid-rows-2 gap-1">
@@ -273,7 +274,7 @@ export default async function ShopPage({
                   <span>写真</span>
                   <span>{photos.length}枚</span>
                 </h2>
-                <PhotoGallery photos={photos} />
+                <PhotoGallery photos={photos} isAdmin={user.isAdmin} />
               </section>
             )}
           </>
@@ -301,6 +302,7 @@ export default async function ShopPage({
                     {v.party_size !== null && `・${v.party_size}人`}
                   </span>
                   {v.user_id === user.id && <VisitOwnerActions visitId={v.id} />}
+                  {user.isAdmin && v.user_id !== user.id && <VisitAdminActions visitId={v.id} />}
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {v.purpose !== "unknown" && (
