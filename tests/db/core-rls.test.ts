@@ -25,7 +25,7 @@ describe("認証設定", () => {
       email: `${uniqueId("s")}@${AUTH_EMAIL_DOMAIN}`,
       password: "test-password-1234",
     });
-    expect(error).not.toBeNull();
+    expect(error?.code).toBe("signup_disabled");
     expect(data.user).toBeNull();
   });
 
@@ -134,6 +134,7 @@ describe("visits", () => {
       .select("id");
     expect(upd.data ?? []).toHaveLength(0);
     const del = await b.client.from("visits").delete().eq("id", visit).select("id");
+    expect(del.error).not.toBeNull();
     expect(del.data ?? []).toHaveLength(0);
     const { data } = await adminClient()
       .from("visits")
@@ -196,6 +197,68 @@ describe("visits", () => {
       payment_methods: ["bitcoin"],
     });
     expect(error?.code).toBe("23514");
+  });
+});
+
+describe("ハードデリートと制約", () => {
+  it("本人・管理者とも visits / photos を DELETE できない", async () => {
+    const shop = await createShop(a.id);
+    const visit = await createVisit(shop, a.id);
+    for (const u of [a, c]) {
+      const r = await u.client.from("visits").delete().eq("id", visit);
+      expect(r.error).not.toBeNull();
+      const p = await u.client.from("photos").delete().eq("visit_id", visit);
+      expect(p.error).not.toBeNull();
+    }
+  });
+
+  it("profiles.nickname は 1〜20 文字", async () => {
+    const empty = await adminClient()
+      .from("profiles")
+      .update({ nickname: "" })
+      .eq("id", a.id);
+    expect(empty.error?.code).toBe("23514");
+    const long = await a.client
+      .from("profiles")
+      .update({ nickname: "x".repeat(21) })
+      .eq("id", a.id);
+    expect(long.error?.code).toBe("23514");
+    const ok = await a.client
+      .from("profiles")
+      .update({ nickname: "x".repeat(20) })
+      .eq("id", a.id);
+    expect(ok.error).toBeNull();
+  });
+
+  it("visits.comment は 1000 文字まで", async () => {
+    const shop = await createShop(a.id);
+    const visit = await createVisit(shop, a.id);
+    const bad = await a.client
+      .from("visits")
+      .update({ comment: "x".repeat(1001) })
+      .eq("id", visit);
+    expect(bad.error?.code).toBe("23514");
+    const ok = await a.client
+      .from("visits")
+      .update({ comment: "x".repeat(1000) })
+      .eq("id", visit);
+    expect(ok.error).toBeNull();
+  });
+
+  it("shops.reference_url は null・空・http(s) のみ", async () => {
+    const shop = await createShop(a.id);
+    const bad = await a.client
+      .from("shops")
+      .update({ reference_url: "javascript:alert(1)" })
+      .eq("id", shop);
+    expect(bad.error?.code).toBe("23514");
+    for (const v of ["https://example.com/x", "http://example.com", "", null]) {
+      const ok = await a.client
+        .from("shops")
+        .update({ reference_url: v })
+        .eq("id", shop);
+      expect(ok.error).toBeNull();
+    }
   });
 });
 

@@ -18,7 +18,7 @@ $$;
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   login_id text not null unique,
-  nickname text not null,
+  nickname text not null check (char_length(nickname) between 1 and 20),
   is_admin boolean not null default false,
   disabled_at timestamptz,
   created_at timestamptz not null default now(),
@@ -42,7 +42,7 @@ create table public.shops (
   styles text[] not null default '{}' check (styles <@ array[
     'taishu_izakaya','izakaya','dining_bar','bar','tachinomi','private_room',
     'karaoke','other']::text[]),
-  reference_url text,
+  reference_url text check (reference_url is null or reference_url = '' or reference_url ~ '^https?://'),
   created_by uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -70,7 +70,7 @@ create table public.visits (
     'reserved','walk_in','unknown')),
   payment_methods text[] not null default '{}' check (payment_methods <@ array[
     'credit_card','qr','transit_ic','cash_only']::text[]),
-  comment text,
+  comment text check (comment is null or char_length(comment) <= 1000),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   deleted_at timestamptz
@@ -187,8 +187,8 @@ create policy visits_insert on public.visits for insert to authenticated
 create policy visits_update on public.visits for update to authenticated
   using (user_id = (select auth.uid()) or public.is_admin())
   with check (user_id = (select auth.uid()) or public.is_admin());
-create policy visits_delete on public.visits for delete to authenticated
-  using (user_id = (select auth.uid()) or public.is_admin());
+-- No hard delete: soft delete via deleted_at only.
+revoke delete on public.visits from anon, authenticated;
 revoke update on public.visits from anon, authenticated;
 grant update (visited_on, smoking, price_range, purpose, party_size,
   reservation, payment_methods, comment, deleted_at, updated_at)
@@ -207,8 +207,7 @@ create policy photos_insert on public.photos for insert to authenticated
 create policy photos_update on public.photos for update to authenticated
   using (user_id = (select auth.uid()) or public.is_admin())
   with check (user_id = (select auth.uid()) or public.is_admin());
-create policy photos_delete on public.photos for delete to authenticated
-  using (user_id = (select auth.uid()) or public.is_admin());
+revoke delete on public.photos from anon, authenticated;
 revoke update on public.photos from anon, authenticated;
 grant update (kind, deleted_at, updated_at) on public.photos to authenticated;
 

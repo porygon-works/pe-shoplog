@@ -250,6 +250,54 @@ describe("共有リスト", () => {
     expect(error).not.toBeNull();
   });
 
+  it("invite_token を指定した insert は失敗する", async () => {
+    const { error } = await a.client
+      .from("shared_lists")
+      .insert({ owner_id: a.id, name: "x", invite_token: "chosen" });
+    expect(error).not.toBeNull();
+  });
+
+  it("オーナーの退会: 他メンバーがいれば最古参加者が owner になり、いなければリストごと消える", async () => {
+    const o = await createTestUser(uniqueId("o"));
+    const m1 = await createTestUser(uniqueId("m"));
+    const m2 = await createTestUser(uniqueId("m"));
+    const withMembers = await createShared(o);
+    const alone = await createShared(o);
+    const shop = await createShop(o.id);
+    await o.client
+      .from("shared_list_items")
+      .insert({ shared_list_id: withMembers, shop_id: shop, added_by: o.id });
+    const token = await tokenOf(withMembers);
+    await m1.client.rpc("join_shared_list", { p_token: token });
+    await new Promise((r) => setTimeout(r, 20));
+    await m2.client.rpc("join_shared_list", { p_token: token });
+
+    const del = await adminClient().auth.admin.deleteUser(o.id);
+    expect(del.error).toBeNull();
+
+    const list = await adminClient()
+      .from("shared_lists")
+      .select("owner_id")
+      .eq("id", withMembers)
+      .single();
+    expect(list.data?.owner_id).toBe(m1.id);
+    const members = await adminClient()
+      .from("shared_list_members")
+      .select("user_id, role")
+      .eq("shared_list_id", withMembers);
+    expect(members.data).toHaveLength(2);
+    expect(members.data).toContainEqual({ user_id: m1.id, role: "owner" });
+    expect(members.data).toContainEqual({ user_id: m2.id, role: "member" });
+    const items = await adminClient()
+      .from("shared_list_items")
+      .select("added_by")
+      .eq("shared_list_id", withMembers);
+    expect(items.data).toEqual([{ added_by: null }]);
+
+    const gone = await adminClient().from("shared_lists").select("id").eq("id", alone);
+    expect(gone.data).toHaveLength(0);
+  });
+
   it("メンバーは直接 insert でメンバーになれない", async () => {
     const list = await createShared(a);
     const { error } = await b.client
