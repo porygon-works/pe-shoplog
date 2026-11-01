@@ -13,12 +13,7 @@ import { IKEBUKURO_STATION } from "@/lib/default-location";
 
 export const MAP_ERROR_MESSAGE = "地図を読み込めませんでした";
 
-export type MapShop = {
-  id: string;
-  lat: number;
-  lng: number;
-  visitCount: number;
-};
+export type MapShop = { id: string; lat: number; lng: number; visitCount: number };
 export type LatLng = { lat: number; lng: number };
 /** 地図を動かす先。同じ場所へもう一度動かせるよう、呼ぶたびに seq を変える。 */
 export type MapFocus = LatLng & { seq: number };
@@ -27,13 +22,7 @@ export type MapFocus = LatLng & { seq: number };
 const DEFAULT_ZOOM = 17;
 const FOCUS_ZOOM = 18;
 
-function Pin({
-  visitCount,
-  selected,
-}: {
-  visitCount: number;
-  selected: boolean;
-}) {
+function Pin({ visitCount, selected }: { visitCount: number; selected: boolean }) {
   return (
     <span
       aria-hidden="true"
@@ -68,13 +57,7 @@ function MyLocationDot() {
   );
 }
 
-function LocateButton({
-  onLocate,
-  locating,
-}: {
-  onLocate: () => void;
-  locating: boolean;
-}) {
+function LocateButton({ onLocate, locating }: { onLocate: () => void; locating: boolean }) {
   return (
     <button
       type="button"
@@ -188,9 +171,7 @@ export function ShopMap({
           disableDefaultUI
           clickableIcons
           onClick={click}
-          onCameraChanged={(e: MapCameraChangedEvent) =>
-            onCenterChange?.(e.detail.center)
-          }
+          onCameraChanged={(e: MapCameraChangedEvent) => onCenterChange?.(e.detail.center)}
         >
           <FocusController focus={focus} />
           {myLocation && (
@@ -210,10 +191,7 @@ export function ShopMap({
               onClick={() => onSelectShop(s.id)}
               zIndex={s.id === selectedShopId ? 2 : 1}
             >
-              <Pin
-                visitCount={s.visitCount}
-                selected={s.id === selectedShopId}
-              />
+              <Pin visitCount={s.visitCount} selected={s.id === selectedShopId} />
             </AdvancedMarker>
           ))}
         </Map>

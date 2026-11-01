@@ -1,8 +1,7 @@
 "use client";
 
-import { usePlaceAutocomplete, type PickedPlace, type Suggestion } from "@/lib/places/use-place-autocomplete";
-
 import { IKEBUKURO_STATION } from "@/lib/default-location";
+import { usePlaceAutocomplete, type PickedPlace, type Suggestion } from "@/lib/places/use-place-autocomplete";
 
 export { SEARCH_ERROR, type PickedPlace } from "@/lib/places/use-place-autocomplete";
 
