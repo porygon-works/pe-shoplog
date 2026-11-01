@@ -15,7 +15,7 @@ export function PlaceSearch({
   onPick: (place: PickedPlace) => void;
   onManual: () => void;
 }) {
-  const { query, onInput, suggestions, searched, picking, pick: pickPlace } = usePlaceAutocomplete(getBias);
+  const { query, onInput, suggestions, searched, picking, pick: pickPlace, inputRef } = usePlaceAutocomplete(getBias);
 
   const pick = async (s: Suggestion) => {
     const d = await pickPlace(s);
@@ -29,6 +29,7 @@ export function PlaceSearch({
           店名でさがす
         </label>
         <input
+          ref={inputRef}
           id="q"
           className="input"
           value={query}

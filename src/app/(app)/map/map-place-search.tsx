@@ -10,7 +10,7 @@ export function MapPlaceSearch({
   getBias: () => { lat: number; lng: number } | null;
   onPick: (place: PickedPlace) => void;
 }) {
-  const { query, onInput, suggestions, searched, picking, pick, reset } = usePlaceAutocomplete(getBias);
+  const { query, onInput, suggestions, searched, picking, pick, reset, inputRef } = usePlaceAutocomplete(getBias);
 
   const choose = async (s: Suggestion) => {
     const d = await pick(s);
@@ -25,6 +25,7 @@ export function MapPlaceSearch({
     <div className="flex flex-col overflow-hidden rounded-xl bg-surface shadow-[0_2px_10px_rgba(0,0,0,.12)]">
       <div className="flex items-center">
         <input
+          ref={inputRef}
           type="search"
           aria-label="お店をさがす"
           className="min-w-0 flex-1 appearance-none border-0 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-muted [&::-webkit-search-cancel-button]:hidden"

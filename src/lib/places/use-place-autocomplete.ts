@@ -97,6 +97,17 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
     }
   };
 
+  // 画面の準備（hydration）が終わる前に入力された文字は onChange が来ないので、準備ができた時点で拾って検索する。
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onInputRef = useRef(onInput);
+  useEffect(() => {
+    onInputRef.current = onInput;
+  });
+  useEffect(() => {
+    const early = inputRef.current?.value;
+    if (early) onInputRef.current(early);
+  }, []);
+
   const reset = () => {
     seq.current++;
     if (timer.current) clearTimeout(timer.current);
@@ -105,5 +116,5 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
     setSearched(false);
   };
 
-  return { query, onInput, suggestions, searched, picking, pick, reset };
+  return { query, onInput, suggestions, searched, picking, pick, reset, inputRef };
 }
