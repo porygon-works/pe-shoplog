@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ぺーろぐ アイコン 第3弾</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&family=Darumadrop+One&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* 第3弾: ポップ・和モダン・手書きのゆるさ。グルメアプリらしく一目でわかる形。線は少し揺らして手描き感を出す。 */
+:root {
+  --bg: #f7f3f3;
+  --card: #ffffff;
+  --ink: #2b1d1f;
+  --muted: #7a666a;
+  --line: #ecdfe0;
+  --red: #d7263d;
+  --font-hand: "Yusei Magic", "Zen Kaku Gothic New", sans-serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+.top h1 { margin: 0; font-family: var(--font-hand); font-weight: 400; font-size: 34px; color: var(--red); }
+.top p { margin: 6px 0 0; color: var(--muted); max-width: 64ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.card h2 { margin: 0; font-size: 18px; font-weight: 900; display: flex; gap: 8px; align-items: baseline; }
+.card h2 span { font-size: 12px; color: var(--muted); font-weight: 700; }
+.card p { margin: 0; font-size: 13.5px; color: #4d3d41; }
+.sizes { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+.sizes figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
+.ios { border-radius: 22.5%; overflow: hidden; box-shadow: 0 2px 8px rgba(60,20,30,.18); display: block; }
+.round { border-radius: 50%; overflow: hidden; display: block; box-shadow: 0 2px 8px rgba(60,20,30,.18); }
+.home { display: flex; gap: 12px; padding: 12px; border-radius: 12px; background: linear-gradient(160deg, #6f8fb3, #c9a6b6); }
+.home figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); width: 58px; }
+.dummy { width: 52px; height: 52px; border-radius: 12px; background: rgba(255,255,255,.55); }
+.ask { background: var(--ink); color: #fff; border-radius: 10px; padding: 18px 22px; }
+.ask p { margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>ぺーろぐ アイコン 第3弾</h1>
+    <p>ポップでかわいい・和モダン・手書きのゆるさ、の方向で作り直しました。食べログやホットペッパーのように「ごはんと飲みのアプリ」と一目でわかる絵と、手書きのマーカー文字の組み合わせです。</p>
+  </header>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <!-- 線を少しだけ揺らして手描きに見せる -->
+      <filter id="wob" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3"/>
+        <feDisplacementMap in="SourceGraphic" scale="2.2"/>
+      </filter>
+
+      <!-- 1 ちょうちんくん -->
+      <symbol id="s1" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#ffffff"/>
+        <g filter="url(#wob)">
+          <rect x="35" y="8" width="26" height="7" rx="3" fill="#2b1d1f"/>
+          <ellipse cx="48" cy="38" rx="22" ry="24" fill="#d7263d"/>
+          <rect x="35" y="60" width="26" height="6" rx="3" fill="#2b1d1f"/>
+          <path d="M28 30q20 -5 40 0M27 44q21 5 42 0" stroke="#b01d31" stroke-width="1.6" fill="none"/>
+        </g>
+        <circle cx="41" cy="37" r="2.4" fill="#2b1d1f"/><circle cx="55" cy="37" r="2.4" fill="#2b1d1f"/>
+        <path d="M44.5 42.5q3.5 3 7 0" stroke="#2b1d1f" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="36.5" cy="43" rx="3.4" ry="2" fill="#ff9fb0"/><ellipse cx="59.5" cy="43" rx="3.4" ry="2" fill="#ff9fb0"/>
+        <text x="48" y="88" text-anchor="middle" font-family="Yusei Magic, sans-serif" font-size="19" fill="#d7263d">ぺーろぐ</text>
+      </symbol>
+
+      <!-- 2 やきとり串: ひとつずつに1文字 -->
+      <symbol id="s2" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#d7263d"/>
+        <g filter="url(#wob)">
+          <line x1="12" y1="84" x2="86" y2="10" stroke="#f3d9a4" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="27" cy="69" r="11" fill="#ffffff"/>
+          <circle cx="41" cy="55" r="11" fill="#ffffff"/>
+          <circle cx="55" cy="41" r="11" fill="#ffffff"/>
+          <circle cx="69" cy="27" r="11" fill="#ffffff"/>
+        </g>
+        <g font-family="Yusei Magic, sans-serif" font-size="14" fill="#d7263d" text-anchor="middle">
+          <text x="69" y="32">ぺ</text><text x="55" y="46">ー</text><text x="41" y="60">ろ</text><text x="27" y="74">ぐ</text>
+        </g>
+      </symbol>
+
+      <!-- 3 手書きロゴ（ホットペッパー的に、赤地に白文字だけ） -->
+      <symbol id="s3" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#d7263d"/>
+        <text x="48" y="45" text-anchor="middle" font-family="Yusei Magic, sans-serif" font-size="33" fill="#ffffff">ぺー</text>
+        <text x="50" y="79" text-anchor="middle" font-family="Yusei Magic, sans-serif" font-size="33" fill="#ffffff">ろぐ</text>
+        <g filter="url(#wob)"><path d="M18 86q30 -6 60 0" stroke="#ffd2da" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+      </symbol>
+
+      <!-- 4 ジョッキで乾杯 -->
+      <symbol id="s4" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#fff3f4"/>
+        <g filter="url(#wob)">
+          <rect x="29" y="22" width="32" height="42" rx="5" fill="#f6b73c"/>
+          <path d="M61 30h7a7 7 0 0 1 7 7v10a7 7 0 0 1-7 7h-7" fill="none" stroke="#f6b73c" stroke-width="5"/>
+          <path d="M27 24q0-10 9-9q3-7 11-4q7-5 13 2q8 0 7 9z" fill="#ffffff" stroke="#2b1d1f" stroke-width="1.6"/>
+          <rect x="29" y="22" width="32" height="42" rx="5" fill="none" stroke="#2b1d1f" stroke-width="1.6"/>
+        </g>
+        <circle cx="40" cy="42" r="2.2" fill="#2b1d1f"/><circle cx="51" cy="42" r="2.2" fill="#2b1d1f"/>
+        <path d="M42.5 47q3 2.6 6 0" stroke="#2b1d1f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <ellipse cx="36" cy="47" rx="3" ry="1.8" fill="#ff9fb0"/><ellipse cx="55" cy="47" rx="3" ry="1.8" fill="#ff9fb0"/>
+        <text x="48" y="87" text-anchor="middle" font-family="Yusei Magic, sans-serif" font-size="19" fill="#d7263d">ぺーろぐ</text>
+      </symbol>
+
+      <!-- 5 のれんロゴ（和モダン） -->
+      <symbol id="s5" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#ffffff"/>
+        <g filter="url(#wob)">
+          <path d="M10 16h76v44q-6 6-12 0q-7 6-13 0q-6 6-13 0q-6 6-13 0q-6 6-12 0q-7 6-13 0z" fill="#d7263d"/>
+          <line x1="8" y1="14" x2="88" y2="14" stroke="#2b1d1f" stroke-width="3.5" stroke-linecap="round"/>
+        </g>
+        <text x="48" y="47" text-anchor="middle" font-family="Yusei Magic, sans-serif" font-size="24" fill="#ffffff">ぺーろぐ</text>
+        <g fill="#d7263d"><circle cx="34" cy="80" r="3"/><circle cx="48" cy="80" r="3"/><circle cx="62" cy="80" r="3"/></g>
+      </symbol>
+
+      <!-- 6 ピンに顔（ぺの丸がほっぺ） -->
+      <symbol id="s6" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#d7263d"/>
+        <g filter="url(#wob)">
+          <path d="M48 10a24 24 0 0 1 24 24c0 18-24 38-24 38S24 52 24 34a24 24 0 0 1 24-24z" fill="#ffffff"/>
+        </g>
+        <circle cx="41" cy="31" r="2.6" fill="#2b1d1f"/><circle cx="55" cy="31" r="2.6" fill="#2b1d1f"/>
+        <path d="M44 37q4 3.4 8 0" stroke="#2b1d1f" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="36" cy="37" rx="3.6" ry="2.2" fill="#ff9fb0"/><ellipse cx="60" cy="37" rx="3.6" ry="2.2" fill="#ff9fb0"/>
+        <text x="48" y="89" text-anchor="middle" font-family="Yusei Magic, sans-serif" font-size="18" fill="#ffffff">ぺーろぐ</text>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1 ちょうちんくん<span>絵＋文字</span></h2>
+      <p>赤ちょうちんに、ゆるい顔とほっぺ。下に手書きの「ぺーろぐ」。居酒屋らしさとかわいさの両方が出ます。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#s1"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#s1"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#s1"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#s1"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#s1"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>2 やきとり串<span>絵＝文字</span></h2>
+      <p>串に刺さった4つに「ぺ・ー・ろ・ぐ」。赤地に白で、遠目にも焼き鳥とわかります。名前そのものが絵になる案です。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#s2"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#s2"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#s2"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#s2"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#s2"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>3 手書きロゴ<span>文字が主役</span></h2>
+      <p>ホットペッパーのように、赤地に白い文字だけ。マーカーで書いたような丸い手書き文字と、下にさっと引いた線。いちばんわかりやすい案です。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#s3"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#s3"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#s3"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#s3"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#s3"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>4 ジョッキくん<span>絵＋文字</span></h2>
+      <p>泡のあふれた生ビールのジョッキに顔。「とりあえず生」の気分で開くアプリ。地は白に近い淡いピンクです。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#s4"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#s4"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#s4"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#s4"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#s4"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>5 のれんロゴ<span>和モダン</span></h2>
+      <p>波打つ赤い暖簾に手書きの「ぺーろぐ」、下に点を3つ。お店の入口のような和の雰囲気を、手書きでやわらかくした案です。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#s5"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#s5"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#s5"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#s5"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#s5"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>6 ピンちゃん<span>絵＋文字</span></h2>
+      <p>地図のピンに顔とほっぺを付けたキャラクター。地図で店を探すアプリだと一目でわかり、赤地で目立ちます。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#s6"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#s6"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#s6"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#s6"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#s6"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+  </div>
+
+  <section class="ask"><p>近いものがあれば番号で教えてください。「1 のちょうちんを 3 の赤地で」のような組み合わせや、「顔はいらない」「もっと太い字で」といった調整もできます。</p></section>
+</div>
+</body>
+</html>
