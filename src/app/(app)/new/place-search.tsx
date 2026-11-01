@@ -2,7 +2,12 @@
 
 import { usePlaceAutocomplete, type PickedPlace, type Suggestion } from "@/lib/places/use-place-autocomplete";
 
+import { IKEBUKURO_STATION } from "@/lib/default-location";
+
 export { SEARCH_ERROR, type PickedPlace } from "@/lib/places/use-place-autocomplete";
+
+// 候補は池袋駅付近を優先する。参照が変わらないようモジュール直下に置く。
+const getBias = () => IKEBUKURO_STATION;
 
 export function PlaceSearch({
   onPick,
@@ -11,7 +16,7 @@ export function PlaceSearch({
   onPick: (place: PickedPlace) => void;
   onManual: () => void;
 }) {
-  const { query, onInput, suggestions, searched, picking, pick: pickPlace } = usePlaceAutocomplete();
+  const { query, onInput, suggestions, searched, picking, pick: pickPlace } = usePlaceAutocomplete(getBias);
 
   const pick = async (s: Suggestion) => {
     const d = await pickPlace(s);

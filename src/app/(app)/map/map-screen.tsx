@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { ShopFilterBar } from "@/components/shop-filter-sheet";
+import { useToast } from "@/components/toast";
 import { ShopMap, type LatLng, type MapFocus } from "@/components/shop-map";
 import { ShopPills, ShopThumb, shopMeta, type ShopCardData } from "@/components/shop-card";
 import { IKEBUKURO_STATION } from "@/lib/default-location";
 import type { PickedPlace } from "@/lib/places/use-place-autocomplete";
 import { MapPlaceSearch } from "./map-place-search";
 import { PlaceSheet } from "./place-sheet";
+
+const LOCATE_ERROR = "現在地を取得できませんでした";
 
 export type MapScreenShop = ShopCardData & { lat: number; lng: number; placeId: string | null };
 
@@ -21,11 +24,35 @@ type Selection =
 export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
   const [sel, setSel] = useState<Selection>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
+  const [myLocation, setMyLocation] = useState<LatLng | null>(null);
+  const [locating, setLocating] = useState(false);
+  const toast = useToast();
   const center = useRef<LatLng>(IKEBUKURO_STATION);
   const getCenter = useCallback(() => center.current, []);
   const onCenterChange = useCallback((c: LatLng) => {
     center.current = c;
   }, []);
+
+  const locate = () => {
+    if (!navigator.geolocation) {
+      toast.show(LOCATE_ERROR, "error");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setMyLocation(here);
+        setFocus((f) => ({ ...here, seq: (f?.seq ?? 0) + 1 }));
+        setLocating(false);
+      },
+      () => {
+        toast.show(LOCATE_ERROR, "error");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
 
   const registeredOf = (placeId: string) => shops.find((s) => s.placeId === placeId);
 
@@ -62,6 +89,10 @@ export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
           focus={focus}
           searchPin={searchPin}
           onCenterChange={onCenterChange}
+          myLocation={myLocation}
+          // シートは画面下に出るので、開いている間はボタンを隠す。
+          onLocate={sel ? undefined : locate}
+          locating={locating}
         />
       </div>
 
