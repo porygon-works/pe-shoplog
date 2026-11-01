@@ -12,35 +12,42 @@ async function fixture() {
   return { tag };
 }
 
-test("「吸える」で絞り込むと該当の店だけが残り、URL に残って再読み込みでも保たれる", async ({ page }) => {
+test("喫煙のドロップダウン（登録と同じ選択肢）で絞り込むと該当の店だけが残り、URL に残って再読み込みでも保たれる", async ({
+  page,
+}) => {
   const { tag } = await fixture();
   await page.goto(`/search?q=${tag}`);
   const cards = page.getByTestId("shop-card");
   await expect(cards).toHaveCount(3);
 
-  await page.getByRole("button", { name: "吸える", exact: true }).click();
-  await expect(page).toHaveURL(/smoking=/);
+  await page.getByLabel("喫煙", { exact: true }).selectOption({ label: "禁煙" });
+  await expect(page).toHaveURL(/smoking=no_smoking/);
   await expect(cards).toHaveCount(1);
-  await expect(cards.first()).toContainText(`${tag}喫煙酒場`);
+  await expect(cards.first()).toContainText(`${tag}禁煙食堂`);
   await expect(page.getByTestId("result-count")).toHaveText("1件");
 
   await page.reload();
   await expect(cards).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "吸える", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("喫煙", { exact: true })).toHaveValue("no_smoking");
 
-  await page.getByRole("button", { name: "吸える", exact: true }).click();
+  await page.getByLabel("喫煙", { exact: true }).selectOption({ label: "分煙・喫煙室あり" });
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText(`${tag}喫煙酒場`);
+
+  await page.getByLabel("喫煙", { exact: true }).selectOption({ label: "喫煙" });
   await expect(cards).toHaveCount(3);
 });
 
-test("絞り込みシートから適用できる", async ({ page }) => {
+test("ジャンル・用途もドロップダウンで絞り込める", async ({ page }) => {
   const { tag } = await fixture();
   await page.goto(`/search?q=${tag}`);
-  await page.getByRole("button", { name: /ジャンル/ }).click();
-  const dialog = page.getByRole("dialog", { name: "絞り込み" });
-  await dialog.getByRole("button", { name: "和食", exact: true }).click();
-  await dialog.getByRole("button", { name: "適用" }).click();
+  await page.getByLabel("ジャンル", { exact: true }).selectOption({ label: "和食" });
   await expect(page.getByTestId("shop-card")).toHaveCount(1);
   await expect(page).toHaveURL(/genre=washoku/);
+  await page.getByLabel("ジャンル", { exact: true }).selectOption({ label: "ジャンル" });
+  await page.getByLabel("用途", { exact: true }).selectOption({ label: "打ち上げ" });
+  await expect(page.getByTestId("shop-card")).toHaveCount(1);
+  await expect(page.getByTestId("shop-card").first()).toContainText(`${tag}喫煙酒場`);
 });
 
 test("地図キーがない環境では地図の読み込みエラーを出し、絞り込みはそのまま使える", async ({ page }) => {
