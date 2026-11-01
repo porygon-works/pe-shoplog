@@ -4,7 +4,7 @@ const KEY_LENGTH = 32;
 const SALT_BYTES = 16;
 
 function normalize(p: string): string {
-  return p.trim().toLowerCase();
+  return p.normalize("NFKC").trim().toLowerCase();
 }
 
 function derive(passphrase: string, salt: Buffer): Promise<Buffer> {

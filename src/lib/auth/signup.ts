@@ -46,8 +46,13 @@ async function register(
   const { loginId, nickname, password, passphrase } = parsed.data;
 
   // 1. 試行を記録し、直近 1 時間の件数を確認する（今回分を含む）。
-  const recorded = await admin.from("signup_attempts").insert({ ip });
+  const recorded = await admin
+    .from("signup_attempts")
+    .insert({ ip })
+    .select("id")
+    .single();
   if (recorded.error) throw recorded.error;
+  const attemptId = recorded.data.id;
   const since = new Date(Date.now() - WINDOW_MS).toISOString();
   const counted = await admin
     .from("signup_attempts")
@@ -108,6 +113,10 @@ async function register(
     }
     throw profile.error ?? lists?.error;
   }
+
+  // 成功した登録は制限の予算を消費しない（数えるのは失敗した試行だけ）。
+  const cleared = await admin.from("signup_attempts").delete().eq("id", attemptId);
+  if (cleared.error) console.error("signup attempt cleanup failed", cleared.error);
 
   return { ok: true, userId };
 }

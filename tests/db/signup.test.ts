@@ -87,6 +87,25 @@ describe("registerUser", () => {
     expect(res).toEqual({ ok: false, error: "rate_limited" });
   });
 
+  it("成功した登録は制限を消費しない（11回成功できる）。失敗は数える", async () => {
+    const addr = ip();
+    for (let i = 0; i < 11; i++) {
+      const res = await registerUser(input(uniqueId("k")), addr);
+      expect(res.ok).toBe(true);
+    }
+    const left = await admin
+      .from("signup_attempts")
+      .select("id", { count: "exact", head: true })
+      .eq("ip", addr);
+    expect(left.count).toBe(0);
+    for (let i = 0; i < 10; i++) {
+      const res = await registerUser(input(uniqueId("k"), "xx"), addr);
+      expect(res).toEqual({ ok: false, error: "bad_passphrase" });
+    }
+    const limited = await registerUser(input(uniqueId("k"), "xx"), addr);
+    expect(limited).toEqual({ ok: false, error: "rate_limited" });
+  });
+
   it("他のIPには影響しない", async () => {
     const res = await registerUser(input(uniqueId("o")), ip());
     expect(res.ok).toBe(true);

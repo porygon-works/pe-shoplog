@@ -9,6 +9,7 @@ export type LoginState = { error?: string; loginId?: string };
 
 const SERVER_ERROR = "ログインに失敗しました。時間をおいてもう一度お試しください";
 const LOGIN_FAILED = "IDかパスワードが違います";
+const RATE_LIMITED = "ログインが混み合っています。少し待ってからもう一度お試しください";
 
 export async function loginAction(
   _prev: LoginState,
@@ -29,6 +30,9 @@ export async function loginAction(
     if (error) {
       // 認証情報の誤り・停止中ユーザーなどの 4xx は「IDかパスワードが違います」。
       // 5xx・通信エラーは想定外として記録し、別のメッセージを出す。
+      if (error.status === 429 || error.code === "over_request_rate_limit") {
+        return { error: RATE_LIMITED, loginId };
+      }
       const unexpected =
         error.name === "AuthRetryableFetchError" ||
         !error.status ||

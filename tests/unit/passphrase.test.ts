@@ -8,6 +8,11 @@ describe("passphrase", () => {
     expect(await verifyPassphrase(" pe ", stored)).toBe(true);
     expect(await verifyPassphrase("PX", stored)).toBe(false);
   });
+  it("normalizes full-width characters (NFKC)", async () => {
+    const stored = await hashPassphrase("PE");
+    expect(await verifyPassphrase("ＰＥ", stored)).toBe(true);
+    expect(await verifyPassphrase(" ｐｅ ", stored)).toBe(true);
+  });
   it("salts every hash", async () => {
     expect(await hashPassphrase("PE")).not.toBe(await hashPassphrase("PE"));
   });
