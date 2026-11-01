@@ -1,28 +1,21 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { useQueryStates } from "nuqs";
-import { useCategories } from "@/components/categories-provider";
-import { selectableOptions } from "@/lib/category-utils";
 import {
-  PRICE_FILTER_OPTIONS,
-  PURPOSE_FILTER_OPTIONS,
-  SMOKING_FILTER_OPTIONS,
-  shopFilterParsers,
-} from "@/lib/filters/shop-filters";
+  FILTER_KEYS,
+  FILTER_LABELS,
+  ShopFilterBar,
+  normalizeFilterOrder,
+  type FilterKey,
+} from "@/components/shop-filter-sheet";
 
 /**
- * マップのワンタップ絞り込み。どのボタンを出すかは端末ごとに選べる（localStorage）。
- * ボタンの値は「want」か「区分:値」（例: smoking:smoking_ok）。同じ区分のボタンは「どれか」、
- * 違う区分は「すべて」で絞り込む（URL の絞り込みと同じ）。
+ * マップの絞り込み。さがす画面と同じドロップダウンを横にスライドで並べる。
+ * 並び順だけ端末ごとに変えられる（localStorage）。
  */
-type Field = "genre" | "styles" | "smoking" | "price" | "purpose";
-type Group = { field: Field; label: string; options: { value: string; label: string }[] };
-
-const KEY = "pe-map-quick-filters";
-const CHANGE = "pe-map-quick-filters-change";
-const DEFAULT = ["want", "smoking:smoking_ok", "smoking:no_smoking", "purpose:celebration", "price:under_3000"];
-const DEFAULT_JSON = JSON.stringify(DEFAULT);
+const KEY = "pe-map-filter-order";
+const CHANGE = "pe-map-filter-order-change";
+const DEFAULT_JSON = JSON.stringify(FILTER_KEYS);
 
 function subscribe(onChange: () => void) {
   window.addEventListener(CHANGE, onChange);
@@ -42,86 +35,46 @@ function readRaw(): string {
   }
 }
 
-function parse(raw: string): string[] {
+function parse(raw: string): FilterKey[] {
   try {
     const v = JSON.parse(raw);
-    return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : DEFAULT;
+    return normalizeFilterOrder(Array.isArray(v) ? v : null);
   } catch {
-    return DEFAULT;
+    return normalizeFilterOrder(null);
   }
 }
 
-function save(keys: string[]) {
+function save(order: FilterKey[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(keys));
+    localStorage.setItem(KEY, JSON.stringify(order));
   } catch {
     // 保存できなくても、今の画面には反映する。
   }
   window.dispatchEvent(new Event(CHANGE));
 }
 
-const chip = "whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] shadow-[0_1px_4px_rgba(0,0,0,.1)]";
-const chipOn = "border-ai bg-ai text-white dark:text-[#161112]";
-const chipOff = "border-line bg-surface text-ink";
-
 export function MapQuickFilters() {
-  const [f, setF] = useQueryStates(shopFilterParsers, { shallow: false });
-  const categories = useCategories();
-  const keys = parse(useSyncExternalStore(subscribe, readRaw, () => DEFAULT_JSON));
+  const order = parse(useSyncExternalStore(subscribe, readRaw, () => DEFAULT_JSON));
   const [editing, setEditing] = useState(false);
-
-  const groups: Group[] = [
-    { field: "genre", label: "ジャンル", options: selectableOptions(categories.genres, f.genre, true) },
-    { field: "styles", label: "形態", options: selectableOptions(categories.styles, f.styles) },
-    { field: "smoking", label: "喫煙", options: [...SMOKING_FILTER_OPTIONS] },
-    { field: "price", label: "値段感", options: [...PRICE_FILTER_OPTIONS] },
-    { field: "purpose", label: "用途", options: [...PURPOSE_FILTER_OPTIONS] },
-  ];
-  const labelOf = (key: string): string | null => {
-    if (key === "want") return "気になるだけ";
-    const [field, value] = key.split(":");
-    const g = groups.find((x) => x.field === field);
-    return g?.options.find((o) => o.value === value)?.label ?? null;
-  };
-
-  const isOn = (key: string) => {
-    if (key === "want") return f.want;
-    const [field, value] = key.split(":") as [Field, string];
-    return f[field].includes(value);
-  };
-  const toggle = (key: string) => {
-    if (key === "want") return void setF({ want: f.want ? null : true });
-    const [field, value] = key.split(":") as [Field, string];
-    const cur = f[field];
-    const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
-    void setF({ [field]: next.length ? next : null });
-  };
-
-  // 区分が非表示・削除されたボタンは出さない。
-  const shown = keys.filter((k) => labelOf(k) !== null);
 
   return (
     <>
-      <div className="flex flex-wrap gap-1.5" aria-label="ワンタップ絞り込み" role="group">
-        {shown.map((k) => (
+      <ShopFilterBar
+        layout="scroll"
+        order={order}
+        trailing={
           <button
-            key={k}
             type="button"
-            aria-pressed={isOn(k)}
-            onClick={() => toggle(k)}
-            className={`${chip} ${isOn(k) ? chipOn : chipOff}`}
+            onClick={() => setEditing(true)}
+            className="whitespace-nowrap rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] text-muted shadow-[0_1px_4px_rgba(0,0,0,.12)]"
           >
-            {labelOf(k)}
+            並び替え
           </button>
-        ))}
-        <button type="button" onClick={() => setEditing(true)} className={`${chip} ${chipOff} text-muted`}>
-          ＋ 編集
-        </button>
-      </div>
+        }
+      />
       {editing && (
-        <QuickFilterEditor
-          groups={groups}
-          selected={keys}
+        <OrderEditor
+          initial={order}
           onSave={(next) => {
             save(next);
             setEditing(false);
@@ -133,19 +86,24 @@ export function MapQuickFilters() {
   );
 }
 
-function QuickFilterEditor({
-  groups,
-  selected,
+function OrderEditor({
+  initial,
   onSave,
   onClose,
 }: {
-  groups: Group[];
-  selected: string[];
-  onSave: (keys: string[]) => void;
+  initial: FilterKey[];
+  onSave: (order: FilterKey[]) => void;
   onClose: () => void;
 }) {
-  const [draft, setDraft] = useState<string[]>(selected);
-  const toggle = (k: string) => setDraft((d) => (d.includes(k) ? d.filter((x) => x !== k) : [...d, k]));
+  const [draft, setDraft] = useState<FilterKey[]>(initial);
+  const move = (i: number, d: -1 | 1) =>
+    setDraft((cur) => {
+      const j = i + d;
+      if (j < 0 || j >= cur.length) return cur;
+      const next = [...cur];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -155,44 +113,48 @@ function QuickFilterEditor({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const pill = (k: string, label: string) => (
-    <button
-      key={k}
-      type="button"
-      aria-pressed={draft.includes(k)}
-      onClick={() => toggle(k)}
-      className={`rounded-full border px-3 py-1.5 text-[13px] ${draft.includes(k) ? chipOn : chipOff}`}
-    >
-      {label}
-    </button>
-  );
+  const arrow = "grid h-9 w-9 place-items-center rounded-[10px] border border-line bg-surface text-ink disabled:opacity-30";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="ワンタップ絞り込みの編集"
+        aria-label="絞り込みの並び替え"
         onClick={(e) => e.stopPropagation()}
-        className="mx-auto flex max-h-[85dvh] w-full max-w-xl flex-col gap-4 overflow-y-auto rounded-t-2xl bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom)+var(--nav-gap))] motion-safe:animate-[sheet-up_.18s_ease-out]"
+        className="mx-auto flex max-h-[85dvh] w-full max-w-xl flex-col gap-3 overflow-y-auto rounded-t-2xl bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom)+var(--nav-gap))] motion-safe:animate-[sheet-up_.18s_ease-out]"
       >
         <div className="flex items-center justify-between">
-          <h2 className="m-0 text-base font-bold">マップに出すボタン</h2>
-          <button type="button" onClick={() => setDraft(DEFAULT)} className="bg-transparent p-0 text-[13px] text-ai underline">
-            最初の状態に戻す
+          <h2 className="m-0 text-base font-bold">マップの絞り込みの並び順</h2>
+          <button
+            type="button"
+            onClick={() => setDraft([...FILTER_KEYS])}
+            className="bg-transparent p-0 text-[13px] text-ai underline"
+          >
+            最初の順に戻す
           </button>
         </div>
-        <p className="m-0 text-xs text-muted">選んだ順にマップの上に並びます。この端末にだけ保存されます。</p>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] font-bold text-muted">記録</span>
-          <div className="flex flex-wrap gap-1.5">{pill("want", "気になるだけ")}</div>
-        </div>
-        {groups.map((g) => (
-          <div key={g.field} className="flex flex-col gap-1.5">
-            <span className="text-[13px] font-bold text-muted">{g.label}</span>
-            <div className="flex flex-wrap gap-1.5">{g.options.map((o) => pill(`${g.field}:${o.value}`, o.label))}</div>
-          </div>
-        ))}
+        <p className="m-0 text-xs text-muted">よく使うものを上に。この端末にだけ保存されます。</p>
+        <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
+          {draft.map((k, i) => (
+            <li key={k} className="flex items-center gap-2 rounded-[12px] border border-line px-3 py-2">
+              <span className="w-5 text-xs text-muted">{i + 1}</span>
+              <span className="flex-1 text-sm font-bold">{FILTER_LABELS[k]}</span>
+              <button type="button" aria-label={`${FILTER_LABELS[k]}を上へ`} disabled={i === 0} onClick={() => move(i, -1)} className={arrow}>
+                ↑
+              </button>
+              <button
+                type="button"
+                aria-label={`${FILTER_LABELS[k]}を下へ`}
+                disabled={i === draft.length - 1}
+                onClick={() => move(i, 1)}
+                className={arrow}
+              >
+                ↓
+              </button>
+            </li>
+          ))}
+        </ol>
         <div className="grid grid-cols-2 gap-2">
           <button type="button" className="btn" onClick={onClose}>
             やめる

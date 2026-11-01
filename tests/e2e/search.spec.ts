@@ -55,7 +55,7 @@ test("地図キーがない環境では地図の読み込みエラーを出し�
   await page.goto("/map");
   await expect(page.getByText("地図を読み込めませんでした")).toBeVisible();
   await expect(page.getByRole("searchbox", { name: "お店をさがす" })).toBeVisible();
-  await page.getByRole("button", { name: "気になるだけ" }).click();
+  await page.getByLabel("気になる", { exact: true }).selectOption({ label: "気になる店だけ" });
   await expect(page).toHaveURL(/want=true/);
   await expect(page.getByText("地図を読み込めませんでした")).toBeVisible();
 });

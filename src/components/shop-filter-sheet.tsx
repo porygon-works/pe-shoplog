@@ -62,37 +62,84 @@ function FilterSelect({
   );
 }
 
+/** 絞り込みの項目。並び順はこの順が既定（マップでは並び替えできる）。 */
+export const FILTER_KEYS = ["smoking", "price", "purpose", "genre", "styles", "want"] as const;
+export type FilterKey = (typeof FILTER_KEYS)[number];
+export const FILTER_LABELS: Record<FilterKey, string> = {
+  smoking: "喫煙",
+  price: "値段感",
+  purpose: "用途",
+  genre: "ジャンル",
+  styles: "形態",
+  want: "気になる",
+};
+
+/** 保存された並び順を検証し、足りない項目は既定の順で後ろに足す。 */
+export function normalizeFilterOrder(order: readonly string[] | null | undefined): FilterKey[] {
+  const valid = (order ?? []).filter((k): k is FilterKey => (FILTER_KEYS as readonly string[]).includes(k));
+  const uniq = [...new Set(valid)];
+  return [...uniq, ...FILTER_KEYS.filter((k) => !uniq.includes(k))];
+}
+
 /**
- * 絞り込み（さがす画面）。3 列にそろえて全部見せる。登録で選ぶ区分（ジャンル・形態・喫煙・値段感・用途）をそのままドロップダウンで選べる。
+ * 絞り込み。登録で選ぶ区分（喫煙・値段感・用途・ジャンル・形態）と「気になる」をドロップダウンで選ぶ。
+ * layout="grid" はさがす画面用（3 列で全部見せる）、"scroll" はマップ用（横にスライド）。
  * 条件は URL クエリ（nuqs）に持つので、マップとさがすで同じ状態を共有し、サーバー側で再取得される。
  */
-export function ShopFilterBar() {
+export function ShopFilterBar({
+  layout = "grid",
+  order = FILTER_KEYS,
+  trailing,
+}: {
+  layout?: "grid" | "scroll";
+  order?: readonly FilterKey[];
+  trailing?: React.ReactNode;
+}) {
   const [f, setF] = useQueryStates(shopFilterParsers, { shallow: false });
   const categories = useCategories();
   // 非表示の区分は新しく選べないが、今の絞り込みに入っているものは残す。ジャンルの「不明」は絞り込みに使わない。
   const genreOptions = selectableOptions(categories.genres, f.genre, true);
   const styleOptions = selectableOptions(categories.styles, f.styles);
 
-  return (
+  const item = (k: FilterKey) => {
+    const label = FILTER_LABELS[k];
+    switch (k) {
+      case "want":
+        return (
+          <FilterSelect
+            key={k}
+            label={label}
+            options={[{ value: "only", label: "気になる店だけ" }]}
+            value={f.want ? ["only"] : []}
+            onChange={(v) => setF({ want: v ? true : null })}
+          />
+        );
+      case "genre":
+        return <FilterSelect key={k} label={label} options={genreOptions} value={f.genre} onChange={(genre) => setF({ genre })} />;
+      case "styles":
+        return <FilterSelect key={k} label={label} options={styleOptions} value={f.styles} onChange={(styles) => setF({ styles })} />;
+      case "smoking":
+        return (
+          <FilterSelect key={k} label={label} options={SMOKING_FILTER_OPTIONS} value={f.smoking} onChange={(smoking) => setF({ smoking })} />
+        );
+      case "price":
+        return <FilterSelect key={k} label={label} options={PRICE_FILTER_OPTIONS} value={f.price} onChange={(price) => setF({ price })} />;
+      case "purpose":
+        return (
+          <FilterSelect key={k} label={label} options={PURPOSE_FILTER_OPTIONS} value={f.purpose} onChange={(purpose) => setF({ purpose })} />
+        );
+    }
+  };
+
+  return layout === "grid" ? (
     <div className="grid grid-cols-3 gap-2">
-      <button
-        type="button"
-        aria-pressed={f.want}
-        onClick={() => setF({ want: f.want ? null : true })}
-        className={`${chipBase} px-2 ${f.want ? chipOn : chipOff}`}
-      >
-        気になるだけ
-      </button>
-      <FilterSelect label="ジャンル" options={genreOptions} value={f.genre} onChange={(genre) => setF({ genre })} />
-      <FilterSelect label="形態" options={styleOptions} value={f.styles} onChange={(styles) => setF({ styles })} />
-      <FilterSelect
-        label="喫煙"
-        options={SMOKING_FILTER_OPTIONS}
-        value={f.smoking}
-        onChange={(smoking) => setF({ smoking })}
-      />
-      <FilterSelect label="値段感" options={PRICE_FILTER_OPTIONS} value={f.price} onChange={(price) => setF({ price })} />
-      <FilterSelect label="用途" options={PURPOSE_FILTER_OPTIONS} value={f.purpose} onChange={(purpose) => setF({ purpose })} />
+      {order.map(item)}
+      {trailing}
+    </div>
+  ) : (
+    <div className="-mx-2.5 flex flex-nowrap gap-1.5 overflow-x-auto px-2.5 pb-1 [scrollbar-width:none] [&>*]:flex-none [&_select]:w-[6.25rem] [&_select]:shadow-[0_1px_4px_rgba(0,0,0,.12)]">
+      {order.map(item)}
+      {trailing}
     </div>
   );
 }
