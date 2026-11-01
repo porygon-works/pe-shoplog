@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Dela_Gothic_One, Zen_Kaku_Gothic_New } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SwRegister } from "@/components/sw-register";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const zen = Zen_Kaku_Gothic_New({
@@ -35,7 +36,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={`${zen.variable} ${dela.variable} h-full antialiased`}>
+    <html lang="ja" className={`${zen.variable} ${dela.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        {/* 保存された「画面の明るさ」を描画前に反映する（data-theme を書き換えるので html は suppressHydrationWarning）。 */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <NuqsAdapter>{children}</NuqsAdapter>
         <SwRegister />

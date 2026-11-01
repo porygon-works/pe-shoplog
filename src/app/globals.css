@@ -19,8 +19,27 @@
   color-scheme: light;
 }
 
+/* 暗い画面。端末の設定に合わせるのが既定で、マイページで「ライト」「ダーク」に固定できる（html の data-theme）。 */
+:root[data-theme="dark"] {
+  --bg: #161112;
+  --surface: #1f1819;
+  --surface-2: #2a2123;
+  --ink: #f3eaeb;
+  --muted: #b39fa4;
+  --line: #3a2e31;
+  --ai: #efe3e5;
+  --ai-soft: #3a2e31;
+  --shu: #ff5a6e;
+  --shu-soft: #3d1d23;
+  --ok: #6fcf97;
+  --ok-soft: #1c3326;
+  --warn: #f0c45a;
+  --warn-soft: #362d14;
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #161112;
     --surface: #1f1819;
     --surface-2: #2a2123;
@@ -36,6 +55,18 @@
     --warn: #f0c45a;
     --warn-soft: #362d14;
     color-scheme: dark;
+  }
+}
+
+/* Tailwind の dark: も同じ条件にそろえる。 */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
   }
 }
 
@@ -65,6 +96,29 @@ body {
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.55;
+  /* ホーム画面から開いた iPhone では画面の上端まで描画されるので、ステータスバーの分を空ける。 */
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ステータスバーの帯を塗りつぶし、スクロールした内容がその下で透けてぼやけないようにする。 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: env(safe-area-inset-top);
+  background: var(--surface);
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* iPhone は 16px 未満の入力欄にフォーカスすると画面を自動で拡大するので、タッチ端末では 16px にそろえる。
+   レイヤー外に置いて、Tailwind の text-sm などより優先させる。 */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 :focus-visible {

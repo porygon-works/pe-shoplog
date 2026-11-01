@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <ConfirmProvider>
         <CategoriesProvider categories={categories}>
           <NavTracker />
-          <div className="flex min-h-dvh flex-1 flex-col">
+          <div className="flex min-h-[calc(100dvh-env(safe-area-inset-top))] flex-1 flex-col">
             <div className="flex flex-1 flex-col">{children}</div>
             <BottomNav />
           </div>

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { logoutAction } from "@/app/(auth)/login/actions";
 import { useToast } from "@/components/toast";
 import { updateNicknameAction } from "@/lib/lists/actions";
+import { ThemeSwitcher } from "./theme-switcher";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
 const MIN_PASSWORD = 8;
@@ -160,6 +161,8 @@ export function AccountPanel({ nickname, isAdmin }: { nickname: string; isAdmin:
           パスワードを変更
         </button>
       )}
+
+      <ThemeSwitcher />
 
       <form action={logoutAction} className="flex flex-col">
         <button type="submit" className="btn">
