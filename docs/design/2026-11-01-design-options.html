@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ショップログ デザイン4案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Klee+One:wght@400;600&family=Yuji+Syuku&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Zen+Old+Mincho:wght@400;700&family=Mochiy+Pop+One&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+/* 4つの世界観を並べて見比べる比較シート。シート自体は静かな下地、各案は自分の世界で描く。 */
+:root {
+  --sheet-bg: #e9eaec;
+  --sheet-ink: #1c1f24;
+  --sheet-muted: #5d636e;
+  --sheet-line: #cfd2d8;
+  --sheet-card: #f6f7f8;
+  --font-sheet: "Zen Kaku Gothic New", "Hiragino Sans", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--sheet-bg); color: var(--sheet-ink); font-family: var(--font-sheet); line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 64px; display: flex; flex-direction: column; gap: 28px; }
+header.top h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: .02em; text-wrap: balance; }
+header.top p { margin: 6px 0 0; color: var(--sheet-muted); max-width: 62ch; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.toc a { font-size: 13px; color: var(--sheet-ink); text-decoration: none; border: 1px solid var(--sheet-line); padding: 4px 10px; border-radius: 4px; background: var(--sheet-card); }
+.toc a:focus-visible, button:focus-visible { outline: 2px solid #1c1f24; outline-offset: 2px; }
+
+.plan { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; padding: 26px; border-radius: 6px; }
+@media (max-width: 860px) { .plan { grid-template-columns: 1fr; } }
+.meta { display: flex; flex-direction: column; gap: 14px; }
+.tag { font-size: 12px; letter-spacing: .12em; opacity: .75; }
+.meta h2 { margin: 0; font-size: 34px; line-height: 1.2; text-wrap: balance; }
+.meta .concept { margin: 0; max-width: 54ch; }
+.facts { display: grid; grid-template-columns: 6.5em 1fr; gap: 6px 12px; font-size: 14px; margin: 0; }
+.facts dt { opacity: .7; }
+.facts dd { margin: 0; }
+.swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.sw { width: 38px; height: 38px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); }
+.icons { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; }
+.icons figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; }
+.icons svg { display: block; border-radius: 22%; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+.names { display: flex; flex-wrap: wrap; gap: 8px; }
+.names span { font-size: 14px; padding: 3px 10px; border-radius: 3px; }
+
+.phone { width: 320px; max-width: 100%; height: 640px; border-radius: 34px; padding: 10px; background: #111; box-shadow: 0 10px 30px rgba(0,0,0,.25); justify-self: center; }
+.screen { width: 100%; height: 100%; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.sbar { height: 26px; flex: none; }
+
+/* ===== A 伝票帳 ===== */
+#a { background: #f3f5ef; color: #22302a; }
+#a .meta h2 { font-family: "Klee One", serif; font-weight: 600; }
+#a .names span { background: #fff; border: 1px solid #b9cbbf; }
+.a-screen { background: #fbfcf8; color: #22302a; font-family: "BIZ UDPGothic", sans-serif; }
+.a-head { padding: 10px 16px 8px; display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid #2f7a5a; }
+.a-logo { font-family: "Klee One", serif; font-weight: 600; font-size: 20px; color: #2f7a5a; }
+.a-head small { font-size: 11px; color: #5e7368; }
+.a-slip { flex: 1; overflow: hidden; padding: 0 16px; background-image: repeating-linear-gradient(to bottom, transparent 0 31px, #cfe1d5 31px 32px); background-position: 0 6px; }
+.a-row { height: 32px; display: flex; align-items: flex-end; gap: 8px; font-size: 14px; padding-bottom: 5px; }
+.a-no { width: 22px; color: #2f7a5a; font-size: 11px; font-variant-numeric: tabular-nums; }
+.a-name { flex: 1; font-family: "Klee One", serif; font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.a-star { color: #c8312b; font-size: 12px; letter-spacing: -1px; }
+.a-detail { margin: 6px 0 0; padding: 12px; border: 1.5px solid #2f7a5a; background: #fff; position: relative; }
+.a-detail h3 { margin: 0 0 4px; font-family: "Klee One", serif; font-size: 19px; }
+.a-detail p { margin: 6px 0 0; font-size: 12.5px; line-height: 1.6; }
+.a-chip { display: inline-block; font-size: 11px; border: 1px solid #2f7a5a; color: #2f7a5a; padding: 0 6px; margin-right: 4px; }
+.a-hanko { position: absolute; right: 10px; top: 10px; width: 46px; height: 46px; border: 2.5px solid #c8312b; border-radius: 50%; color: #c8312b; font-family: "Klee One", serif; font-weight: 600; display: grid; place-items: center; font-size: 13px; line-height: 1.1; text-align: center; transform: rotate(-12deg); opacity: .9; }
+.a-nav { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 2px solid #2f7a5a; font-size: 11px; text-align: center; padding: 8px 0 14px; background: #fbfcf8; }
+.a-nav b { color: #c8312b; }
+
+/* ===== B 品書き ===== */
+#b { background: #1d1714; color: #efe6d2; }
+#b .meta h2 { font-family: "Yuji Syuku", serif; font-weight: 400; font-size: 40px; }
+#b .names span { background: #2b221d; border: 1px solid #5a4636; }
+.b-screen { background: #191411; color: #efe6d2; font-family: "Zen Kaku Gothic New", sans-serif; }
+.b-head { padding: 8px 16px 12px; display: flex; align-items: center; gap: 10px; }
+.b-lantern { width: 26px; height: 34px; border-radius: 45%; background: #b3261e; position: relative; box-shadow: 0 0 18px rgba(214,70,50,.45); }
+.b-lantern::before, .b-lantern::after { content: ""; position: absolute; left: 6px; right: 6px; height: 4px; background: #191411; }
+.b-lantern::before { top: -1px; } .b-lantern::after { bottom: -1px; }
+.b-logo { font-family: "Yuji Syuku", serif; font-size: 24px; letter-spacing: .08em; }
+.b-strips { display: flex; flex-direction: row-reverse; gap: 8px; padding: 4px 14px 14px; overflow: hidden; }
+.b-strip { writing-mode: vertical-rl; background: #efe6d2; color: #1d1714; padding: 12px 6px; height: 214px; font-family: "Yuji Syuku", serif; font-size: 19px; letter-spacing: .1em; display: flex; justify-content: space-between; flex: none; box-shadow: 2px 3px 0 rgba(0,0,0,.35); }
+.b-strip small { font-family: "Zen Kaku Gothic New", sans-serif; font-size: 11px; color: #b3261e; letter-spacing: 0; }
+.b-strip.hot { background: #b3261e; color: #f6eedd; }
+.b-strip.hot small { color: #f6eedd; }
+.b-card { margin: 0 14px; padding: 14px; border-top: 1px solid #5a4636; flex: 1; }
+.b-card h3 { margin: 0; font-family: "Yuji Syuku", serif; font-weight: 400; font-size: 22px; }
+.b-card .b-sub { font-size: 12px; color: #c9b896; margin-top: 2px; }
+.b-card p { font-size: 12.5px; margin: 10px 0 0; color: #e3d8c0; }
+.b-rate { color: #e8a33d; letter-spacing: 1px; font-size: 13px; }
+.b-nav { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 11px; text-align: center; padding: 10px 0 14px; color: #c9b896; border-top: 1px solid #3a2e26; }
+.b-nav b { color: #e8a33d; }
+
+/* ===== C 駅サイン ===== */
+#c { background: #f7f8f9; color: #10161d; }
+#c .meta h2 { font-family: "BIZ UDPGothic", sans-serif; font-weight: 700; letter-spacing: -.01em; }
+#c .names span { background: #10161d; color: #ffd23f; }
+.c-screen { background: #ffffff; color: #10161d; font-family: "BIZ UDPGothic", sans-serif; }
+.c-head { background: #10161d; color: #fff; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+.c-badge { background: #ffd23f; color: #10161d; font-weight: 700; padding: 2px 7px; font-size: 13px; border-radius: 2px; }
+.c-head strong { font-size: 17px; }
+.c-head span { margin-left: auto; font-size: 11px; opacity: .7; }
+.c-exit { display: flex; gap: 0; font-size: 12px; font-weight: 700; }
+.c-exit div { flex: 1; padding: 7px 10px; }
+.c-exit .w { background: #ffd23f; } .c-exit .e { background: #e9ecef; color: #5b6570; }
+.c-list { flex: 1; overflow: hidden; padding: 6px 0; position: relative; }
+.c-list::before { content: ""; position: absolute; left: 33px; top: 0; bottom: 0; width: 6px; background: #e4572e; }
+.c-stop { display: flex; align-items: center; gap: 12px; padding: 8px 14px; position: relative; }
+.c-num { width: 44px; height: 44px; flex: none; border: 3px solid #e4572e; background: #fff; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; line-height: 1; z-index: 1; font-variant-numeric: tabular-nums; }
+.c-num small { display: block; font-size: 8px; color: #e4572e; }
+.c-stop b { display: block; font-size: 15px; }
+.c-stop span { font-size: 11px; color: #5b6570; }
+.c-stop.sel { background: #fff7d6; }
+.c-tags { display: flex; gap: 4px; margin-top: 3px; }
+.c-tags i { font-style: normal; font-size: 10px; padding: 1px 5px; border-radius: 2px; background: #10161d; color: #fff; }
+.c-tags i.smk { background: #3b7d3a; }
+.c-nav { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 11px; text-align: center; padding: 9px 0 14px; background: #10161d; color: #c8ced6; font-weight: 700; }
+.c-nav b { color: #ffd23f; }
+
+/* ===== D リソ刷り ===== */
+#d { background: #eceff3; color: #1a2340; }
+#d .meta h2 { font-family: "Mochiy Pop One", sans-serif; font-weight: 400; }
+#d .names span { background: #fff; border: 2px solid #1a2340; }
+.d-screen { background: #f2f3f5; color: #1a2340; font-family: "Zen Kaku Gothic New", sans-serif; position: relative; }
+.d-screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(rgba(26,35,64,.09) 1px, transparent 1.2px); background-size: 4px 4px; mix-blend-mode: multiply; }
+.d-head { padding: 10px 16px; display: flex; align-items: center; gap: 8px; }
+.d-logo { font-family: "Mochiy Pop One", sans-serif; font-size: 22px; position: relative; color: #2b54c8; }
+.d-logo::after { content: attr(data-t); position: absolute; left: 2px; top: 2px; color: #ff4fa3; mix-blend-mode: multiply; z-index: -0; }
+.d-map { margin: 0 14px; height: 210px; border: 2px solid #1a2340; position: relative; background:
+  linear-gradient(90deg, transparent 47%, #fff 47% 53%, transparent 53%),
+  linear-gradient(0deg, transparent 38%, #fff 38% 44%, transparent 44%),
+  linear-gradient(120deg, transparent 60%, #fff 60% 64%, transparent 64%), #cfd8ea; overflow: hidden; }
+.d-pin { position: absolute; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); mix-blend-mode: multiply; }
+.d-pin.p { background: #ff4fa3; } .d-pin.b { background: #2b54c8; }
+.d-sheet { margin: 12px 14px 0; background: #fff; border: 2px solid #1a2340; padding: 12px; box-shadow: 5px 5px 0 #ff4fa3; flex: 1; }
+.d-sheet h3 { margin: 0; font-family: "Mochiy Pop One", sans-serif; font-weight: 400; font-size: 17px; }
+.d-sheet p { font-size: 12.5px; margin: 8px 0 0; }
+.d-tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 99px; background: #ff4fa3; color: #fff; margin-right: 4px; }
+.d-tag.b { background: #2b54c8; }
+.d-nav { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 11px; text-align: center; padding: 10px 0 14px; font-weight: 700; }
+.d-nav b { color: #ff4fa3; }
+
+.names-sheet { background: var(--sheet-card); border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.names-sheet h2 { margin: 0; font-size: 22px; }
+.ntable { display: grid; grid-template-columns: minmax(8em, 12em) 1fr; gap: 10px 18px; margin: 0; }
+.ntable dt { font-weight: 900; font-size: 18px; }
+.ntable dd { margin: 0; color: #3b414a; max-width: 62ch; }
+.ask { background: #1c1f24; color: #f2f3f5; border-radius: 6px; padding: 20px 24px; }
+.ask h2 { margin: 0 0 8px; font-size: 18px; }
+.ask ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+@media (prefers-reduced-motion: no-preference) { .a-hanko { transition: transform .2s; } .a-detail:hover .a-hanko { transform: rotate(-4deg) scale(1.05); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>ショップログ デザイン4案</h1>
+    <p>いまの「青地に赤いピン」「角丸カード」から離れて、池袋で飲む会社の人たちの道具らしく見せる方向を4つ出しました。画面は同じ店（和み屋）を各案で描いています。名前は案ごとに合うものを添え、最後にまとめて並べました。</p>
+    <nav class="toc" aria-label="案の一覧">
+      <a href="#a">A 伝票帳</a><a href="#b">B 品書き</a><a href="#c">C 駅サイン</a><a href="#d">D リソ刷り</a><a href="#names">名前の候補</a>
+    </nav>
+  </header>
+
+  <!-- A -->
+  <section class="plan" id="a">
+    <div class="meta">
+      <div class="tag">案 A ／ 伝票帳</div>
+      <h2>居酒屋の伝票に書きつける</h2>
+      <p class="concept">緑の罫線の伝票に、手書きふうの店名と朱のハンコ。「行った」「気になる」はハンコで押す感覚にします。紙ものの親しみがありつつ、罫線で情報がそろうので一覧が読みやすい案です。</p>
+      <dl class="facts">
+        <dt>文字</dt><dd>店名は手書きふう（Klee One）、本文は読みやすいゴシック（BIZ UDP）</dd>
+        <dt>色</dt><dd>伝票の緑・紙の白・朱肉の赤</dd>
+        <dt>特徴</dt><dd>罫線の一覧、記録にハンコ、★も朱で手書きっぽく</dd>
+      </dl>
+      <div class="swatches" aria-label="配色"><span class="sw" style="background:#fbfcf8"></span><span class="sw" style="background:#cfe1d5"></span><span class="sw" style="background:#2f7a5a"></span><span class="sw" style="background:#c8312b"></span><span class="sw" style="background:#22302a"></span></div>
+      <div class="icons">
+        <figure>
+          <svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="伝票帳のアイコン">
+            <rect width="96" height="96" fill="#fbfcf8"/>
+            <g stroke="#cfe1d5" stroke-width="2"><line x1="0" y1="26" x2="96" y2="26"/><line x1="0" y1="46" x2="96" y2="46"/><line x1="0" y1="66" x2="96" y2="66"/><line x1="0" y1="86" x2="96" y2="86"/></g>
+            <rect x="0" y="0" width="96" height="10" fill="#2f7a5a"/>
+            <g transform="rotate(-12 48 54)"><circle cx="48" cy="54" r="27" fill="none" stroke="#c8312b" stroke-width="5"/><text x="48" y="64" text-anchor="middle" font-family="Klee One, serif" font-weight="600" font-size="28" fill="#c8312b">行</text></g>
+          </svg>
+          <span>ハンコ「行」</span>
+        </figure>
+        <figure>
+          <svg width="64" height="64" viewBox="0 0 96 96" role="img" aria-label="伝票帳の小さいアイコン">
+            <rect width="96" height="96" fill="#2f7a5a"/>
+            <circle cx="48" cy="48" r="30" fill="none" stroke="#fbfcf8" stroke-width="5"/><text x="48" y="60" text-anchor="middle" font-family="Klee One, serif" font-weight="600" font-size="32" fill="#fbfcf8">帳</text>
+          </svg>
+          <span>緑地「帳」</span>
+        </figure>
+      </div>
+      <div class="names"><span>行きつけ帳</span><span>PE伝票</span><span>酒場控</span></div>
+    </div>
+    <div class="phone" aria-hidden="true"><div class="screen a-screen">
+      <div class="sbar"></div>
+      <div class="a-head"><span class="a-logo">行きつけ帳</span><small>西池袋 37 軒</small></div>
+      <div class="a-slip">
+        <div class="a-row"><span class="a-no">01</span><span class="a-name">炭火焼き鳥 池袋 和み屋</span><span class="a-star">★★★★★</span></div>
+        <div class="a-row"><span class="a-no">02</span><span class="a-name">清龍 池袋西口店</span><span class="a-star">★★★★★</span></div>
+        <div class="a-row"><span class="a-no">03</span><span class="a-name">つけ蕎麦の阿国</span><span class="a-star">★★★★</span></div>
+        <div class="a-row"><span class="a-no">04</span><span class="a-name">大衆酒泉テルマエ</span><span class="a-star">★★★★</span></div>
+        <div class="a-detail">
+          <div class="a-hanko">行った<br>3回</div>
+          <h3>炭火焼き鳥 和み屋</h3>
+          <span class="a-chip">焼き鳥</span><span class="a-chip">喫煙可</span><span class="a-chip">¥3,000〜</span>
+          <p>コスパは高くないがおいしい焼き鳥。混んでいて入れないことが多い。</p>
+        </div>
+      </div>
+      <div class="a-nav"><span><b>地図</b></span><span>さがす</span><span>書く</span><span>自分</span></div>
+    </div></div>
+  </section>
+
+  <!-- B -->
+  <section class="plan" id="b">
+    <div class="meta">
+      <div class="tag">案 B ／ 品書き</div>
+      <h2>赤ちょうちんと短冊の品書き</h2>
+      <p class="concept">店内の壁に貼られた短冊メニューのように、店を縦書きの札で並べます。夜に開くことが多いアプリなので、暗い木の色を地にして目に優しく。いちばん「酒場」の空気が出る案ですが、一覧の情報量は少なめになります。</p>
+      <dl class="facts">
+        <dt>文字</dt><dd>店名は筆文字（Yuji Syuku）、本文はゴシック</dd>
+        <dt>色</dt><dd>煤けた木の黒・短冊の生成り・ちょうちんの赤・燗の金</dd>
+        <dt>特徴</dt><dd>縦書きの札、イチオシの店だけ赤札、暗い画面が基本</dd>
+      </dl>
+      <div class="swatches" aria-label="配色"><span class="sw" style="background:#191411"></span><span class="sw" style="background:#5a4636"></span><span class="sw" style="background:#efe6d2"></span><span class="sw" style="background:#b3261e"></span><span class="sw" style="background:#e8a33d"></span></div>
+      <div class="icons">
+        <figure>
+          <svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="ちょうちんのアイコン">
+            <rect width="96" height="96" fill="#191411"/>
+            <ellipse cx="48" cy="52" rx="26" ry="32" fill="#b3261e"/>
+            <rect x="34" y="16" width="28" height="7" fill="#191411"/><rect x="34" y="81" width="28" height="7" fill="#191411"/>
+            <g stroke="#8e1d17" stroke-width="1.5"><line x1="24" y1="40" x2="72" y2="40"/><line x1="22" y1="52" x2="74" y2="52"/><line x1="24" y1="64" x2="72" y2="64"/></g>
+            <text x="48" y="62" text-anchor="middle" font-family="Yuji Syuku, serif" font-size="30" fill="#f6eedd">呑</text>
+          </svg>
+          <span>ちょうちん「呑」</span>
+        </figure>
+        <figure>
+          <svg width="64" height="64" viewBox="0 0 96 96" role="img" aria-label="短冊のアイコン">
+            <rect width="96" height="96" fill="#b3261e"/>
+            <rect x="34" y="12" width="28" height="72" fill="#efe6d2"/>
+            <text x="48" y="44" text-anchor="middle" font-family="Yuji Syuku, serif" font-size="22" fill="#191411">二</text><text x="48" y="72" text-anchor="middle" font-family="Yuji Syuku, serif" font-size="22" fill="#191411">軒</text>
+          </svg>
+          <span>短冊「二軒」</span>
+        </figure>
+      </div>
+      <div class="names"><span>赤ちょうちん</span><span>二軒目</span><span>呑み処帖</span></div>
+    </div>
+    <div class="phone" aria-hidden="true"><div class="screen b-screen">
+      <div class="sbar"></div>
+      <div class="b-head"><span class="b-lantern"></span><span class="b-logo">二軒目</span></div>
+      <div class="b-strips">
+        <div class="b-strip hot">和み屋<small>★5</small></div>
+        <div class="b-strip">清龍<small>★5</small></div>
+        <div class="b-strip">阿国<small>★4</small></div>
+        <div class="b-strip">テルマエ<small>★4</small></div>
+        <div class="b-strip">チギネ<small>★5</small></div>
+        <div class="b-strip">魚ます<small>★4</small></div>
+        <div class="b-strip">優男<small>★5</small></div>
+      </div>
+      <div class="b-card">
+        <h3>炭火焼き鳥 和み屋</h3>
+        <div class="b-sub">焼き鳥・居酒屋　西池袋一丁目　<span class="b-rate">★★★★★</span></div>
+        <p>コスパは高くないがおいしい焼き鳥。混んでいて入れないことが多い。</p>
+      </div>
+      <div class="b-nav"><span><b>地図</b></span><span>品書き</span><span>書く</span><span>自分</span></div>
+    </div></div>
+  </section>
+
+  <!-- C -->
+  <section class="plan" id="c">
+    <div class="meta">
+      <div class="tag">案 C ／ 駅サイン</div>
+      <h2>池袋駅の案内板みたいに</h2>
+      <p class="concept">駅の出口案内と路線図の文法を借ります。店は「駅」として番号を振り、西口・東口でタブを切り替え。黒地に黄色は遠目でもすぐ読めて、飲み会の幹事が急いで店を探す場面に強い、いちばん実用寄りの案です。</p>
+      <dl class="facts">
+        <dt>文字</dt><dd>太い UD ゴシック（BIZ UDP）だけで通す</dd>
+        <dt>色</dt><dd>案内板の黒・出口の黄・路線の朱・喫煙可の緑</dd>
+        <dt>特徴</dt><dd>店に番号、西口／東口タブ、条件は小さな札で表示</dd>
+      </dl>
+      <div class="swatches" aria-label="配色"><span class="sw" style="background:#10161d"></span><span class="sw" style="background:#ffd23f"></span><span class="sw" style="background:#e4572e"></span><span class="sw" style="background:#3b7d3a"></span><span class="sw" style="background:#ffffff"></span></div>
+      <div class="icons">
+        <figure>
+          <svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="駅サインのアイコン">
+            <rect width="96" height="96" fill="#10161d"/>
+            <rect x="12" y="14" width="72" height="30" rx="3" fill="#ffd23f"/>
+            <text x="48" y="37" text-anchor="middle" font-family="BIZ UDPGothic, sans-serif" font-weight="700" font-size="22" fill="#10161d">西口</text>
+            <circle cx="48" cy="70" r="15" fill="#fff" stroke="#e4572e" stroke-width="5"/>
+            <text x="48" y="76" text-anchor="middle" font-family="BIZ UDPGothic, sans-serif" font-weight="700" font-size="15" fill="#10161d">PE</text>
+          </svg>
+          <span>出口サイン</span>
+        </figure>
+        <figure>
+          <svg width="64" height="64" viewBox="0 0 96 96" role="img" aria-label="番号のアイコン">
+            <rect width="96" height="96" fill="#ffd23f"/>
+            <circle cx="48" cy="48" r="28" fill="#fff" stroke="#e4572e" stroke-width="8"/>
+            <text x="48" y="57" text-anchor="middle" font-family="BIZ UDPGothic, sans-serif" font-weight="700" font-size="26" fill="#10161d">呑</text>
+          </svg>
+          <span>駅ナンバー</span>
+        </figure>
+      </div>
+      <div class="names"><span>いつもの</span><span>西口案内</span><span>PE店案内</span></div>
+    </div>
+    <div class="phone" aria-hidden="true"><div class="screen c-screen">
+      <div class="sbar" style="background:#10161d"></div>
+      <div class="c-head"><span class="c-badge">PE</span><strong>いつもの</strong><span>池袋 37 店</span></div>
+      <div class="c-exit"><div class="w">西口 36</div><div class="e">東口 1</div></div>
+      <div class="c-list">
+        <div class="c-stop sel"><span class="c-num">01<small>★5</small></span><div><b>炭火焼き鳥 和み屋</b><span>焼き鳥　西池袋1-38-6 B1</span><div class="c-tags"><i class="smk">喫煙可</i><i>混む</i></div></div></div>
+        <div class="c-stop"><span class="c-num">02<small>★5</small></span><div><b>清龍 池袋西口店</b><span>大衆居酒屋　0次会の定番</span><div class="c-tags"><i class="smk">喫煙可</i></div></div></div>
+        <div class="c-stop"><span class="c-num">03<small>★4</small></span><div><b>つけ蕎麦の阿国</b><span>そば　会社の目の前</span><div class="c-tags"><i>加熱式のみ</i></div></div></div>
+        <div class="c-stop"><span class="c-num">04<small>★5</small></span><div><b>京華閣</b><span>中華　ラム串</span><div class="c-tags"><i>分煙</i></div></div></div>
+        <div class="c-stop"><span class="c-num">05<small>★4</small></span><div><b>魚ます</b><span>居酒屋　静岡おでん</span><div class="c-tags"><i class="smk">喫煙可</i></div></div></div>
+      </div>
+      <div class="c-nav"><span><b>地図</b></span><span>さがす</span><span>登録</span><span>自分</span></div>
+    </div></div>
+  </section>
+
+  <!-- D -->
+  <section class="plan" id="d">
+    <div class="meta">
+      <div class="tag">案 D ／ リソ刷り</div>
+      <h2>2色刷りの手作りZINE</h2>
+      <p class="concept">ピンクと青の2色だけで刷ったような、少しずれた重なりと網点。社内の有志がつくった飲み歩きマップの雰囲気で、いちばん遊びがある案です。真面目な場面（接待の店探し）には軽く見えるかもしれません。</p>
+      <dl class="facts">
+        <dt>文字</dt><dd>見出しは丸い太字（Mochiy Pop One）、本文はゴシック</dd>
+        <dt>色</dt><dd>蛍光ピンク・リソの青・紺インク・薄い灰の紙</dd>
+        <dt>特徴</dt><dd>ピンが重なると色が混ざる、ずらした影、網点の質感</dd>
+      </dl>
+      <div class="swatches" aria-label="配色"><span class="sw" style="background:#f2f3f5"></span><span class="sw" style="background:#ff4fa3"></span><span class="sw" style="background:#2b54c8"></span><span class="sw" style="background:#cfd8ea"></span><span class="sw" style="background:#1a2340"></span></div>
+      <div class="icons">
+        <figure>
+          <svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="リソ刷りのアイコン">
+            <rect width="96" height="96" fill="#f2f3f5"/>
+            <g style="mix-blend-mode:multiply"><path d="M44 18a20 20 0 0 1 20 20c0 15-20 38-20 38S24 53 24 38a20 20 0 0 1 20-20z" fill="#ff4fa3"/></g>
+            <g style="mix-blend-mode:multiply"><path d="M52 24a20 20 0 0 1 20 20c0 15-20 38-20 38S32 59 32 44a20 20 0 0 1 20-20z" fill="#2b54c8" opacity=".85"/></g>
+            <circle cx="48" cy="41" r="7" fill="#f2f3f5"/>
+          </svg>
+          <span>ずれたピン</span>
+        </figure>
+        <figure>
+          <svg width="64" height="64" viewBox="0 0 96 96" role="img" aria-label="二軒目のアイコン">
+            <rect width="96" height="96" fill="#2b54c8"/>
+            <text x="50" y="66" text-anchor="middle" font-family="Mochiy Pop One, sans-serif" font-size="46" fill="#ff4fa3">2</text>
+            <text x="46" y="62" text-anchor="middle" font-family="Mochiy Pop One, sans-serif" font-size="46" fill="#f2f3f5" style="mix-blend-mode:multiply">2</text>
+          </svg>
+          <span>「2」軒目</span>
+        </figure>
+      </div>
+      <div class="names"><span>二軒目</span><span>のみある記</span><span>PEのみマップ</span></div>
+    </div>
+    <div class="phone" aria-hidden="true"><div class="screen d-screen">
+      <div class="sbar"></div>
+      <div class="d-head"><span class="d-logo" data-t="のみある記">のみある記</span></div>
+      <div class="d-map">
+        <span class="d-pin p" style="left:120px;top:70px"></span><span class="d-pin b" style="left:132px;top:78px"></span>
+        <span class="d-pin p" style="left:60px;top:120px"></span><span class="d-pin b" style="left:200px;top:40px"></span>
+        <span class="d-pin p" style="left:210px;top:140px"></span><span class="d-pin b" style="left:90px;top:30px"></span>
+      </div>
+      <div class="d-sheet">
+        <h3>炭火焼き鳥 和み屋</h3>
+        <div style="margin-top:6px"><span class="d-tag">★5.0</span><span class="d-tag b">喫煙可</span><span class="d-tag b">焼き鳥</span></div>
+        <p>コスパは高くないがおいしい焼き鳥。混んでいて入れないことが多い。</p>
+      </div>
+      <div class="d-nav"><span><b>地図</b></span><span>さがす</span><span>登録</span><span>自分</span></div>
+    </div></div>
+  </section>
+
+  <section class="names-sheet" id="names">
+    <h2>名前の候補</h2>
+    <dl class="ntable">
+      <dt>いつもの</dt><dd>合言葉の「いつもの2文字」とつながり、「いつもの店」の感覚にも合う。短くて呼びやすい。どの案とも組める。</dd>
+      <dt>行きつけ帳</dt><dd>行きつけの店をためていく帳面。A 伝票帳と相性がいい。何のアプリか名前だけで伝わる。</dd>
+      <dt>二軒目</dt><dd>「二軒目どこ行く？」の場面で開くアプリ。B 品書き・D リソ刷りと相性がいい。少し遊びがある。</dd>
+      <dt>赤ちょうちん</dt><dd>大衆居酒屋が中心ならぴったり。ただしおしゃれ系・中華・そばの店もあるので、少し狭い印象。</dd>
+      <dt>PEショップログ（いまの名前）</dt><dd>会社名が入っていて社内向けとわかる。一方で「ショップログ」は一般的で、デザインを変えても印象に残りにくい。</dd>
+    </dl>
+  </section>
+
+  <section class="ask">
+    <h2>決めたいこと</h2>
+    <ol>
+      <li>4案のうち、近いものはどれか（混ぜるのもあり。例: C の実用さに A のハンコ）</li>
+      <li>画面は明るい／暗い、どちらを基本にするか</li>
+      <li>名前の方向（会社名 PE を残すか、言葉だけにするか）</li>
+    </ol>
+  </section>
+</div>
+</body>
+</html>
