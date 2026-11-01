@@ -149,6 +149,12 @@ npm run lint && npm run typecheck && npm run build
 
 ## 運用
 
+### 本番の更新（デプロイ）
+
+- 本番は `main` ブランチから Vercel にデプロイされます（URL: https://pe-shoplog.vercel.app 。デプロイしても変わりません）。
+- 本番を更新するときは、作業ブランチの変更を `main` にマージします。`main` に入った時点で自動でデプロイされます。
+- DB の変更（`supabase/migrations` の追加）を含む場合は、マージ前に本番 DB へ適用してください。
+
 ### 本番 DB のマイグレーション履歴（biz-works）
 
 - 本番プロジェクト `biz-works`（ref: `jpwazqjrqtlbwfvagstx`、Tokyo）の初回セットアップ（2026-11-01）では、作業環境から DB に直接接続できなかったため、`0001`〜`0006` を Management API（`POST /v1/projects/<ref>/database/query`）で番号順に適用しました。
