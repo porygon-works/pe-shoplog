@@ -35,7 +35,7 @@ type VisitRow = {
   reservation: string;
   payment_methods: string[];
   comment: string | null;
-  profiles: { nickname: string } | null;
+  profiles: { nickname: string; login_id: string } | null;
 };
 
 const SIGNED_URL_SECONDS = 3600;
@@ -91,7 +91,7 @@ export default async function ShopPage({
     supabase
       .from("visits")
       .select(
-        "id, user_id, visited_on, party_size, smoking, price_range, purpose, reservation, payment_methods, comment, profiles(nickname)",
+        "id, user_id, visited_on, party_size, smoking, price_range, purpose, reservation, payment_methods, comment, profiles(nickname, login_id)",
       )
       .eq("shop_id", id)
       .is("deleted_at", null)
@@ -296,7 +296,13 @@ export default async function ShopPage({
                   >
                     {[...who][0]}
                   </span>
-                  <b>{who}</b>
+                  {v.user_id !== null && v.profiles ? (
+                    <Link href={`/users/${v.profiles.login_id}`} className="font-bold text-ink">
+                      {who}
+                    </Link>
+                  ) : (
+                    <b>{who}</b>
+                  )}
                   <span className="text-xs text-muted">
                     {v.visited_on}
                     {v.party_size !== null && `・${v.party_size}人`}

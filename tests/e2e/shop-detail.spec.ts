@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 import { adminClient, createShop, createTestUser, createVisit, uniqueId } from "../db/helpers";
 
 async function fixture(withPlace = true) {
-  const user = await createTestUser(uniqueId("e2e"));
+  const loginId = uniqueId("e2e");
+  const user = await createTestUser(loginId);
   const placeId = withPlace ? `e2e_${randomUUID().replaceAll("-", "")}` : null;
   const shopId = await createShop(user.id, {
     name: "詳細テスト酒場",
@@ -28,7 +29,7 @@ async function fixture(withPlace = true) {
     party_size: 12,
     comment: "新しい記録のコメント",
   });
-  return { shopId, userId: user.id };
+  return { shopId, userId: user.id, loginId };
 }
 
 test("詳細ページに喫煙・値段感の代表値と内訳、行った記録が出る", async ({ page }) => {
@@ -49,6 +50,27 @@ test("詳細ページに喫煙・値段感の代表値と内訳、行った記�
     "href",
     /google\.com\/maps\/search\/\?api=1&query=/,
   );
+});
+
+test("記録の投稿者名はユーザーページへのリンクになっている", async ({ page }) => {
+  const { shopId, loginId } = await fixture();
+  await page.goto(`/shops/${shopId}`);
+  const link = page.getByRole("link", { name: loginId }).first();
+  await expect(link).toHaveAttribute("href", `/users/${loginId}`);
+});
+
+test("「戻る」: 直接開いたら地図へ、アプリ内で移動してきたなら前の画面へ", async ({ page }) => {
+  const { shopId, loginId } = await fixture();
+  await page.goto(`/shops/${shopId}`);
+  await page.getByRole("button", { name: "← 戻る" }).click();
+  await expect(page).toHaveURL(/\/map$/);
+
+  // 他のユーザーのページからリンクで移動してきた（アプリ内の移動）
+  await page.goto(`/users/${loginId}`);
+  await page.getByRole("link", { name: /詳細テスト酒場/ }).first().click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await page.getByRole("button", { name: "← 戻る" }).click();
+  await expect(page).toHaveURL(new RegExp(`/users/${loginId}$`));
 });
 
 test("公式サイトは新しいタブで開くリンクになっている", async ({ page }) => {
