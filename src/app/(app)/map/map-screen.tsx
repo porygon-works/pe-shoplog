@@ -122,7 +122,7 @@ export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
           className="absolute bottom-2.5 left-2.5 right-2.5 z-[4] flex flex-col gap-2.5 rounded-2xl bg-surface p-3.5 shadow-[0_6px_24px_rgba(0,0,0,.2)] motion-safe:animate-[sheet-up_.18s_ease-out]"
         >
           <div className="flex gap-3">
-            <ShopThumb url={shop.thumbUrl} />
+            <ShopThumb url={shop.thumbUrl} genre={shop.genre} styles={shop.styles} />
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="font-bold">{shop.name}</div>
               <div className="text-xs text-muted">{shopMeta(shop, categories)}</div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCategories } from "@/components/categories-provider";
 import type { Categories } from "@/lib/category-utils";
 import { ratingText } from "@/components/rating";
+import { ShopIllustration } from "@/components/shop-illustration";
 import { PRICE_RANGES, SMOKING, labelOf } from "@/lib/options";
 
 /** 店カードに必要な最小限の項目。一覧系の画面で共有する。 */
@@ -28,15 +29,23 @@ function smokePill(v: string) {
   return "bg-warn-soft text-warn";
 }
 
-export function ShopThumb({ url, size = 72 }: { url: string | null; size?: number }) {
+export function ShopThumb({
+  url,
+  genre,
+  styles,
+  size = 72,
+}: {
+  url: string | null;
+  genre: string;
+  styles: readonly string[];
+  size?: number;
+}) {
   const style = { width: size, height: size };
   if (!url) {
+    // 写真がなければジャンル・形態ごとのイラスト。
     return (
-      <div
-        style={style}
-        className="grid flex-none place-items-center rounded-[10px] bg-surface-2 text-[11px] text-muted"
-      >
-        写真なし
+      <div style={style} className="grid flex-none place-items-center rounded-[10px] bg-shu-soft text-shu">
+        <ShopIllustration genre={genre} styles={styles} className="h-[72%] w-[72%]" />
       </div>
     );
   }
@@ -78,7 +87,7 @@ export function ShopCard({ shop }: { shop: ShopCardData }) {
       data-testid="shop-card"
       className="flex gap-3 rounded-[14px] border border-line bg-surface p-3 text-inherit no-underline hover:border-ai"
     >
-      <ShopThumb url={shop.thumbUrl} />
+      <ShopThumb url={shop.thumbUrl} genre={shop.genre} styles={shop.styles} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="text-[15px] font-bold">{shop.name}</div>
         <div className="text-xs text-muted">{shopMeta(shop, categories)}</div>

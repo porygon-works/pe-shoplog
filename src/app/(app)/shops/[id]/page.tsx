@@ -16,6 +16,7 @@ import { Stars, ratingText } from "@/components/rating";
 import { googleMapsUrl } from "@/lib/shops/google-maps-url";
 import { createServerClient } from "@/lib/supabase/server";
 import { summarizeVisits, type Count } from "@/lib/visits/summarize";
+import { ShopIllustration } from "@/components/shop-illustration";
 import { GooglePhoto } from "./google-photo";
 import { NoticeToast } from "./notice-toast";
 import { PhotoGallery, type GalleryPhoto } from "./photo-gallery";
@@ -161,6 +162,12 @@ export default async function ShopPage({
   const stylesLabel = ((shop.styles ?? []) as string[]).map((s) => labelOf(categories.styles, s)).join("・");
   const avgText = ratingText(shop.avg_rating, shop.rating_count);
   const heroPhotos = photos.slice(0, 3);
+  const noPhoto = (
+    <div data-testid="shop-illustration" className="flex h-[170px] flex-col items-center justify-center gap-1 bg-shu-soft text-shu">
+      <ShopIllustration genre={shop.genre} styles={(shop.styles ?? []) as string[]} className="h-[110px] w-[110px]" />
+      <span className="text-[11px] text-muted">写真はまだありません。行った人が追加できます。</span>
+    </div>
+  );
 
   return (
     <main className="flex flex-1 flex-col bg-surface">
@@ -179,12 +186,12 @@ export default async function ShopPage({
             />
           ))}
         </div>
+      ) : shop.place_id ? (
+        // 誰も写真を載せていなければ Google の写真を 1 枚。それもなければ案内を出す。
+        <GooglePhoto placeId={shop.place_id} fallback={noPhoto} />
       ) : (
-        <div className="grid h-[120px] place-items-center bg-surface-2 text-[13px] text-muted">
-          写真はまだありません。行った人が追加できます。
-        </div>
+        noPhoto
       )}
-      {heroPhotos.length === 0 && shop.place_id && <GooglePhoto placeId={shop.place_id} />}
 
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-1.5">

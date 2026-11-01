@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Dela_Gothic_One, Zen_Kaku_Gothic_New } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SwRegister } from "@/components/sw-register";
+import { IllustrationDefs } from "@/components/shop-illustration";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col">
         <div className="ios-status-band" aria-hidden="true" />
+        <IllustrationDefs />
         <NuqsAdapter>{children}</NuqsAdapter>
         <SwRegister />
       </body>

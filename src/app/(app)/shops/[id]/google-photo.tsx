@@ -1,30 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 type Photo = { url: string; authors: { name: string; uri: string | null }[] };
 
 /**
  * ユーザーの写真がない店に、Google の写真を 1 枚だけ出す。表示のたびに取得し、何も保存しない。
- * 失敗したときや写真がないときは何も出さない。
+ * 失敗したときや写真がないときは fallback を出す。読み込み中は同じ高さの枠を出して画面がずれないようにする。
  */
-export function GooglePhoto({ placeId }: { placeId: string }) {
-  const [photo, setPhoto] = useState<Photo | null>(null);
+export function GooglePhoto({ placeId, fallback }: { placeId: string; fallback: ReactNode }) {
+  const [photo, setPhoto] = useState<Photo | null | "loading">("loading");
 
   useEffect(() => {
     let cancelled = false;
     fetch(`/api/places/photo?id=${encodeURIComponent(placeId)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (!cancelled && d?.photo?.url) setPhoto(d.photo);
+        if (!cancelled) setPhoto(d?.photo?.url ? d.photo : null);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setPhoto(null);
+      });
     return () => {
       cancelled = true;
     };
   }, [placeId]);
 
-  if (!photo) return null;
+  if (photo === "loading") return <div aria-hidden="true" className="h-[190px] bg-surface-2" />;
+  if (!photo) return <>{fallback}</>;
   return (
     <figure data-testid="google-photo" className="m-0 flex flex-col gap-1">
       {/* 外部 URL で、キャッシュ・最適化してはいけない画像なので next/image は使わない。 */}
