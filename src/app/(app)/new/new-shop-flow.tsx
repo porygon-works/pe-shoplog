@@ -1,9 +1,10 @@
 "use client";
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { useCategories } from "@/components/categories-provider";
 import { ChipGroup } from "@/components/chip-group";
 import { useToast } from "@/components/toast";
-import { GENRES, STYLES } from "@/lib/options";
+import { selectableOptions } from "@/lib/category-utils";
 import type { ShopInput } from "@/lib/validation";
 import { createShopAction, type NewShopState } from "./actions";
 import { LocationPicker, type LatLng } from "./location-picker";
@@ -52,6 +53,7 @@ export function NewShopFlow({
 
 function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
   const [state, action, pending] = useActionState<NewShopState, FormData>(createShopAction, {});
+  const categories = useCategories();
   const [name, setName] = useState(picked.name);
   const [genre, setGenre] = useState<ShopInput["genre"]>("unknown");
   const [styles, setStyles] = useState<ShopInput["styles"]>([]);
@@ -99,13 +101,13 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">ジャンル</span>
-        <ChipGroup name="genre" options={GENRES} value={genre} onChange={setGenre} aria-label="ジャンル" />
+        <ChipGroup name="genre" options={selectableOptions(categories.genres)} value={genre} onChange={setGenre} aria-label="ジャンル" />
         <span className="text-xs text-muted">選ばなければ「不明」になります。</span>
       </div>
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">店の形態（複数可）</span>
-        <ChipGroup name="styles" multiple options={STYLES} value={styles} onChange={setStyles} aria-label="店の形態" />
+        <ChipGroup name="styles" multiple options={selectableOptions(categories.styles)} value={styles} onChange={setStyles} aria-label="店の形態" />
       </div>
 
       <div className="flex flex-col gap-2">

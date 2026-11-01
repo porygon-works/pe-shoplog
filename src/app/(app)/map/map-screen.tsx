@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
+import { useCategories } from "@/components/categories-provider";
 import { ShopFilterBar } from "@/components/shop-filter-sheet";
 import { useToast } from "@/components/toast";
 import { ShopMap, type LatLng, type MapFocus } from "@/components/shop-map";
@@ -22,6 +23,7 @@ type Selection =
   | null;
 
 export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
+  const categories = useCategories();
   const [sel, setSel] = useState<Selection>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [myLocation, setMyLocation] = useState<LatLng | null>(null);
@@ -123,7 +125,7 @@ export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
             <ShopThumb url={shop.thumbUrl} />
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="font-bold">{shop.name}</div>
-              <div className="text-xs text-muted">{shopMeta(shop)}</div>
+              <div className="text-xs text-muted">{shopMeta(shop, categories)}</div>
               <ShopPills shop={shop} />
             </div>
           </div>

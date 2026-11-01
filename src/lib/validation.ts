@@ -1,12 +1,11 @@
 import { z } from "zod";
+import { CATEGORY_VALUE_RE } from "@/lib/category-utils";
 import {
-  GENRES,
   PAYMENT_METHODS,
   PRICE_RANGES,
   PURPOSES,
   RESERVATIONS,
   SMOKING,
-  STYLES,
   values,
 } from "@/lib/options";
 
@@ -32,8 +31,9 @@ const httpUrl = z
 
 export const shopInputSchema = z.object({
   name: z.string().trim().min(1).max(100),
-  genre: z.enum(values(GENRES)).default("unknown"),
-  styles: z.array(z.enum(values(STYLES))).default([]),
+  // ジャンル・形態は DB で管理するので形式だけ見る。存在チェックは Server Action 側で行う。
+  genre: z.string().regex(CATEGORY_VALUE_RE).default("unknown"),
+  styles: z.array(z.string().regex(CATEGORY_VALUE_RE)).max(50).default([]),
   referenceUrl: z.union([httpUrl, z.literal("")]).default(""),
 });
 export type ShopInput = z.infer<typeof shopInputSchema>;

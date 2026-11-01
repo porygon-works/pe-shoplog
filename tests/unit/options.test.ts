@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  GENRES,
   LIST_KINDS,
   PAYMENT_METHODS,
   PHOTO_KINDS,
@@ -8,7 +7,6 @@ import {
   PURPOSES,
   RESERVATIONS,
   SMOKING,
-  STYLES,
   labelOf,
   values,
 } from "@/lib/options";
@@ -21,9 +19,7 @@ describe("options", () => {
     RESERVATIONS,
     PAYMENT_METHODS,
     PHOTO_KINDS,
-    GENRES,
-    STYLES,
-    LIST_KINDS,
+        LIST_KINDS,
   };
 
   for (const [name, options] of Object.entries(all)) {

@@ -2,15 +2,14 @@ import { isUuid } from "@/lib/ids";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
+import { getCategories } from "@/lib/categories";
 import {
-  GENRES,
   PAYMENT_METHODS,
   PHOTO_KINDS,
   PRICE_RANGES,
   PURPOSES,
   RESERVATIONS,
   SMOKING,
-  STYLES,
   labelOf,
 } from "@/lib/options";
 import { googleMapsUrl } from "@/lib/shops/google-maps-url";
@@ -154,8 +153,9 @@ export default async function ShopPage({
 
   const smoking: string = shop.smoking;
   const priceRange: string = shop.price_range;
-  const genreLabel = labelOf(GENRES, shop.genre);
-  const stylesLabel = ((shop.styles ?? []) as string[]).map((s) => labelOf(STYLES, s)).join("・");
+  const categories = await getCategories();
+  const genreLabel = labelOf(categories.genres, shop.genre);
+  const stylesLabel = ((shop.styles ?? []) as string[]).map((s) => labelOf(categories.styles, s)).join("・");
   const heroPhotos = photos.slice(0, 3);
 
   return (

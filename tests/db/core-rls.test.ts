@@ -115,7 +115,7 @@ describe("shops", () => {
     expect(error?.code).toBe("23505");
   });
 
-  it("CHECK 制約: 不正な genre は拒否される", async () => {
+  it("区分の検証: 不正な genre は拒否される", async () => {
     const { error } = await adminClient()
       .from("shops")
       .insert({ name: "x", lat: 1, lng: 1, genre: "nonsense" });

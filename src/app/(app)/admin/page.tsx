@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/current-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BackButton } from "@/components/back-link";
@@ -28,6 +29,10 @@ export default async function AdminPage() {
     <main className="flex flex-1 flex-col gap-4 p-4 pb-24">
       <BackButton />
       <h1 className="m-0 text-lg font-bold">管理画面</h1>
+
+      <Link href="/admin/categories" className="btn self-start">
+        ジャンル・形態の編集
+      </Link>
 
       <section className="flex flex-col gap-2">
         <h2 className="m-0 text-[13px] font-bold text-muted">合言葉</h2>

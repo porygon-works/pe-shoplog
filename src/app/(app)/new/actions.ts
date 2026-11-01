@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
+import { getCategories } from "@/lib/categories";
+import { CHECK_VIOLATION, INVALID_CATEGORY_MESSAGE, hasInvalidCategory } from "@/lib/category-utils";
 import { addShopToDefaultList } from "@/lib/lists/default-list";
 import { isValidPlaceId } from "@/lib/places/google";
 import { createShop } from "@/lib/shops/create-shop";
@@ -40,6 +42,9 @@ export async function createShopAction(
     return { error: "入力内容を確認してください" };
   }
 
+  // 新規の選択は非表示の区分を選べない。DB のトリガーが最後の砦。
+  if (hasInvalidCategory(await getCategories(), parsed.data)) return { error: INVALID_CATEGORY_MESSAGE };
+
   const rawPlaceId = text(formData, "placeId").trim();
   if (rawPlaceId && !isValidPlaceId(rawPlaceId)) return { error: "店の情報が正しくありません" };
   const placeId = rawPlaceId || null;
@@ -59,6 +64,7 @@ export async function createShopAction(
     ({ shopId, existed } = await createShop(supabase, { ...parsed.data, userId: user.id, placeId, lat, lng }));
   } catch (e) {
     console.error("createShop failed", e);
+    if ((e as { code?: string } | null)?.code === CHECK_VIOLATION) return { error: INVALID_CATEGORY_MESSAGE };
     return { error: SERVER_ERROR };
   }
 

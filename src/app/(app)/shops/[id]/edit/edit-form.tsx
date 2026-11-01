@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
+import { useCategories } from "@/components/categories-provider";
 import { ChipGroup } from "@/components/chip-group";
-import { GENRES, STYLES } from "@/lib/options";
+import { selectableOptions } from "@/lib/category-utils";
 import type { ShopInput } from "@/lib/validation";
 import { updateShopAction, type EditShopState } from "./actions";
 
@@ -15,6 +16,7 @@ export function EditShopForm({
   initial: { name: string; genre: ShopInput["genre"]; styles: ShopInput["styles"]; referenceUrl: string };
 }) {
   const [state, action, pending] = useActionState<EditShopState, FormData>(updateShopAction, {});
+  const categories = useCategories();
   const [name, setName] = useState(initial.name);
   const [genre, setGenre] = useState(initial.genre);
   const [styles, setStyles] = useState(initial.styles);
@@ -38,12 +40,12 @@ export function EditShopForm({
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">ジャンル</span>
-        <ChipGroup name="genre" options={GENRES} value={genre} onChange={setGenre} aria-label="ジャンル" />
+        <ChipGroup name="genre" options={selectableOptions(categories.genres, [initial.genre])} value={genre} onChange={setGenre} aria-label="ジャンル" />
       </div>
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">店の形態（複数可）</span>
-        <ChipGroup name="styles" multiple options={STYLES} value={styles} onChange={setStyles} aria-label="店の形態" />
+        <ChipGroup name="styles" multiple options={selectableOptions(categories.styles, initial.styles)} value={styles} onChange={setStyles} aria-label="店の形態" />
       </div>
 
       <div className="flex flex-col gap-2">

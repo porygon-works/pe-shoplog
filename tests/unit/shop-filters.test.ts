@@ -125,6 +125,15 @@ describe("URL パラメータの検証", () => {
     expect(f.purpose).toEqual(["celebration"]);
   });
 
+  it("ジャンル・形態は形式だけ検査する（DB で増減するため許可リストは持たない）", () => {
+    const f = shopFilterCache.parse({
+      genre: "c_0a1b2c3d,Bad-Value,x'y,ramen",
+      styles: "c_ffffffff,UPPER,a b",
+    });
+    expect(f.genre).toEqual(["c_0a1b2c3d", "ramen"]);
+    expect(f.styles).toEqual(["c_ffffffff"]);
+  });
+
   it("捨てた値はクエリビルダーに渡らない", () => {
     const { q, calls } = recorder();
     applyShopFilters(q, shopFilterCache.parse({ smoking: '"x,unknown' }));

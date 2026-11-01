@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useQueryStates } from "nuqs";
+import { useCategories } from "@/components/categories-provider";
 import { ChipGroup } from "@/components/chip-group";
+import { selectableOptions } from "@/lib/category-utils";
 import {
   CELEBRATION,
-  GENRE_FILTER_OPTIONS,
   PRICE_FILTER_OPTIONS,
   PURPOSE_FILTER_OPTIONS,
   SMOKING_FILTER_OPTIONS,
-  STYLE_FILTER_OPTIONS,
   SMOKABLE,
   hasAll,
   shopFilterParsers,
@@ -44,6 +44,10 @@ function FilterSheet({
   onClose: () => void;
 }) {
   const [d, setD] = useState<Draft>(initial);
+  const categories = useCategories();
+  // 非表示の区分は新しく選べないが、今の絞り込みに入っているものは外せるよう残す。
+  const genreOptions = selectableOptions(categories.genres, initial.genre, true);
+  const styleOptions = selectableOptions(categories.styles, initial.styles);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -64,10 +68,10 @@ function FilterSheet({
       >
         <h2 className="m-0 text-base font-bold">絞り込み</h2>
         <Field label="ジャンル">
-          <ChipGroup multiple name="genre" aria-label="ジャンル" options={GENRE_FILTER_OPTIONS} value={d.genre} onChange={(genre) => setD({ ...d, genre })} />
+          <ChipGroup multiple name="genre" aria-label="ジャンル" options={genreOptions} value={d.genre} onChange={(genre) => setD({ ...d, genre })} />
         </Field>
         <Field label="店の形態">
-          <ChipGroup multiple name="styles" aria-label="店の形態" options={STYLE_FILTER_OPTIONS} value={d.styles} onChange={(styles) => setD({ ...d, styles })} />
+          <ChipGroup multiple name="styles" aria-label="店の形態" options={styleOptions} value={d.styles} onChange={(styles) => setD({ ...d, styles })} />
         </Field>
         <Field label="喫煙">
           <ChipGroup multiple name="smoking" aria-label="喫煙" options={SMOKING_FILTER_OPTIONS} value={d.smoking} onChange={(smoking) => setD({ ...d, smoking })} />

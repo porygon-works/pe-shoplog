@@ -6,12 +6,11 @@ import {
   parseAsStringLiteral,
 } from "nuqs/server";
 
-import { GENRES, PRICE_RANGES, PURPOSES, SMOKING, STYLES, type Option } from "@/lib/options";
+import { CATEGORY_VALUE_RE } from "@/lib/category-utils";
+import { PRICE_RANGES, PURPOSES, SMOKING, type Option } from "@/lib/options";
 
 /** 絞り込みの選択肢。「不明」では絞り込めないので外す。URL の値の検証にもこれを使う。 */
 const known = <O extends readonly Option<string>[]>(o: O) => o.filter((x) => x.value !== "unknown");
-export const GENRE_FILTER_OPTIONS = known(GENRES);
-export const STYLE_FILTER_OPTIONS = known(STYLES);
 export const SMOKING_FILTER_OPTIONS = known(SMOKING);
 export const PRICE_FILTER_OPTIONS = known(PRICE_RANGES);
 export const PURPOSE_FILTER_OPTIONS = known(PURPOSES);
@@ -21,12 +20,22 @@ export const MAX_Q_LENGTH = 100;
 /** 許可した値だけを残す配列パーサー。URL 由来の不正な値は捨てる（PostgREST の 400 を防ぐ）。 */
 function allowedArray(options: readonly Option<string>[]) {
   const allowed = new Set(options.map((o) => o.value));
+  return arrayOf((v) => allowed.has(v));
+}
+
+function arrayOf(isValid: (v: string) => boolean) {
   const item = createParser<string>({
-    parse: (v) => (allowed.has(v) ? v : null),
+    parse: (v) => (isValid(v) ? v : null),
     serialize: (v) => v,
   });
   return parseAsArrayOf(item).withDefault([]);
 }
+
+/**
+ * ジャンル・形態は DB で増減するので、固定の許可リストではなく形だけ検査する。
+ * 存在しない値は結果 0 件になるだけで害はない。「不明」では絞り込めないので外す。
+ */
+const categoryArray = () => arrayOf((v) => CATEGORY_VALUE_RE.test(v) && v !== "unknown");
 
 const qParser = createParser<string>({
   parse: (v) => v.slice(0, MAX_Q_LENGTH),
@@ -39,8 +48,8 @@ export type ShopSort = (typeof SORTS)[number];
 /** URL クエリで持つ絞り込み条件。マップとさがすで共通。 */
 export const shopFilterParsers = {
   q: qParser,
-  genre: allowedArray(GENRE_FILTER_OPTIONS),
-  styles: allowedArray(STYLE_FILTER_OPTIONS),
+  genre: categoryArray(),
+  styles: categoryArray(),
   smoking: allowedArray(SMOKING_FILTER_OPTIONS),
   price: allowedArray(PRICE_FILTER_OPTIONS),
   purpose: allowedArray(PURPOSE_FILTER_OPTIONS),

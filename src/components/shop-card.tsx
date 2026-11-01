@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
-import { GENRES, PRICE_RANGES, SMOKING, STYLES, labelOf } from "@/lib/options";
+import { useCategories } from "@/components/categories-provider";
+import type { Categories } from "@/lib/category-utils";
+import { PRICE_RANGES, SMOKING, labelOf } from "@/lib/options";
 
 /** 店カードに必要な最小限の項目。一覧系の画面で共有する。 */
 export type ShopCardData = {
@@ -53,13 +57,15 @@ export function ShopPills({ shop }: { shop: ShopCardData }) {
   );
 }
 
-export function shopMeta(shop: ShopCardData): string {
-  const genre = shop.genre === "unknown" ? "" : labelOf(GENRES, shop.genre);
-  const styles = shop.styles.map((s) => labelOf(STYLES, s)).join("・");
+/** 非表示の区分も含めて表示名を引く（見つからなければ value のまま）。 */
+export function shopMeta(shop: ShopCardData, categories: Categories): string {
+  const genre = shop.genre === "unknown" ? "" : labelOf(categories.genres, shop.genre);
+  const styles = shop.styles.map((s) => labelOf(categories.styles, s)).join("・");
   return [genre, styles, `記録 ${shop.visitCount}件`].filter(Boolean).join("・");
 }
 
 export function ShopCard({ shop }: { shop: ShopCardData }) {
+  const categories = useCategories();
   return (
     <Link
       href={`/shops/${shop.id}`}
@@ -69,7 +75,7 @@ export function ShopCard({ shop }: { shop: ShopCardData }) {
       <ShopThumb url={shop.thumbUrl} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="text-[15px] font-bold">{shop.name}</div>
-        <div className="text-xs text-muted">{shopMeta(shop)}</div>
+        <div className="text-xs text-muted">{shopMeta(shop, categories)}</div>
         <ShopPills shop={shop} />
       </div>
     </Link>
