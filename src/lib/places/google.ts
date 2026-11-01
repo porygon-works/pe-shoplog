@@ -40,8 +40,10 @@ export function isValidPlaceId(placeId: string): boolean {
 
 function getDetails(placeId: string, fieldMask: string, sessionToken?: string) {
   if (!isValidPlaceId(placeId)) throw new PlacesError(400, "Invalid place id");
-  const qs = sessionToken ? `?sessionToken=${encodeURIComponent(sessionToken)}` : "";
-  return request(`${BASE}/places/${encodeURIComponent(placeId)}${qs}`, {
+  // 言語を指定しないと店名が英語（ローマ字）表記で返ることがある。
+  const qs = new URLSearchParams({ languageCode: "ja", regionCode: "jp" });
+  if (sessionToken) qs.set("sessionToken", sessionToken);
+  return request(`${BASE}/places/${encodeURIComponent(placeId)}?${qs}`, {
     method: "GET",
     headers: { "X-Goog-FieldMask": fieldMask },
   });

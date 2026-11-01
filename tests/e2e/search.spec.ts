@@ -47,7 +47,7 @@ test("地図キーがない環境では地図の読み込みエラーを出し�
   test.skip(!!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY, "Maps キーがある環境ではスキップ");
   await page.goto("/map");
   await expect(page.getByText("地図を読み込めませんでした")).toBeVisible();
-  await expect(page.getByRole("link", { name: "店名・ジャンルでさがす" })).toHaveAttribute("href", "/search");
+  await expect(page.getByRole("searchbox", { name: "お店をさがす" })).toBeVisible();
   await page.getByRole("button", { name: "気になるだけ" }).click();
   await expect(page).toHaveURL(/want=true/);
   await expect(page.getByText("地図を読み込めませんでした")).toBeVisible();

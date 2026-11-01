@@ -1,25 +1,51 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ShopFilterBar } from "@/components/shop-filter-sheet";
-import { ShopMap } from "@/components/shop-map";
+import { ShopMap, type LatLng, type MapFocus } from "@/components/shop-map";
 import { ShopPills, ShopThumb, shopMeta, type ShopCardData } from "@/components/shop-card";
+import { IKEBUKURO_STATION } from "@/lib/default-location";
+import type { PickedPlace } from "@/lib/places/use-place-autocomplete";
+import { MapPlaceSearch } from "./map-place-search";
+import { PlaceSheet } from "./place-sheet";
 
 export type MapScreenShop = ShopCardData & { lat: number; lng: number; placeId: string | null };
 
-type Selection = { type: "shop"; id: string } | { type: "place"; placeId: string } | null;
+type Selection =
+  | { type: "shop"; id: string }
+  // place は検索から来たときだけ名前と位置がわかっている。地図のアイコンからは placeId だけ。
+  | { type: "place"; placeId: string; place?: PickedPlace; fromSearch?: boolean }
+  | null;
 
 export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
   const [sel, setSel] = useState<Selection>(null);
+  const [focus, setFocus] = useState<MapFocus | null>(null);
+  const center = useRef<LatLng>(IKEBUKURO_STATION);
+  const getCenter = useCallback(() => center.current, []);
+  const onCenterChange = useCallback((c: LatLng) => {
+    center.current = c;
+  }, []);
+
+  const registeredOf = (placeId: string) => shops.find((s) => s.placeId === placeId);
 
   const selectPlace = (placeId: string) => {
     // 登録済みの店の place_id なら、その店のカードを出す。
-    const registered = shops.find((s) => s.placeId === placeId);
+    const registered = registeredOf(placeId);
     setSel(registered ? { type: "shop", id: registered.id } : { type: "place", placeId });
+  };
+  const pickFromSearch = (p: PickedPlace) => {
+    const registered = registeredOf(p.placeId);
+    setSel(
+      registered
+        ? { type: "shop", id: registered.id }
+        : { type: "place", placeId: p.placeId, place: p, fromSearch: true },
+    );
+    setFocus((f) => ({ lat: p.lat, lng: p.lng, seq: (f?.seq ?? 0) + 1 }));
   };
   const shop = sel?.type === "shop" ? shops.find((s) => s.id === sel.id) : undefined;
   const close = () => setSel(null);
+  const searchPin = sel?.type === "place" && sel.fromSearch && sel.place ? sel.place : null;
   // 絞り込みで選択中の店が一覧から消えたら、選択を外す（凡例を戻す）。
   const gone = sel?.type === "shop" && !shop;
   if (gone) setSel(null);
@@ -33,16 +59,14 @@ export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
           onSelectShop={(id) => setSel({ type: "shop", id })}
           onSelectPlace={selectPlace}
           onDismiss={close}
+          focus={focus}
+          searchPin={searchPin}
+          onCenterChange={onCenterChange}
         />
       </div>
 
       <div className="absolute left-2.5 right-2.5 top-2.5 z-[3] flex flex-col gap-2">
-        <Link
-          href="/search"
-          className="rounded-xl bg-surface px-3 py-2.5 text-sm text-muted no-underline shadow-[0_2px_10px_rgba(0,0,0,.12)]"
-        >
-          店名・ジャンルでさがす
-        </Link>
+        <MapPlaceSearch getBias={getCenter} onPick={pickFromSearch} />
         <ShopFilterBar />
       </div>
 
@@ -84,23 +108,7 @@ export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
       )}
 
       {sel?.type === "place" && (
-        <div
-          data-testid="place-sheet"
-          className="absolute bottom-2.5 left-2.5 right-2.5 z-[4] flex flex-col gap-2.5 rounded-2xl bg-surface p-3.5 shadow-[0_6px_24px_rgba(0,0,0,.2)] motion-safe:animate-[sheet-up_.18s_ease-out]"
-        >
-          <div className="text-xs text-muted">Googleマップの店舗・まだ誰も登録していません</div>
-          <div className="flex gap-2">
-            <Link
-              href={`/new?placeId=${encodeURIComponent(sel.placeId)}`}
-              className="btn btn-accent flex-1 !py-2 text-[13px]"
-            >
-              この店を登録
-            </Link>
-            <button type="button" className="btn !py-2 text-[13px]" onClick={close}>
-              閉じる
-            </button>
-          </div>
-        </div>
+        <PlaceSheet key={sel.placeId} placeId={sel.placeId} place={sel.place} onClose={close} />
       )}
     </div>
   );

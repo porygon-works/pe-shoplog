@@ -37,6 +37,8 @@ describe("getPlaceBasics", () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(String(url)).toContain("https://places.googleapis.com/v1/places/p1");
     expect(String(url)).toContain("sessionToken=tok");
+    // 店名を日本語で受け取る
+    expect(String(url)).toContain("languageCode=ja");
     expect(init.headers["X-Goog-FieldMask"]).toBe("id,displayName,location");
     expect(init.headers["X-Goog-Api-Key"]).toBe("test-key");
   });

@@ -1,13 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useToast } from "@/components/toast";
+import { usePlaceAutocomplete, type PickedPlace, type Suggestion } from "@/lib/places/use-place-autocomplete";
 
-export type PickedPlace = { placeId: string; name: string; lat: number; lng: number };
-type Suggestion = { placeId: string; mainText: string; secondaryText: string };
-
-export const SEARCH_ERROR = "お店の検索に失敗しました。時間をおいてもう一度お試しください";
-const DEBOUNCE_MS = 300;
+export { SEARCH_ERROR, type PickedPlace } from "@/lib/places/use-place-autocomplete";
 
 export function PlaceSearch({
   onPick,
@@ -16,77 +11,11 @@ export function PlaceSearch({
   onPick: (place: PickedPlace) => void;
   onManual: () => void;
 }) {
-  const toast = useToast();
-  const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [searched, setSearched] = useState(false);
-  const [picking, setPicking] = useState(false);
-  // Places の課金セッション。検索を始めるときに作り、details を取るまで使い回す。
-  const session = useRef<string | null>(null);
-  const seq = useRef(0);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current);
-    },
-    [],
-  );
-
-  const search = useCallback(
-    async (q: string, token: string, mine: number) => {
-      try {
-        const res = await fetch(
-          `/api/places/autocomplete?q=${encodeURIComponent(q)}&session=${encodeURIComponent(token)}`,
-        );
-        if (!res.ok) throw new Error(String(res.status));
-        const data = (await res.json()) as { suggestions: Suggestion[] };
-        if (mine !== seq.current) return; // 古い応答は捨てる
-        setSuggestions(data.suggestions);
-        setSearched(true);
-      } catch {
-        if (mine !== seq.current) return;
-        setSuggestions([]);
-        setSearched(false);
-        toast.show(SEARCH_ERROR, "error");
-      }
-    },
-    [toast],
-  );
-
-  const onInput = (value: string) => {
-    setQuery(value);
-    if (timer.current) clearTimeout(timer.current);
-    const q = value.trim();
-    const mine = ++seq.current;
-    if (!q) {
-      setSuggestions([]);
-      setSearched(false);
-      return;
-    }
-    if (!session.current) session.current = crypto.randomUUID();
-    const token = session.current;
-    timer.current = setTimeout(() => void search(q, token, mine), DEBOUNCE_MS);
-  };
+  const { query, onInput, suggestions, searched, picking, pick: pickPlace } = usePlaceAutocomplete();
 
   const pick = async (s: Suggestion) => {
-    if (picking) return;
-    setPicking(true);
-    seq.current++; // 選択後に遅れて届く検索結果は無視する
-    if (timer.current) clearTimeout(timer.current);
-    try {
-      const params = new URLSearchParams({ id: s.placeId });
-      if (session.current) params.set("session", session.current);
-      const res = await fetch(`/api/places/details?${params}`);
-      if (!res.ok) throw new Error(String(res.status));
-      const d = (await res.json()) as PickedPlace;
-      session.current = null; // 選択で課金セッションは終了。次の検索では新しいトークンを使う
-      onPick({ placeId: d.placeId, name: d.name, lat: d.lat, lng: d.lng });
-    } catch {
-      toast.show(SEARCH_ERROR, "error");
-    } finally {
-      setPicking(false);
-    }
+    const d = await pickPlace(s);
+    if (d) onPick(d);
   };
 
   return (

@@ -1,12 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AdvancedMarker, APIProvider, Map, type MapMouseEvent } from "@vis.gl/react-google-maps";
+import {
+  AdvancedMarker,
+  APIProvider,
+  Map,
+  useMap,
+  type MapCameraChangedEvent,
+  type MapMouseEvent,
+} from "@vis.gl/react-google-maps";
 import { IKEBUKURO_STATION } from "@/lib/default-location";
 
 export const MAP_ERROR_MESSAGE = "地図を読み込めませんでした";
 
 export type MapShop = { id: string; lat: number; lng: number; visitCount: number };
+export type LatLng = { lat: number; lng: number };
+/** 地図を動かす先。同じ場所へもう一度動かせるよう、呼ぶたびに seq を変える。 */
+export type MapFocus = LatLng & { seq: number };
+
+// 飲食店のアイコンが十分に出る縮尺。15 だと Google が目立つ店しか出さない。
+const DEFAULT_ZOOM = 17;
+const FOCUS_ZOOM = 18;
 
 function Pin({ visitCount, selected }: { visitCount: number; selected: boolean }) {
   return (
@@ -23,9 +37,30 @@ function Pin({ visitCount, selected }: { visitCount: number; selected: boolean }
   );
 }
 
+/** 検索で選んだ、まだ登録されていない店の目印。 */
+function SearchPin() {
+  return (
+    <span
+      aria-hidden="true"
+      className="block h-[22px] w-[22px] rounded-full border-[4px] border-shu bg-surface shadow-[0_2px_6px_rgba(0,0,0,.3)]"
+    />
+  );
+}
+
+function FocusController({ focus }: { focus?: MapFocus | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!map || !focus) return;
+    map.panTo({ lat: focus.lat, lng: focus.lng });
+    if ((map.getZoom() ?? 0) < FOCUS_ZOOM) map.setZoom(FOCUS_ZOOM);
+  }, [map, focus]);
+  return null;
+}
+
 /**
  * 絞り込み後の全店をピンで出す。ピンのタップは onSelectShop、Google の店舗アイコンのタップは
  * onSelectPlace（placeId）、地図の何もない所のタップは onDismiss で親に知らせる。
+ * focus が変わるとそこへ地図を動かし、searchPin があればその位置に目印を出す。
  */
 export function ShopMap({
   shops,
@@ -33,12 +68,18 @@ export function ShopMap({
   onSelectShop,
   onSelectPlace,
   onDismiss,
+  focus,
+  searchPin,
+  onCenterChange,
 }: {
   shops: MapShop[];
   selectedShopId?: string | null;
   onSelectShop: (id: string) => void;
   onSelectPlace: (placeId: string) => void;
   onDismiss?: () => void;
+  focus?: MapFocus | null;
+  searchPin?: LatLng | null;
+  onCenterChange?: (center: LatLng) => void;
 }) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID";
@@ -80,12 +121,19 @@ export function ShopMap({
       <Map
         mapId={mapId}
         defaultCenter={IKEBUKURO_STATION}
-        defaultZoom={15}
+        defaultZoom={DEFAULT_ZOOM}
         gestureHandling="greedy"
         disableDefaultUI
         clickableIcons
         onClick={click}
+        onCameraChanged={(e: MapCameraChangedEvent) => onCenterChange?.(e.detail.center)}
       >
+        <FocusController focus={focus} />
+        {searchPin && (
+          <AdvancedMarker position={searchPin} zIndex={3}>
+            <SearchPin />
+          </AdvancedMarker>
+        )}
         {shops.map((s) => (
           <AdvancedMarker
             key={s.id}
