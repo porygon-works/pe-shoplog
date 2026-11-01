@@ -8,6 +8,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import { GET as autocompleteGET } from "@/app/api/places/autocomplete/route";
 import { GET as detailsGET } from "@/app/api/places/details/route";
+import { GET as photoGET } from "@/app/api/places/photo/route";
 import { GET as websiteGET } from "@/app/api/places/website/route";
 
 describe("Places Route Handler の認証", () => {
@@ -15,6 +16,7 @@ describe("Places Route Handler の認証", () => {
     ["autocomplete", autocompleteGET, "q=abc"],
     ["details", detailsGET, "id=p1"],
     ["website", websiteGET, "id=p1"],
+    ["photo", photoGET, "id=p1"],
   ])("%s は未ログインなら 401", async (_n, handler, qs) => {
     const res = await handler(new Request(`http://localhost/api/places/x?${qs}`));
     expect(res.status).toBe(401);

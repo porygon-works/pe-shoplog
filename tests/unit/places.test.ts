@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   autocomplete,
   getPlaceBasics,
+  getPlacePhoto,
   getPlaceWebsite,
   PlacesError,
 } from "@/lib/places/google";
@@ -54,6 +55,57 @@ describe("getPlaceWebsite", () => {
   it("あれば URL を返す", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ websiteUri: "https://example.com" }));
     expect(await getPlaceWebsite("p1")).toBe("https://example.com");
+  });
+});
+
+describe("getPlacePhoto", () => {
+  const photoName = "places/p1/photos/AbC_-123";
+
+  it("FieldMask は photos。media の URL で photoUri を取り、投稿者を整形して返す", async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          photos: [
+            {
+              name: photoName,
+              authorAttributions: [
+                { displayName: "山田", uri: "https://maps.google.com/u/1", photoUri: "https://x/a" },
+                { displayName: "鈴木", uri: "javascript:alert(1)" },
+              ],
+            },
+            { name: "places/p1/photos/second" },
+          ],
+        }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ name: `${photoName}/media`, photoUri: "https://lh3.googleusercontent.com/x" }));
+    const r = await getPlacePhoto("p1");
+    expect(r).toEqual({
+      url: "https://lh3.googleusercontent.com/x",
+      authors: [
+        { name: "山田", uri: "https://maps.google.com/u/1" },
+        { name: "鈴木", uri: null },
+      ],
+    });
+    const [detailUrl, detailInit] = fetchMock.mock.calls[0];
+    expect(String(detailUrl)).toContain("languageCode=ja");
+    expect(detailInit.headers["X-Goog-FieldMask"]).toBe("photos");
+    const [mediaUrl, mediaInit] = fetchMock.mock.calls[1];
+    expect(String(mediaUrl)).toBe(
+      `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=800&skipHttpRedirect=true`,
+    );
+    expect(mediaInit.headers["X-Goog-Api-Key"]).toBe("test-key");
+  });
+
+  it("写真がなければ null（media は呼ばない）", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}));
+    expect(await getPlacePhoto("p1")).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("不正な写真名は URL に使わず PlacesError", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ photos: [{ name: "places/p1/photos/a/../../b?x=1" }] }));
+    await expect(getPlacePhoto("p1")).rejects.toBeInstanceOf(PlacesError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
 

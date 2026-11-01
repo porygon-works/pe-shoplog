@@ -16,6 +16,7 @@ import { Stars, ratingText } from "@/components/rating";
 import { googleMapsUrl } from "@/lib/shops/google-maps-url";
 import { createServerClient } from "@/lib/supabase/server";
 import { summarizeVisits, type Count } from "@/lib/visits/summarize";
+import { GooglePhoto } from "./google-photo";
 import { NoticeToast } from "./notice-toast";
 import { PhotoGallery, type GalleryPhoto } from "./photo-gallery";
 import { ShopHeader } from "./shop-header";
@@ -183,6 +184,7 @@ export default async function ShopPage({
           写真はまだありません。行った人が追加できます。
         </div>
       )}
+      {heroPhotos.length === 0 && shop.place_id && <GooglePhoto placeId={shop.place_id} />}
 
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-1.5">

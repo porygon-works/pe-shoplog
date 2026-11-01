@@ -109,3 +109,33 @@ export async function getPlaceWebsite(placeId: string): Promise<string | null> {
   const d = await getDetails(placeId, "websiteUri");
   return d.websiteUri ?? null;
 }
+
+export type PlacePhoto = {
+  url: string;
+  authors: { name: string; uri: string | null }[];
+};
+
+/** Places の写真リソース名。URL に組み込む前に必ず検証する。 */
+function isValidPhotoName(name: string): boolean {
+  return /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(name);
+}
+
+/** 1 枚目の写真の表示用 URL と投稿者表記。写真がなければ null。保存はしない（表示のたびに取得する）。 */
+export async function getPlacePhoto(placeId: string): Promise<PlacePhoto | null> {
+  const d = await getDetails(placeId, "photos");
+  const photo = d.photos?.[0];
+  if (!photo?.name) return null;
+  if (!isValidPhotoName(photo.name)) throw new PlacesError(502, "Invalid photo name");
+  const qs = new URLSearchParams({ maxWidthPx: "800", skipHttpRedirect: "true" });
+  const media = await request(`${BASE}/${photo.name}/media?${qs}`, { method: "GET", headers: {} });
+  if (typeof media.photoUri !== "string" || !media.photoUri.startsWith("https://")) return null;
+  const authors: PlacePhoto["authors"] = [];
+  for (const a of photo.authorAttributions ?? []) {
+    if (!a?.displayName) continue;
+    authors.push({
+      name: String(a.displayName),
+      uri: typeof a.uri === "string" && /^https?:\/\//i.test(a.uri) ? a.uri : null,
+    });
+  }
+  return { url: media.photoUri, authors };
+}

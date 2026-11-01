@@ -184,3 +184,51 @@ test("UUID でない店 ID は 500 ではなく 404", async ({ page }) => {
   const res = await page.goto(`/shops/${"a".repeat(8)}-aaaa-aaaa-aaaa-${"-".repeat(0)}zzzzzzzzzzzz`);
   expect(res?.status()).toBe(404);
 });
+
+test("ユーザーの写真がない place_id 付きの店では Google の写真と投稿者表記が出る", async ({ page }) => {
+  const { shopId } = await fixture();
+  await page.route("**/api/places/photo*", (route) =>
+    route.fulfill({
+      json: {
+        photo: {
+          // 外部へ出ないよう data URL の 1x1 GIF
+          url: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+          authors: [{ name: "写真の投稿者", uri: "https://maps.google.com/contrib/1" }],
+        },
+      },
+    }),
+  );
+  await page.goto(`/shops/${shopId}`);
+  const box = page.getByTestId("google-photo");
+  await expect(box.getByRole("img", { name: "Google の写真" })).toBeVisible();
+  await expect(box).toContainText("写真: Google");
+  const link = box.getByRole("link", { name: "写真の投稿者" });
+  await expect(link).toHaveAttribute("href", "https://maps.google.com/contrib/1");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+});
+
+test("ユーザーの写真がある店、place_id のない店では Google の写真を取得も表示もしない", async ({ page }) => {
+  let requested = 0;
+  await page.route("**/api/places/photo*", (route) => {
+    requested++;
+    return route.fulfill({ json: { photo: null } });
+  });
+  const { shopId, userId } = await fixture();
+  const visit = await createVisit(shopId, userId, { visited_on: "2026-04-01" });
+  const path = `shops/${shopId}/visits/${visit}/${randomUUID()}.jpg`;
+  const up = await adminClient().storage.from("photos").upload(path, Buffer.from("x"), { contentType: "image/jpeg" });
+  expect(up.error).toBeNull();
+  const ins = await adminClient()
+    .from("photos")
+    .insert({ visit_id: visit, shop_id: shopId, user_id: userId, kind: "food", storage_path: path });
+  expect(ins.error).toBeNull();
+  await page.goto(`/shops/${shopId}`);
+  await expect(page.getByTestId("shop-name")).toBeVisible();
+  const noPlace = await fixture(false);
+  await page.goto(`/shops/${noPlace.shopId}`);
+  await expect(page.getByTestId("shop-name")).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(requested).toBe(0);
+  await expect(page.getByTestId("google-photo")).toHaveCount(0);
+});
