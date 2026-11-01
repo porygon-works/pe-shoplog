@@ -1,0 +1,54 @@
+name: Daily
+
+on:
+  schedule:
+    # 毎日 04:17 JST（19:17 UTC）。
+    - cron: "17 19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      APP_URL: ${{ secrets.APP_URL }}
+    steps:
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Dump database
+        run: |
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f data.sql
+
+      - name: Get date
+        id: date
+        if: always()
+        run: echo "value=$(TZ=Asia/Tokyo date +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload backup
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ steps.date.outputs.value }}
+          path: |
+            schema.sql
+            data.sql
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Prune old signup attempts
+        if: always()
+        run: |
+          psql "$SUPABASE_DB_URL" -c "delete from public.signup_attempts where attempted_at < now() - interval '7 days'"
+
+      - name: Refresh shop locations
+        if: always()
+        run: |
+          curl -fsS -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/cron/refresh-locations"
