@@ -70,7 +70,8 @@ npm run lint && npm run typecheck && npm run build
 
 1. このアプリ専用のプロジェクトを作ります。リージョンは **Tokyo (ap-northeast-1)**。
 2. Authentication → Sign In / Providers（または Settings）で **公開サインアップを無効**にします（ローカルの `supabase/config.toml` では `[auth] enable_signup = false`）。登録は必ずアプリの Server Action（合言葉つき）を通ります。
-3. マイグレーションを適用します。
+3. Authentication → Sign In / Providers → Email（または Settings）で **最小パスワード長（Minimum password length）を 8** にします。アプリは 8 文字以上を前提にしており、Supabase の既定は 6 です。
+4. マイグレーションを適用します。
 
    ```bash
    npx supabase login
@@ -78,11 +79,11 @@ npm run lint && npm run typecheck && npm run build
    npx supabase db push
    ```
 
-4. キーを控えます（Project Settings → API Keys）。
+5. キーを控えます（Project Settings → API Keys）。
    - publishable キー → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - secret キー → `SUPABASE_SECRET_KEY`（サーバー専用。ブラウザに出さない）
    - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
-5. DB の接続文字列（Connect → **Session pooler** の URI）を控えます。GitHub Actions のバックアップで使います（`SUPABASE_DB_URL`）。Free プランの直接接続は IPv6 のみで、GitHub のランナーからは繋がらないため、pooler を使います。
+6. DB の接続文字列（Connect → **Session pooler** の URI）を控えます。GitHub Actions のバックアップで使います（`SUPABASE_DB_URL`）。Free プランの直接接続は IPv6 のみで、GitHub のランナーからは繋がらないため、pooler を使います。
 
 ### 2. Google Cloud
 

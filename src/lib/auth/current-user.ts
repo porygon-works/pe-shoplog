@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -8,7 +9,7 @@ export type CurrentUser = {
   isAdmin: boolean;
 };
 
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const supabase = await createServerClient();
   const { data } = await supabase.auth.getClaims();
   const sub = data?.claims?.sub;
@@ -27,7 +28,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     nickname: profile.nickname,
     isAdmin: profile.is_admin,
   };
-}
+});
 
 export async function requireUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
