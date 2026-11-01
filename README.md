@@ -157,11 +157,11 @@ npm run lint && npm run typecheck && npm run build
 
 ### 本番 DB のマイグレーション履歴（biz-works）
 
-- 本番プロジェクト `biz-works`（ref: `jpwazqjrqtlbwfvagstx`、Tokyo）の初回セットアップ（2026-11-01）では、作業環境から DB に直接接続できなかったため、`0001`〜`0006` を Management API（`POST /v1/projects/<ref>/database/query`）で番号順に適用しました。
+- 本番プロジェクト `biz-works`（ref: `jpwazqjrqtlbwfvagstx`、Tokyo）の初回セットアップ（2026-11-01）では、作業環境から DB に直接接続できなかったため、`0001`〜`0006` を Management API（`POST /v1/projects/<ref>/database/query`）で番号順に適用しました。2026-11-01 に `0007`（区分の管理）も同じ方法で適用しています。
 - そのため `supabase_migrations.schema_migrations` には記録がありません。次に `npx supabase db push` を使う前に、適用済みとして登録してください（DB には何も実行されず、履歴だけが入ります）。
 
   ```bash
-  npx supabase migration repair --status applied 0001 0002 0003 0004 0005 0006
+  npx supabase migration repair --status applied 0001 0002 0003 0004 0005 0006 0007
   ```
 
 ### ジャンル・形態の変更
