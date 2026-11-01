@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ぺーろぐ 写真なしのイラスト</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* 写真のない店の代わりに出すイラスト。赤い手描き線と淡いピンクの地、アプリの紅白にそろえる。 */
+:root {
+  --bg: #f7f3f3;
+  --surface: #ffffff;
+  --ink: #2b1d1f;
+  --muted: #7a666a;
+  --line: #ecdfe0;
+  --red: #d7263d;
+  --soft: #fde4e7;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 64px; display: flex; flex-direction: column; gap: 24px; }
+.top h1 { margin: 0; font-family: "Dela Gothic One", sans-serif; font-weight: 400; font-size: 28px; color: var(--red); }
+.top p { margin: 6px 0 0; color: var(--muted); max-width: 66ch; }
+h2 { margin: 0; font-size: 17px; font-weight: 900; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12.5px; text-align: center; }
+.tile small { color: var(--muted); font-size: 11px; line-height: 1.3; }
+.ill { width: 84px; height: 84px; border-radius: 12px; background: var(--soft); display: grid; place-items: center; }
+.ill svg { width: 70%; height: 70%; }
+.note { font-size: 13px; color: var(--muted); margin: -12px 0 0; }
+
+.mocks { display: flex; gap: 20px; flex-wrap: wrap; }
+.phone { width: 330px; border-radius: 30px; padding: 9px; background: #1a1416; box-shadow: 0 8px 24px rgba(40,10,20,.2); flex: none; }
+.screen { border-radius: 22px; overflow: hidden; background: var(--sbg); color: var(--sink); padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 560px; }
+.light { --sbg: #f7f3f3; --ssurface: #ffffff; --sink: #2b1d1f; --smuted: #7a666a; --sline: #ecdfe0; --ssoft: #fde4e7; --sred: #d7263d; --spill: #f6efef; }
+.dark { --sbg: #161112; --ssurface: #1f1819; --sink: #f3eaeb; --smuted: #b39fa4; --sline: #3a2e31; --ssoft: #3d1d23; --sred: #ff5a6e; --spill: #2a2123; }
+.screen h3 { margin: 4px 2px; font-size: 15px; font-weight: 900; }
+.card { display: flex; gap: 10px; background: var(--ssurface); border: 1px solid var(--sline); border-radius: 14px; padding: 10px; }
+.thumb { width: 64px; height: 64px; border-radius: 10px; background: var(--ssoft); flex: none; display: grid; place-items: center; }
+.thumb svg { width: 72%; height: 72%; }
+.thumb.photo { background: linear-gradient(135deg, #b8875a, #6b3f22); }
+.ci { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ci b { font-size: 14px; }
+.ci span { font-size: 11px; color: var(--smuted); }
+.pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.pills i { font-style: normal; font-size: 10.5px; padding: 1px 7px; border-radius: 99px; background: var(--spill); }
+.pills i.r { background: var(--ssoft); color: var(--sred); font-weight: 700; }
+.hero { height: 150px; border-radius: 14px; background: var(--ssoft); display: grid; place-items: center; }
+.hero svg { width: 110px; height: 110px; }
+.ask { background: var(--ink); color: #fff; border-radius: 10px; padding: 18px 22px; }
+.ask p { margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>写真なしのときのイラスト（仮）</h1>
+    <p>誰も写真を載せていない店の一覧カードや詳細に、ジャンルごとのイラストを出します。赤い手描きの線と淡いピンクの地で、アイコンのジョッキと同じ雰囲気にそろえました。</p>
+  </header>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="wob" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="5"/>
+        <feDisplacementMap in="SourceGraphic" scale="1.4"/>
+      </filter>
+      <!-- 共通: 線は currentColor（赤）、淡い塗りは白 -->
+      <symbol id="washoku" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 36q15-16 30 0" fill="#fff"/><path d="M12 36h40q-2 16-20 16t-20-16z" fill="#fff"/><path d="M26 52h12"/>
+        <path d="M40 12l14 18M45 10l12 16"/></g></symbol>
+      <symbol id="sushi_seafood" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="14" y="34" width="36" height="14" rx="7" fill="#fff"/>
+        <path d="M10 34q4-12 22-12t24 8q-4 6-12 6H16q-6 0-6-2z" fill="currentColor" fill-opacity=".25"/>
+        <path d="M24 25l4 8M33 23l3 9M42 25l2 7"/></g></symbol>
+      <symbol id="yakiniku" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="32" cy="34" r="20" fill="#fff"/><path d="M16 27h32M13 34h38M16 41h32"/>
+        <rect x="20" y="22" width="12" height="8" rx="3" transform="rotate(-15 26 26)" fill="currentColor" fill-opacity=".3"/>
+        <rect x="33" y="36" width="12" height="8" rx="3" transform="rotate(12 39 40)" fill="currentColor" fill-opacity=".3"/>
+        <path d="M24 10q-3 4 0 7M32 8q-3 4 0 7M40 10q-3 4 0 7"/></g></symbol>
+      <symbol id="yakitori" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 54L56 8"/>
+        <rect x="12" y="34" width="13" height="13" rx="3" transform="rotate(-45 18.5 40.5)" fill="#fff"/>
+        <rect x="24" y="22" width="13" height="13" rx="3" transform="rotate(-45 30.5 28.5)" fill="currentColor" fill-opacity=".25"/>
+        <rect x="36" y="10" width="13" height="13" rx="3" transform="rotate(-45 42.5 16.5)" fill="#fff"/></g></symbol>
+      <symbol id="nabe" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 32h40v8q0 12-20 12T12 40z" fill="#fff"/><path d="M8 34h4M52 34h4"/>
+        <path d="M14 32q18-14 36 0" fill="currentColor" fill-opacity=".2"/><path d="M30 22h4"/>
+        <path d="M22 14q-3-4 0-8M32 14q-3-4 0-8M42 14q-3-4 0-8"/></g></symbol>
+      <symbol id="chinese" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 40q12-20 26 0z" fill="#fff"/><path d="M13 32l3 2M19 27l2 3M26 27l1 3"/>
+        <path d="M30 46q12-20 26 0z" fill="#fff"/><path d="M35 38l3 2M41 33l2 3M48 33l1 3"/>
+        <path d="M6 50h52"/></g></symbol>
+      <symbol id="korean" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 30h44q-2 22-22 22T10 30z" fill="currentColor" fill-opacity=".25"/>
+        <ellipse cx="32" cy="30" rx="22" ry="6" fill="#fff"/><circle cx="32" cy="29" r="4" fill="currentColor" fill-opacity=".55"/>
+        <path d="M18 29l5-2M41 28l5 2"/></g></symbol>
+      <symbol id="asian_ethnic" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 50q-12-14 2-30q8-8 18-6q-2 10-8 16t-12 20z" fill="currentColor" fill-opacity=".3"/>
+        <path d="M42 14q4-4 8-4M22 50q6-16 18-32"/>
+        <path d="M40 46a10 10 0 0 0 16-6H40z" fill="#fff"/><path d="M48 40l-4 6M48 40l4 5"/></g></symbol>
+      <symbol id="italian" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 16q20-8 40 0L32 56z" fill="#fff"/><path d="M12 16q20-8 40 0"/>
+        <circle cx="26" cy="24" r="3.5" fill="currentColor" fill-opacity=".5"/><circle cx="38" cy="25" r="3.5" fill="currentColor" fill-opacity=".5"/><circle cx="32" cy="37" r="3.5" fill="currentColor" fill-opacity=".5"/></g></symbol>
+      <symbol id="french_bistro" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 8h24q2 22-12 26Q18 30 20 8z" fill="#fff"/><path d="M21 18h22q-1 12-11 14q-10-2-11-14z" fill="currentColor" fill-opacity=".45"/>
+        <path d="M32 34v16M22 54h20"/></g></symbol>
+      <symbol id="yoshoku" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="32" cy="42" rx="26" ry="10" fill="#fff"/>
+        <path d="M14 40q0-18 18-18t18 18z" fill="currentColor" fill-opacity=".2"/>
+        <path d="M20 32l4-3 4 3 4-3 4 3 4-3 4 3"/></g></symbol>
+      <symbol id="ramen" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 30h48q-2 22-24 22T8 30z" fill="#fff"/><path d="M14 36q6 4 12 0t12 0 12 0"/>
+        <circle cx="40" cy="30" r="5" fill="#fff"/><path d="M38 30q2-2 4 0"/>
+        <path d="M30 6l6 24M38 6l2 24"/></g></symbol>
+      <symbol id="curry" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="32" cy="38" rx="27" ry="13" fill="#fff"/>
+        <path d="M32 26q-16 0-20 10q6 10 20 10z" fill="#fff"/>
+        <path d="M32 26q16 0 20 10q-6 10-20 10z" fill="currentColor" fill-opacity=".3"/>
+        <path d="M44 18l8-10"/></g></symbol>
+      <symbol id="cafe" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 26h30v12q0 12-15 12T14 38z" fill="#fff"/><path d="M44 30h4a6 6 0 0 1 0 12h-5"/>
+        <path d="M10 54h38"/><path d="M22 18q-3-4 0-8M30 18q-3-4 0-8M38 18q-3-4 0-8"/></g></symbol>
+      <!-- 形態から（ジャンル不明のとき） -->
+      <symbol id="lantern" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M24 10h16M24 54h16"/><ellipse cx="32" cy="32" rx="16" ry="20" fill="currentColor" fill-opacity=".35"/>
+        <path d="M17 24h30M16 32h32M17 40h30"/><path d="M32 54v6"/></g></symbol>
+      <symbol id="bar" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 12h40L32 34z" fill="#fff"/><path d="M18 18h28L32 30z" fill="currentColor" fill-opacity=".35"/>
+        <path d="M32 34v16M22 54h20"/><circle cx="44" cy="10" r="4" fill="#fff"/></g></symbol>
+      <symbol id="jokki" viewBox="0 0 64 64"><g filter="url(#wob)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="14" y="18" width="28" height="38" rx="4" fill="currentColor" fill-opacity=".3"/>
+        <path d="M42 26h5a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6h-5"/>
+        <path d="M12 20q0-8 8-7q3-6 10-3q6-4 11 1q8-1 8 8z" fill="#fff"/><path d="M22 28v20M34 28v20"/></g></symbol>
+    </defs>
+  </svg>
+
+  <h2>ジャンルごと</h2>
+  <div class="grid" style="color:#d7263d">
+    <div class="tile"><div class="ill"><svg><use href="#washoku"/></svg></div>和食</div>
+    <div class="tile"><div class="ill"><svg><use href="#sushi_seafood"/></svg></div>寿司・海鮮</div>
+    <div class="tile"><div class="ill"><svg><use href="#yakiniku"/></svg></div>焼肉・ホルモン</div>
+    <div class="tile"><div class="ill"><svg><use href="#yakitori"/></svg></div>焼き鳥・串</div>
+    <div class="tile"><div class="ill"><svg><use href="#nabe"/></svg></div>鍋</div>
+    <div class="tile"><div class="ill"><svg><use href="#chinese"/></svg></div>中華</div>
+    <div class="tile"><div class="ill"><svg><use href="#korean"/></svg></div>韓国</div>
+    <div class="tile"><div class="ill"><svg><use href="#asian_ethnic"/></svg></div>アジア・エスニック</div>
+    <div class="tile"><div class="ill"><svg><use href="#italian"/></svg></div>イタリアン</div>
+    <div class="tile"><div class="ill"><svg><use href="#french_bistro"/></svg></div>フレンチ・ビストロ</div>
+    <div class="tile"><div class="ill"><svg><use href="#yoshoku"/></svg></div>洋食</div>
+    <div class="tile"><div class="ill"><svg><use href="#ramen"/></svg></div>ラーメン</div>
+    <div class="tile"><div class="ill"><svg><use href="#curry"/></svg></div>カレー</div>
+    <div class="tile"><div class="ill"><svg><use href="#cafe"/></svg></div>カフェ</div>
+  </div>
+
+  <h2>ジャンルが「不明」・その他・あとから追加したジャンル</h2>
+  <p class="note">ジャンルがわからない店は形態から選び、それでも決まらなければジョッキにします。</p>
+  <div class="grid" style="color:#d7263d">
+    <div class="tile"><div class="ill"><svg><use href="#lantern"/></svg></div>赤ちょうちん<small>形態が 居酒屋・大衆居酒屋・立ち飲み・個室あり</small></div>
+    <div class="tile"><div class="ill"><svg><use href="#bar"/></svg></div>カクテル<small>形態が バー・ダイニングバー</small></div>
+    <div class="tile"><div class="ill"><svg><use href="#jokki"/></svg></div>ジョッキ<small>上のどれでもない（その他・不明・追加したジャンル）</small></div>
+  </div>
+
+  <h2>一覧・詳細に入れると</h2>
+  <div class="mocks">
+    <div class="phone"><div class="screen light">
+      <h3>さがす</h3>
+      <div class="card"><div class="thumb" style="color:var(--sred)"><svg><use href="#yakitori"/></svg></div><div class="ci"><b>炭火焼き鳥 池袋 和み屋</b><span>焼き鳥・串・居酒屋</span><div class="pills"><i class="r">★5.0（1件）</i><i>喫煙可</i></div></div></div>
+      <div class="card"><div class="thumb photo"></div><div class="ci"><b>酔っ手羽</b><span>焼き鳥・串・大衆居酒屋</span><div class="pills"><i class="r">★4.0（1件）</i><i>喫煙可</i></div></div></div>
+      <div class="card"><div class="thumb" style="color:var(--sred)"><svg><use href="#lantern"/></svg></div><div class="ci"><b>清龍 池袋西口店</b><span>大衆居酒屋</span><div class="pills"><i class="r">★5.0（1件）</i><i>喫煙可</i></div></div></div>
+      <div class="card"><div class="thumb" style="color:var(--sred)"><svg><use href="#chinese"/></svg></div><div class="ci"><b>京華閣</b><span>中華</span><div class="pills"><i class="r">★5.0（1件）</i><i>分煙</i></div></div></div>
+      <div class="card"><div class="thumb" style="color:var(--sred)"><svg><use href="#ramen"/></svg></div><div class="ci"><b>（例）ラーメン屋</b><span>ラーメン</span><div class="pills"><i>禁煙</i></div></div></div>
+      <div class="card"><div class="thumb" style="color:var(--sred)"><svg><use href="#sushi_seafood"/></svg></div><div class="ci"><b>すし居酒屋小池</b><span>寿司・海鮮・居酒屋</span><div class="pills"><i class="r">★4.0（1件）</i><i>喫煙可</i></div></div></div>
+    </div></div>
+    <div class="phone"><div class="screen dark">
+      <h3>店の詳細（写真なし・ダーク）</h3>
+      <div class="hero" style="color:var(--sred)"><svg><use href="#washoku"/></svg></div>
+      <b style="font-size:17px">つけ蕎麦の阿国</b>
+      <span style="font-size:12px;color:var(--smuted)">和食</span>
+      <div class="pills"><i class="r">★4.0（1件）</i><i>加熱式のみ</i></div>
+      <div class="card"><div class="thumb" style="color:var(--sred)"><svg><use href="#cafe"/></svg></div><div class="ci"><b>近くのカフェ（例）</b><span>カフェ</span></div></div>
+      <div class="card"><div class="thumb" style="color:var(--sred)"><svg><use href="#jokki"/></svg></div><div class="ci"><b>（例）あとから追加したジャンルの店</b><span>専用の絵がないジャンルはジョッキ</span></div></div>
+    </div></div>
+  </div>
+
+  <section class="ask"><p>線の太さ・色の濃さ・描き込みの量は調整できます。「この絵はちがう」「もっとシンプルに」など、気になるものを教えてください。よければこのまま一覧・地図のカード・店の詳細に入れます（Google の写真が出る店は、そちらを優先します）。</p></section>
+</div>
+</body>
+</html>
