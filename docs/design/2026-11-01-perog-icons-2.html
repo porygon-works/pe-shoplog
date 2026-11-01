@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ぺーろぐ アイコン 第2弾</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=Shippori+Mincho+B1:wght@800&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* 紅白のアイコン第2弾。文字を置くだけでなく、形に意味を持たせた6案。大・ホーム・小・丸抜きで並べる。 */
+:root {
+  --bg: #f7f3f3;
+  --card: #ffffff;
+  --ink: #2b1d1f;
+  --muted: #7a666a;
+  --line: #ecdfe0;
+  --red: #d7263d;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+.top h1 { margin: 0; font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; font-size: 30px; color: var(--red); }
+.top p { margin: 6px 0 0; color: var(--muted); max-width: 64ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.card h2 { margin: 0; font-size: 18px; font-weight: 900; display: flex; gap: 8px; align-items: baseline; }
+.card h2 span { font-size: 12px; color: var(--muted); font-weight: 700; }
+.card p { margin: 0; font-size: 13.5px; color: #4d3d41; }
+.sizes { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+.sizes figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
+.ios { border-radius: 22.5%; overflow: hidden; box-shadow: 0 2px 8px rgba(60,20,30,.18); display: block; }
+.round { border-radius: 50%; overflow: hidden; display: block; box-shadow: 0 2px 8px rgba(60,20,30,.18); }
+.home { display: flex; gap: 12px; padding: 12px; border-radius: 12px; background: linear-gradient(160deg, #6f8fb3, #c9a6b6); }
+.home figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); width: 58px; }
+.dummy { width: 52px; height: 52px; border-radius: 12px; background: rgba(255,255,255,.55); }
+.ask { background: var(--ink); color: #fff; border-radius: 10px; padding: 18px 22px; }
+.ask p { margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>ぺーろぐ アイコン 第2弾</h1>
+    <p>紅白はそのままに、形に意味を持たせた6案です。どれも「ぺーろぐ」の4文字が入っています。前回と同じく、ホーム画面の大きさと Android の丸抜きでも確認できます。</p>
+  </header>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <!-- A 半濁点ピン: 「ぺ」の ゜ が地図の赤い印になる -->
+      <symbol id="a" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#ffffff"/>
+        <text x="44" y="47" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="32" fill="#2b1d1f">へー</text>
+        <circle cx="43" cy="15" r="5.2" fill="#d7263d"/>
+        <path d="M43 23.5 l-3.2 -4.8 h6.4z" fill="#d7263d"/>
+        <text x="48" y="80" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="32" fill="#2b1d1f">ろぐ</text>
+      </symbol>
+      <!-- B 蛇の目: おちょこの底の二重丸を紅で -->
+      <symbol id="b" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#ffffff"/>
+        <circle cx="48" cy="48" r="40" fill="none" stroke="#d7263d" stroke-width="7"/>
+        <circle cx="48" cy="48" r="26" fill="none" stroke="#d7263d" stroke-width="7"/>
+        <text x="48" y="46" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="13.5" fill="#2b1d1f">ぺー</text>
+        <text x="48" y="61" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="13.5" fill="#2b1d1f">ろぐ</text>
+      </symbol>
+      <!-- C 屋号: 明朝の店名と小さな朱印 -->
+      <symbol id="c" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#d7263d"/>
+        <text x="47" y="45" text-anchor="middle" font-family="Shippori Mincho B1, serif" font-weight="800" font-size="30" fill="#ffffff">ぺー</text>
+        <text x="47" y="78" text-anchor="middle" font-family="Shippori Mincho B1, serif" font-weight="800" font-size="30" fill="#ffffff">ろぐ</text>
+        <rect x="74" y="72" width="9" height="9" fill="#ffffff"/>
+      </symbol>
+      <!-- D 紋: 赤い円の縁に文字をぐるりと、中心に白い印 -->
+      <symbol id="d" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#d7263d"/>
+        <circle cx="48" cy="48" r="33" fill="none" stroke="#ffffff" stroke-width="4"/>
+        <rect x="6" y="38" width="84" height="20" fill="#d7263d"/>
+        <text x="48" y="55" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="18" fill="#ffffff" letter-spacing="1">ぺーろぐ</text>
+        <circle cx="48" cy="26" r="4.5" fill="#ffffff"/>
+        <circle cx="48" cy="70" r="4.5" fill="#ffffff"/>
+      </symbol>
+      <!-- E 半券: 赤地に白い切符、ミシン目と穴 -->
+      <symbol id="e" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#d7263d"/>
+        <path d="M14 22h68v18a8 8 0 0 0 0 16v18H14V56a8 8 0 0 0 0-16z" fill="#ffffff"/>
+        <line x1="66" y1="26" x2="66" y2="70" stroke="#d7263d" stroke-width="1.6" stroke-dasharray="3 3"/>
+        <text x="40" y="45" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="17" fill="#d7263d">ぺー</text>
+        <text x="40" y="64" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="17" fill="#d7263d">ろぐ</text>
+        <circle cx="74" cy="48" r="4" fill="#d7263d"/>
+      </symbol>
+      <!-- F カウンター: 「ー」を端から端までのびる白い線に -->
+      <symbol id="f" viewBox="0 0 96 96">
+        <rect width="96" height="96" fill="#d7263d"/>
+        <text x="16" y="42" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="34" fill="#ffffff">ぺ</text>
+        <rect x="0" y="49" width="96" height="6" fill="#ffffff"/>
+        <text x="80" y="87" text-anchor="end" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="26" fill="#ffffff">ろぐ</text>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="grid">
+    <section class="card">
+      <h2>A 半濁点ピン<span>文字の中に地図</span></h2>
+      <p>「ぺ」の丸（゜）だけを赤いピンにした、白地に墨文字の案。いちばん控えめで上品です。気づいた人がちょっと嬉しい仕掛け。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#a"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#a"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#a"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#a"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#a"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>B 蛇の目<span>おちょこの底</span></h2>
+      <p>日本酒のきき猪口の底にある二重丸（蛇の目）を、藍ではなく紅で。飲む場所のアプリだと一目でわかり、地図の印にも見えます。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#b"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#b"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#b"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#b"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#b"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>C 屋号<span>老舗の看板</span></h2>
+      <p>赤地に白い明朝体で、店の暖簾や看板の屋号のように。右下に小さな白い角を置いて落款に見立てています。大人っぽい案です。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#c"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#c"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#c"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#c"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#c"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>D 紋<span>輪を横切る名前</span></h2>
+      <p>赤地に白い輪、その真ん中を「ぺーろぐ」が横切る紋。上下の点は店の印。コースターや家紋のような形で、丸抜きにしたときにいちばんきれいに収まります。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#d"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#d"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#d"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#d"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#d"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>E 半券<span>行った証</span></h2>
+      <p>赤地に白い切符。ミシン目の先に地図の印。「行った記録＝半券をためる」という見立てです。形がはっきりしていて小さくても目立ちます。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#e"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#e"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#e"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#e"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#e"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+
+    <section class="card">
+      <h2>F カウンター<span>のびる「ー」</span></h2>
+      <p>「ぺーろぐ」の「ー」を画面の端から端まで伸ばして、店のカウンターや大通りに見立てた案。左上に「ぺ」、右下に「ろぐ」と崩した、いちばんモダンな構図です。</p>
+      <div class="sizes">
+        <figure><svg class="ios" width="120" height="120"><use href="#f"/></svg>大</figure>
+        <figure><svg class="ios" width="60" height="60"><use href="#f"/></svg>ホーム</figure>
+        <figure><svg class="ios" width="32" height="32"><use href="#f"/></svg>小</figure>
+        <figure><svg class="round" width="60" height="60"><use href="#f"/></svg>丸抜き</figure>
+      </div>
+      <div class="home"><figure><span class="dummy"></span>地図</figure><figure><svg class="ios" width="52" height="52"><use href="#f"/></svg>ぺーろぐ</figure><figure><span class="dummy"></span>カメラ</figure></div>
+    </section>
+  </div>
+
+  <section class="ask"><p>気になる案があれば番号で教えてください（前回の6案と混ぜても大丈夫です）。「A の仕掛けを C の明朝で」のような組み合わせもできます。</p></section>
+</div>
+</body>
+</html>
