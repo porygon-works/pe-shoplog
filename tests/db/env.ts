@@ -34,6 +34,12 @@ export function loadSupabaseEnv(): {
       process.env[k] = v;
     }
   }
+  const host = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname;
+  if (host !== "localhost" && host !== "127.0.0.1") {
+    throw new Error(
+      `DB テストはテーブルを書き換えるため、ローカルの Supabase でのみ実行できます（現在の接続先: ${host}）`,
+    );
+  }
   return {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
     publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,

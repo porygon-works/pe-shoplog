@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/current-user";
 import { isUuid } from "@/lib/ids";
 import { PHOTO_KINDS, values } from "@/lib/options";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
 import { visitInputSchema } from "@/lib/validation";
 
@@ -269,8 +270,11 @@ export async function deletePhotoAction(photoId: string): Promise<{ ok: true } |
     return { error: "削除に失敗しました。時間をおいてもう一度お試しください" };
   }
   if (!data || data.length === 0) return { error: "写真が見つかりませんでした" };
-  // 実体の削除は後始末。失敗しても記録上は削除済みなので握りつぶさず記録だけ残す。
-  const { error: rmError } = await supabase.storage.from("photos").remove([data[0].storage_path]);
+  // 実体の削除は後始末。論理削除の時点で本人の Storage ポリシー（生きている写真行が必要）からは
+  // 見えなくなるため、権限確認が済んだ後に admin で消す。失敗しても記録上は削除済みなので記録だけ残す。
+  const { error: rmError } = await createAdminClient()
+    .storage.from("photos")
+    .remove([data[0].storage_path]);
   if (rmError) console.error("deletePhoto storage remove failed", rmError);
   revalidatePath(`/shops/${data[0].shop_id}`);
   return { ok: true };
