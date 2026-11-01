@@ -9,6 +9,8 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",
+    // 本番ビルド（CI）では PWA の Service Worker が通信を扱い、page.route のモックをすり抜けるので止める。
+    serviceWorkers: "block",
     launchOptions: process.env.PW_CHROMIUM_PATH
       ? { executablePath: process.env.PW_CHROMIUM_PATH }
       : {},
