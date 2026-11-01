@@ -20,10 +20,10 @@
 
 ```bash
 npm ci
-supabase start        # 初回はイメージの取得に時間がかかる。CLI は devDependency なので `npx supabase start` でも可
+npx supabase start    # 初回はイメージの取得に時間がかかる。CLI は devDependency
 ```
 
-`.env.local` を作ります（`.env.example` に変数名の一覧があります）。ローカル用の値は `supabase status -o env` で確認できます。
+`.env.local` を作ります（`.env.example` に変数名の一覧があります）。ローカル用の値は `npx supabase status -o env` で確認できます。
 
 ```bash
 cp .env.example .env.local
@@ -52,8 +52,8 @@ npm run dev           # http://localhost:3000
 
 ```bash
 npm test              # unit（Vitest）。Supabase 不要
-npm run test:db       # RLS などの DB テスト。supabase start が必要
-npm run test:e2e      # Playwright。supabase start と .env.local が必要
+npm run test:db       # RLS などの DB テスト。`npx supabase start` が必要
+npm run test:e2e      # Playwright。`npx supabase start` と .env.local が必要
 npm run lint && npm run typecheck && npm run build
 ```
 
@@ -150,10 +150,11 @@ npm run lint && npm run typecheck && npm run build
 
 ### バックアップの取り出し方
 
-- 毎日 04:17 JST ごろに、GitHub Actions（Daily）が `schema.sql` と `data.sql` を `db-backup-YYYY-MM-DD` という artifact に保存します（90 日間）。Supabase の Free プランには自動バックアップがありません。
+- **このリポジトリは必ず private にしてください。** public リポジトリでは workflow の artifact を誰でもダウンロードでき、`data.sql` にはユーザー情報やコメントが含まれます。
+- 毎日 04:17 JST ごろに、GitHub Actions（Daily）が `schema.sql`・`data.sql`・`auth_data.sql`（`auth` スキーマのデータ。`profiles` が `auth.users` を参照するため必要）を `db-backup-YYYY-MM-DD` という artifact に保存します（90 日間）。Supabase の Free プランには自動バックアップがありません。
 - 取り出し: GitHub → Actions → Daily → 該当の実行 → Artifacts からダウンロード。
-- 復元する場合は、空の Supabase プロジェクト（またはローカル）に `schema.sql` → `data.sql` の順で `psql` から流します。
-- 写真ファイル（Storage）はこの dump には入りません。Storage の中身は別途必要に応じて取得してください。
+- 復元する場合は、空の Supabase プロジェクト（またはローカル）に `schema.sql` → `auth_data.sql` → `data.sql` の順で `psql` から流します。
+- 写真ファイル（Storage）はバックアップに含まれません。
 - 毎日 DB にアクセスするので、Free プランの「7 日間アクセスがないと一時停止」も避けられます。Daily が失敗し続けていないか、たまに Actions を見てください。
 
 ### 位置情報の更新

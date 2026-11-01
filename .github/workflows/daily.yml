@@ -13,19 +13,18 @@ jobs:
   daily:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-      CRON_SECRET: ${{ secrets.CRON_SECRET }}
-      APP_URL: ${{ secrets.APP_URL }}
     steps:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
 
       - name: Dump database
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
           supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f data.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --schema auth -f auth_data.sql
 
       - name: Get date
         id: date
@@ -40,15 +39,21 @@ jobs:
           path: |
             schema.sql
             data.sql
+            auth_data.sql
           retention-days: 90
           if-no-files-found: error
 
       - name: Prune old signup attempts
         if: always()
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           psql "$SUPABASE_DB_URL" -c "delete from public.signup_attempts where attempted_at < now() - interval '7 days'"
 
       - name: Refresh shop locations
         if: always()
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ secrets.APP_URL }}
         run: |
           curl -fsS -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/cron/refresh-locations"
