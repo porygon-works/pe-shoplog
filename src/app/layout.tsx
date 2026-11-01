@@ -24,10 +24,11 @@ export const metadata: Metadata = {
 };
 
 // ピンチズームは禁止しない（userScalable / maximumScale は設定しない）。
+// viewport-fit=cover にしない: iOS 26 のホーム画面アプリでは、画面がステータスバーの裏まで広がると
+// その下 40pt ほどにぼかしがかかり、ヘッダーが曇る。cover なしならステータスバーの下から描画される。
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#d7263d" },
     { media: "(prefers-color-scheme: dark)", color: "#161112" },
