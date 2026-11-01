@@ -111,6 +111,30 @@ body::before {
   pointer-events: none;
 }
 
+/* iOS 26 のホーム画面アプリは、画面上端をステータスバーの下でぼかす。上端に「横幅の 90% 以上・高さ 10px 超」の
+   固定要素があると、ぼかさずにその背景色で塗る（WebKit の LocalFrameView::fixedContainerEdges）。
+   その条件を満たす帯を置き、background-clip: text で帯そのものは描かない。 */
+.ios-status-band {
+  display: none;
+}
+@media (display-mode: standalone) {
+  @supports (-webkit-touch-callout: none) {
+    .ios-status-band {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: var(--surface);
+      background-clip: text;
+      -webkit-background-clip: text;
+      z-index: 2147483647;
+      pointer-events: none;
+    }
+  }
+}
+
 /* iPhone は 16px 未満の入力欄にフォーカスすると画面を自動で拡大するので、タッチ端末では 16px にそろえる。
    レイヤー外に置いて、Tailwind の text-sm などより優先させる。 */
 @media (pointer: coarse) {

@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
+        <div className="ios-status-band" aria-hidden="true" />
         <NuqsAdapter>{children}</NuqsAdapter>
         <SwRegister />
       </body>
