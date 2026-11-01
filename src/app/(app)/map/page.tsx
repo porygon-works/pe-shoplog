@@ -14,8 +14,8 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   return (
     <main className="flex flex-1 flex-col bg-surface">
       <header className="flex items-center gap-2 border-b border-line px-4 py-2.5">
-        <span className="font-display text-base text-ai">
-          PE<b>ショップ</b>ログ
+        <span className="font-display text-base text-shu">
+          ぺーろぐ
         </span>
         <span className="flex-1" />
         <span data-testid="current-nickname" className="text-xs text-muted">

@@ -16,8 +16,8 @@ export function AuthShell({
     }`;
   return (
     <main className="mx-auto flex w-full max-w-[420px] flex-1 flex-col gap-[18px] bg-surface px-6 py-8 sm:my-6 sm:flex-none sm:rounded-[28px] sm:border sm:border-line">
-      <p className="mt-6 font-display text-[30px] leading-tight text-ai">
-        PE<b className="font-normal text-shu">ショップ</b>ログ
+      <p className="mt-6 font-display text-[30px] leading-tight text-shu">
+        ぺーろぐ
       </p>
       <p className="m-0 text-sm text-muted">社内のみんなで作る、お店の記録帳。</p>
       <nav className="grid grid-flow-col auto-cols-fr gap-[3px] rounded-[10px] bg-surface-2 p-[3px]">

@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
-/* 藍を基調に、朱をピンと強調に使う。画面モック（docs/mock/shoplog-mock.html）と同じ値。 */
+/* 紅白を基調に、shu（紅）を主役、ai（墨）を副に使う。docs/design/2026-11-01-perog-colors.html の案1。 */
 :root {
-  --bg: #eef0f3;
+  --bg: #f7f3f3;
   --surface: #ffffff;
-  --surface-2: #f4f5f8;
-  --ink: #1b2230;
-  --muted: #677085;
-  --line: #dde1e8;
-  --ai: #24407a;
-  --ai-soft: #e3e9f6;
-  --shu: #d4472a;
-  --shu-soft: #fbe6e1;
+  --surface-2: #f6efef;
+  --ink: #2b1d1f;
+  --muted: #7a666a;
+  --line: #ecdfe0;
+  --ai: #2b1d1f;
+  --ai-soft: #f1e8e9;
+  --shu: #d7263d;
+  --shu-soft: #fde4e7;
   --ok: #2f7d4f;
   --ok-soft: #e1f2e7;
   --warn: #9a6a00;
@@ -21,16 +21,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f131b;
-    --surface: #171c27;
-    --surface-2: #1e2431;
-    --ink: #e8ebf2;
-    --muted: #9aa3b6;
-    --line: #2b3242;
-    --ai: #8fa9e6;
-    --ai-soft: #24304b;
-    --shu: #ff7a5c;
-    --shu-soft: #3a221d;
+    --bg: #161112;
+    --surface: #1f1819;
+    --surface-2: #2a2123;
+    --ink: #f3eaeb;
+    --muted: #b39fa4;
+    --line: #3a2e31;
+    --ai: #efe3e5;
+    --ai-soft: #3a2e31;
+    --shu: #ff5a6e;
+    --shu-soft: #3d1d23;
     --ok: #6fcf97;
     --ok-soft: #1c3326;
     --warn: #f0c45a;
@@ -81,7 +81,7 @@ body {
     @apply inline-flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface px-3.5 py-3 text-center font-bold text-ink no-underline;
   }
   .btn-primary {
-    @apply border-ai bg-ai text-white;
+    @apply border-ai bg-ai text-white dark:text-[#161112];
   }
   .btn-accent {
     @apply border-shu bg-shu text-white;

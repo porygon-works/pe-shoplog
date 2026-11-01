@@ -16,10 +16,10 @@ const dela = Dela_Gothic_One({
 });
 
 export const metadata: Metadata = {
-  title: "PE ショップログ",
+  title: { default: "ぺーろぐ", template: "%s | ぺーろぐ" },
   description: "社内向けのお店の記録アプリ",
   icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
-  appleWebApp: { capable: true, title: "ショップログ", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "ぺーろぐ", statusBarStyle: "default" },
 };
 
 // ピンチズームは禁止しない（userScalable / maximumScale は設定しない）。
@@ -28,8 +28,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#24407a" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f131b" },
+    { media: "(prefers-color-scheme: light)", color: "#d7263d" },
+    { media: "(prefers-color-scheme: dark)", color: "#161112" },
   ],
 };
 

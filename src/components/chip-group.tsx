@@ -60,7 +60,7 @@ export function ChipGroup<V extends string>(props: ChipGroupProps<V>) {
             onClick={() => toggle(o.value)}
             className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] ${
               on
-                ? "border-ai bg-ai text-white dark:text-[#0f131b]"
+                ? "border-ai bg-ai text-white dark:text-[#161112]"
                 : "border-line bg-surface text-ink"
             }`}
           >

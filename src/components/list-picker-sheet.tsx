@@ -368,7 +368,7 @@ function NewListForm({
               aria-pressed={kind === k}
               onClick={() => setKind(k)}
               className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] ${
-                kind === k ? "border-ai bg-ai text-white dark:text-[#0f131b]" : "border-line bg-surface text-ink"
+                kind === k ? "border-ai bg-ai text-white dark:text-[#161112]" : "border-line bg-surface text-ink"
               }`}
             >
               {LIST_KIND_LABEL[k]}

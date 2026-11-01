@@ -51,7 +51,7 @@ export function PhotoGallery({ photos, isAdmin = false }: { photos: GalleryPhoto
             onClick={() => setKind(t.value)}
             className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] ${
               kind === t.value
-                ? "border-ai bg-ai text-white dark:text-[#0f131b]"
+                ? "border-ai bg-ai text-white dark:text-[#161112]"
                 : "border-line bg-surface text-ink"
             }`}
           >

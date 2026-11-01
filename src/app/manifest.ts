@@ -1,17 +1,17 @@
 import type { MetadataRoute } from "next";
 
-// 色は globals.css の --ai（藍）と同じ値。
+// 色は globals.css の --shu（紅）/ --bg と同じ値。
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "PEショップログ",
-    short_name: "ショップログ",
+    name: "ぺーろぐ",
+    short_name: "ぺーろぐ",
     description: "社内向けのお店の記録アプリ",
     start_url: "/map",
     scope: "/",
     display: "standalone",
     lang: "ja",
-    theme_color: "#24407a",
-    background_color: "#eef0f3",
+    theme_color: "#d7263d",
+    background_color: "#f7f3f3",
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

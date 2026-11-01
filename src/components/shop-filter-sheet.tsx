@@ -87,7 +87,7 @@ function FilterSheet({
           aria-pressed={d.want}
           onClick={() => setD({ ...d, want: !d.want })}
           className={`self-start whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] ${
-            d.want ? "border-ai bg-ai text-white dark:text-[#0f131b]" : "border-line bg-surface text-ink"
+            d.want ? "border-ai bg-ai text-white dark:text-[#161112]" : "border-line bg-surface text-ink"
           }`}
         >
           気になるだけ
@@ -110,7 +110,7 @@ function FilterSheet({
 }
 
 const chipBase = "whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px]";
-const chipOn = "border-ai bg-ai text-white dark:text-[#0f131b]";
+const chipOn = "border-ai bg-ai text-white dark:text-[#161112]";
 const chipOff = "border-line bg-surface text-ink";
 
 /**
