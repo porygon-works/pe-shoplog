@@ -32,3 +32,9 @@
 ## 注意
 - 本番 DB に対する破壊的操作（drop / delete / reset）はしない。`supabase db reset --linked` は絶対に実行しない。
 - このリポジトリの AGENTS.md と docs/superpowers 以下（spec・plan・判断記録）を参照のこと。
+
+## 経過メモ（2026-11-01 3回目のセッション）
+- 新しいアクセストークンは有効で、`GET /v1/projects` に `biz-works`（ref: nqidngciezguadreaoga）が見えた。
+- ただしリージョンが **eu-west-1** だった（予定は東京 ap-northeast-1）。中身は空（public テーブル0・バケット0・ユーザー0）。
+- ユーザー判断で「東京で作り直す」ことになったため、このセッションでは何も書き込まずに停止。
+- 再開時: 作り直した biz-works の region が `ap-northeast-1` であることを `GET /v1/projects` で確認してから手順1へ。ref は変わるので上記 ref は使わない。DB パスワードを新しくした場合は環境変数 `SUPABASE_DB_PASSWORD` も差し替えて新しいセッションで開始する。
