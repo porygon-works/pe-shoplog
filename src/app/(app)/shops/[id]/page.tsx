@@ -339,7 +339,7 @@ export default async function ShopPage({
         </section>
       </div>
 
-      <div className="sticky bottom-[calc(64px+env(safe-area-inset-bottom))] z-[2] mt-auto flex gap-2 border-t border-line bg-surface px-4 py-2.5">
+      <div className="sticky bottom-[calc(64px+env(safe-area-inset-bottom)+var(--nav-gap))] z-[2] mt-auto flex gap-2 border-t border-line bg-surface px-4 py-2.5">
         <Link href={`/shops/${id}/visits/new`} className="btn btn-accent flex-1">
           行った記録を付ける
         </Link>

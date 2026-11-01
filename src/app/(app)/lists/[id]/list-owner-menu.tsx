@@ -94,7 +94,7 @@ export function ListOwnerMenu({
             aria-modal="true"
             aria-label="リストの編集"
             onClick={(e) => e.stopPropagation()}
-            className="mx-auto flex max-h-[85dvh] w-full max-w-xl flex-col gap-3 overflow-y-auto rounded-t-2xl bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom))] motion-safe:animate-[sheet-up_.18s_ease-out]"
+            className="mx-auto flex max-h-[85dvh] w-full max-w-xl flex-col gap-3 overflow-y-auto rounded-t-2xl bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom)+var(--nav-gap))] motion-safe:animate-[sheet-up_.18s_ease-out]"
           >
             <h2 className="m-0 text-base font-bold">リストの編集</h2>
             <label className="flex flex-col gap-1 text-[13px] font-bold text-muted">

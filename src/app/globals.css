@@ -117,6 +117,16 @@ body::before {
 .ios-status-band {
   display: none;
 }
+
+/* ホーム画面アプリでは下端（ホームバー）に近すぎて押しにくいので、下のメニューやシートを少し上げる。 */
+:root {
+  --nav-gap: 0px;
+}
+@media (display-mode: standalone) {
+  :root {
+    --nav-gap: 14px;
+  }
+}
 @media (display-mode: standalone) {
   @supports (-webkit-touch-callout: none) {
     .ios-status-band {

@@ -53,7 +53,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="confirm-message"
-            className="mx-auto flex w-full max-w-xl flex-col gap-3 rounded-t-[18px] bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom))] motion-safe:animate-[sheet-up_.18s_ease-out]"
+            className="mx-auto flex w-full max-w-xl flex-col gap-3 rounded-t-[18px] bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom)+var(--nav-gap))] motion-safe:animate-[sheet-up_.18s_ease-out]"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
               if (e.key === "Escape") settle(false);

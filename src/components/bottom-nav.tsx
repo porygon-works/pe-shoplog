@@ -55,7 +55,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="メインメニュー"
-      className="sticky bottom-0 z-40 grid grid-cols-4 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]"
+      className="sticky bottom-0 z-40 grid grid-cols-4 border-t border-line bg-surface pb-[calc(env(safe-area-inset-bottom)+var(--nav-gap))]"
     >
       {TABS.map((t) => {
         const on = isActive(pathname, t.href);
