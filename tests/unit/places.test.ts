@@ -84,7 +84,7 @@ describe("autocomplete", () => {
               placeId: "p1",
               structuredFormat: {
                 mainText: { text: "店A" },
-                secondaryText: { text: "東京" },
+                secondaryText: { text: "日本、東京" },
               },
             },
           },

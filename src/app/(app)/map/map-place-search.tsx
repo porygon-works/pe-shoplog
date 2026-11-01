@@ -27,7 +27,7 @@ export function MapPlaceSearch({
         <input
           type="search"
           aria-label="お店をさがす"
-          className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-muted"
+          className="min-w-0 flex-1 appearance-none border-0 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-muted [&::-webkit-search-cancel-button]:hidden"
           value={query}
           onChange={(e) => onInput(e.target.value)}
           autoComplete="off"
@@ -35,8 +35,13 @@ export function MapPlaceSearch({
           placeholder="お店をさがす（例: 池袋 焼き鳥）"
         />
         {open && (
-          <button type="button" onClick={reset} className="bg-transparent px-3 py-2 text-xs text-muted">
-            クリア
+          <button
+            type="button"
+            onClick={reset}
+            aria-label="クリア"
+            className="grid h-9 w-9 flex-none place-items-center bg-transparent p-0 text-lg leading-none text-muted"
+          >
+            ×
           </button>
         )}
       </div>

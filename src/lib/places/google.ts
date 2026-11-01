@@ -78,7 +78,8 @@ export async function autocomplete(
     out.push({
       placeId: p.placeId,
       mainText: p.structuredFormat?.mainText?.text ?? p.text?.text ?? "",
-      secondaryText: p.structuredFormat?.secondaryText?.text ?? "",
+      // 「日本、東京都…」の国名は不要なので落とす。
+      secondaryText: (p.structuredFormat?.secondaryText?.text ?? "").replace(/^日本、\s*/, ""),
     });
   }
   return out;
