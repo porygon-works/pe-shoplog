@@ -2,19 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AdvancedMarker, APIProvider, Map, type MapMouseEvent } from "@vis.gl/react-google-maps";
+import { IKEBUKURO_STATION } from "@/lib/default-location";
 
 export const MAP_ERROR_MESSAGE = "地図を読み込めませんでした";
-const TOKYO_STATION = { lat: 35.681236, lng: 139.767125 };
 
 export type MapShop = { id: string; lat: number; lng: number; visitCount: number };
-
-function centerOf(shops: MapShop[]) {
-  if (shops.length === 0) return TOKYO_STATION;
-  return {
-    lat: shops.reduce((s, x) => s + x.lat, 0) / shops.length,
-    lng: shops.reduce((s, x) => s + x.lng, 0) / shops.length,
-  };
-}
 
 function Pin({ visitCount, selected }: { visitCount: number; selected: boolean }) {
   return (
@@ -52,8 +44,6 @@ export function ShopMap({
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID";
   const [failed, setFailed] = useState(false);
   const onError = useCallback(() => setFailed(true), []);
-  // 初期位置は最初に表示した店の平均。絞り込みで地図が勝手に動かないよう、以後は固定する。
-  const [center] = useState(() => centerOf(shops));
 
   useEffect(() => {
     const w = window as unknown as { gm_authFailure?: () => void };
@@ -89,7 +79,7 @@ export function ShopMap({
     <APIProvider apiKey={apiKey} language="ja" region="JP" onError={onError}>
       <Map
         mapId={mapId}
-        defaultCenter={center}
+        defaultCenter={IKEBUKURO_STATION}
         defaultZoom={15}
         gestureHandling="greedy"
         disableDefaultUI

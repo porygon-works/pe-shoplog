@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { AdvancedMarker, APIProvider, Map, type MapMouseEvent } from "@vis.gl/react-google-maps";
+import { IKEBUKURO_STATION } from "@/lib/default-location";
 
 export type LatLng = { lat: number; lng: number };
 
-const TOKYO: LatLng = { lat: 35.681236, lng: 139.767125 };
 export const MAP_ERROR_MESSAGE = "地図を読み込めませんでした";
 
 /** 手入力の店の位置を、地図をタップして決める。読み込めなければ onError で親に知らせる。 */
@@ -56,7 +56,7 @@ export function LocationPicker({
         <APIProvider apiKey={apiKey} language="ja" region="JP" onError={onError}>
           <Map
             mapId={mapId}
-            defaultCenter={value ?? TOKYO}
+            defaultCenter={value ?? IKEBUKURO_STATION}
             defaultZoom={15}
             gestureHandling="greedy"
             disableDefaultUI
