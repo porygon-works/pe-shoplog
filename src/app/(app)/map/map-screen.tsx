@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { useCategories } from "@/components/categories-provider";
-import { ShopFilterBar } from "@/components/shop-filter-sheet";
 import { useToast } from "@/components/toast";
 import { ShopMap, type LatLng, type MapFocus } from "@/components/shop-map";
 import { ShopPills, ShopThumb, shopMeta, type ShopCardData } from "@/components/shop-card";
 import { IKEBUKURO_STATION } from "@/lib/default-location";
 import type { PickedPlace } from "@/lib/places/use-place-autocomplete";
 import { MapPlaceSearch } from "./map-place-search";
+import { MapQuickFilters } from "./map-quick-filters";
 import { PlaceSheet } from "./place-sheet";
 
 const LOCATE_ERROR = "現在地を取得できませんでした";
@@ -100,7 +100,7 @@ export function MapScreen({ shops }: { shops: MapScreenShop[] }) {
 
       <div className="absolute left-2.5 right-2.5 top-2.5 z-[3] flex flex-col gap-2">
         <MapPlaceSearch getBias={getCenter} onPick={pickFromSearch} />
-        <ShopFilterBar />
+        <MapQuickFilters />
       </div>
 
       {!sel && (

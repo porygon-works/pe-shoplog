@@ -33,12 +33,12 @@ function FilterSelect({
   const current = value.length === 1 ? value[0] : value.length > 1 ? "__multi" : "";
   const on = value.length > 0;
   return (
-    <span className="relative flex-none">
+    <span className="relative min-w-0">
       <select
         aria-label={label}
         value={current}
         onChange={(e) => onChange(e.target.value ? [e.target.value] : null)}
-        className={`${chipBase} ${on ? chipOn : chipOff} max-w-[11rem] appearance-none pl-3 pr-7`}
+        className={`${chipBase} ${on ? chipOn : chipOff} w-full appearance-none truncate pl-3 pr-7`}
       >
         <option value="">{label}</option>
         {value.length > 1 && (
@@ -63,7 +63,7 @@ function FilterSelect({
 }
 
 /**
- * 絞り込みの行。登録で選ぶ区分（ジャンル・形態・喫煙・値段感・用途）をそのままドロップダウンで選べる。
+ * 絞り込み（さがす画面）。3 列にそろえて全部見せる。登録で選ぶ区分（ジャンル・形態・喫煙・値段感・用途）をそのままドロップダウンで選べる。
  * 条件は URL クエリ（nuqs）に持つので、マップとさがすで同じ状態を共有し、サーバー側で再取得される。
  */
 export function ShopFilterBar() {
@@ -74,12 +74,12 @@ export function ShopFilterBar() {
   const styleOptions = selectableOptions(categories.styles, f.styles);
 
   return (
-    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none]">
+    <div className="grid grid-cols-3 gap-2">
       <button
         type="button"
         aria-pressed={f.want}
         onClick={() => setF({ want: f.want ? null : true })}
-        className={`${chipBase} px-3 ${f.want ? chipOn : chipOff} flex-none`}
+        className={`${chipBase} px-2 ${f.want ? chipOn : chipOff}`}
       >
         気になるだけ
       </button>
