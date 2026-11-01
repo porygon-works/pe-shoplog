@@ -32,6 +32,38 @@ describe("shop_index", () => {
     expect(row?.last_visited_on).toBe("2026-03-01");
   });
 
+  it("avg_rating は評価のある記録の平均（小数 1 桁）、rating_count はその件数", async () => {
+    const shop = await createShop(a.id);
+    await createVisit(shop, a.id, { rating: 5 });
+    await createVisit(shop, a.id, { rating: 4 });
+    await createVisit(shop, b.id, { rating: 4 });
+    await createVisit(shop, b.id, {});
+    const row = await indexRow(a.client, shop);
+    expect(Number(row?.avg_rating)).toBe(4.3);
+    expect(row?.rating_count).toBe(3);
+    expect(row?.visit_count).toBe(4);
+  });
+
+  it("評価がなければ avg_rating は null、rating_count は 0", async () => {
+    const shop = await createShop(a.id);
+    await createVisit(shop, a.id, {});
+    const row = await indexRow(a.client, shop);
+    expect(row?.avg_rating).toBeNull();
+    expect(row?.rating_count).toBe(0);
+  });
+
+  it("日付なしの記録は最新扱いにならない（smoking・price_range・last_visited_on）", async () => {
+    const shop = await createShop(a.id);
+    await createVisit(shop, a.id, { visited_on: "2026-01-01", smoking: "smoking_ok", price_range: "3000_4999" });
+    await createVisit(shop, a.id, { visited_on: null, smoking: "no_smoking", price_range: "5000_6999" });
+    const row = await indexRow(a.client, shop);
+    expect(row?.smoking).toBe("smoking_ok");
+    expect(row?.last_visited_on).toBe("2026-01-01");
+    // 件数が同じなら日付のある方（nulls last）
+    expect(row?.price_range).toBe("3000_4999");
+    expect(row?.visit_count).toBe(2);
+  });
+
   it("price_range は unknown 以外の最頻値", async () => {
     const shop = await createShop(a.id);
     await createVisit(shop, a.id, { visited_on: "2026-01-01", price_range: "5000_6999" });

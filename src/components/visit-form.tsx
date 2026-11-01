@@ -11,7 +11,7 @@ import type { VisitInput } from "@/lib/validation";
 
 export type VisitFormInitial = Pick<
   VisitInput,
-  "visitedOn" | "smoking" | "priceRange" | "purpose" | "reservation" | "paymentMethods" | "comment"
+  "visitedOn" | "rating" | "smoking" | "priceRange" | "purpose" | "reservation" | "paymentMethods" | "comment"
 > & { partySize: string };
 
 const label = "text-[13px] font-bold text-muted";
@@ -31,7 +31,8 @@ export function VisitForm({
   existingPhotos?: ExistingPhoto[];
 }) {
   const router = useRouter();
-  const [visitedOn, setVisitedOn] = useState(initial.visitedOn);
+  const [visitedOn, setVisitedOn] = useState(initial.visitedOn ?? "");
+  const [rating, setRating] = useState<number | null>(initial.rating);
   const [smoking, setSmoking] = useState(initial.smoking);
   const [priceRange, setPriceRange] = useState(initial.priceRange);
   const [purpose, setPurpose] = useState(initial.purpose);
@@ -96,15 +97,44 @@ export function VisitForm({
         <label htmlFor="vd" className={label}>
           行った日
         </label>
-        <input
-          id="vd"
-          name="visitedOn"
-          type="date"
-          className="input"
-          value={visitedOn}
-          onChange={(e) => setVisitedOn(e.target.value)}
-          required
-        />
+        <div className="flex items-center gap-2">
+          <input
+            id="vd"
+            name="visitedOn"
+            type="date"
+            className="input"
+            value={visitedOn}
+            onChange={(e) => setVisitedOn(e.target.value)}
+          />
+          {visitedOn !== "" && (
+            <button type="button" className="btn flex-none !px-2.5 !py-[7px] text-[13px]" onClick={() => setVisitedOn("")}>
+              日付なしにする
+            </button>
+          )}
+        </div>
+        {visitedOn === "" && <span className="text-xs text-muted">日付なしで保存されます。</span>}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className={label}>評価（任意）</span>
+        <div role="group" aria-label="評価" className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              aria-label={`★${n}`}
+              aria-pressed={rating === n}
+              // 同じ★をもう一度押すと解除する
+              onClick={() => setRating(rating === n ? null : n)}
+              className={`border-0 bg-transparent p-0.5 text-[28px] leading-none ${
+                rating !== null && n <= rating ? "text-warn" : "text-line"
+              }`}
+            >
+              ★
+            </button>
+          ))}
+        </div>
+        <input type="hidden" name="rating" value={rating ?? ""} />
       </div>
 
       <div className="flex flex-col gap-2">

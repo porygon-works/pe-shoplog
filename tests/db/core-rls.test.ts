@@ -245,6 +245,23 @@ describe("ハードデリートと制約", () => {
     expect(ok.error).toBeNull();
   });
 
+  it("visits.rating は 1〜5 か null、visited_on は null 可", async () => {
+    const shop = await createShop(a.id);
+    for (const r of [0, 6]) {
+      await expect(createVisit(shop, a.id, { rating: r })).rejects.toMatchObject({ code: "23514" });
+    }
+    for (const r of [null, 1, 5]) await createVisit(shop, a.id, { rating: r });
+    await createVisit(shop, a.id, { visited_on: null });
+  });
+
+  it("本人は自分の visit の rating を更新できる", async () => {
+    const shop = await createShop(a.id);
+    const id = await createVisit(shop, a.id, {});
+    const { data, error } = await a.client.from("visits").update({ rating: 3 }).eq("id", id).select("rating");
+    expect(error).toBeNull();
+    expect(data).toEqual([{ rating: 3 }]);
+  });
+
   it("shops.reference_url は null・空・http(s) のみ", async () => {
     const shop = await createShop(a.id);
     const bad = await a.client

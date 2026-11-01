@@ -10,7 +10,7 @@
 
 ### 1.1 目的
 社員が普段の店選びに困ったときに見る、社内向けのお店ログ（食べログのようなもの）。
-★評価は付けず、「実際に行ったらどうだったか」（喫煙、値段感、何に使ったか、写真、コメント）を共有することを重視する。
+「実際に行ったらどうだったか」（喫煙、値段感、何に使ったか、写真、コメント）を共有することを重視する。★評価（1〜5、任意）も付けられる。
 
 ### 1.2 前提・制約
 - 個人製作の非公式ツール。上層部の承認は取らない。
@@ -159,7 +159,7 @@
 |---|---|
 | `profiles` | `id`（auth.users と 1:1）, `login_id`（unique）, `nickname`, `is_admin`, `disabled_at` |
 | `shops` | `place_id`（unique、NULL 可 = 手入力の店）, `name`, `lat`, `lng`, `location_fetched_at`, `genre`, `styles text[]`, `reference_url`, `created_by` |
-| `visits` | `shop_id`, `user_id`, `visited_on`, `smoking`, `price_range`, `purpose`, `party_size`, `reservation`, `payment_methods text[]`, `comment` |
+| `visits` | `shop_id`, `user_id`, `visited_on`（NULL 可 = 日付なし）, `rating`（1〜5、NULL 可）, `smoking`, `price_range`, `purpose`, `party_size`, `reservation`, `payment_methods text[]`, `comment` |
 | `photos` | `visit_id`, `shop_id`, `user_id`, `kind`, `storage_path`, `width`, `height` |
 | `lists` | `owner_id`, `name`, `kind`（want / favorite）, `is_public`, `is_default` |
 | `list_items` | `list_id`, `shop_id`, `added_at`（`(list_id, shop_id)` で unique） |
@@ -270,7 +270,7 @@
 ---
 
 ## 10. 今回はやらないこと
-- ★評価・点数、いいね、通知（Slack 連携を含む）
+- 点数、いいね、通知（Slack 連携を含む）
 - 投稿ガイドライン・通報機能
 - オフィスからの徒歩分数
 - 貸切の可否

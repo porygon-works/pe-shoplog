@@ -21,8 +21,11 @@ function text(formData: FormData, key: string): string {
 function parseVisit(formData: FormData) {
   const rawSize = text(formData, "partySize").trim();
   const partySize = rawSize === "" ? null : /^\d+$/.test(rawSize) ? Number(rawSize) : Number.NaN;
+  const rawRating = text(formData, "rating").trim();
+  const rating = rawRating === "" ? null : /^\d$/.test(rawRating) ? Number(rawRating) : Number.NaN;
   const parsed = visitInputSchema.safeParse({
-    visitedOn: text(formData, "visitedOn"),
+    visitedOn: text(formData, "visitedOn").trim() || null,
+    rating,
     partySize,
     comment: text(formData, "comment"),
     smoking: text(formData, "smoking") || "unknown",
@@ -36,17 +39,20 @@ function parseVisit(formData: FormData) {
   const message =
     field === "visitedOn"
       ? "行った日を正しく入力してください"
-      : field === "partySize"
-        ? "人数は 1〜500 の整数で入力してください"
-        : field === "comment"
-          ? "コメントは1,000文字までです"
-          : "入力内容を確認してください";
+      : field === "rating"
+        ? "評価は ★1〜5 で選んでください"
+        : field === "partySize"
+          ? "人数は 1〜500 の整数で入力してください"
+          : field === "comment"
+            ? "コメントは1,000文字までです"
+            : "入力内容を確認してください";
   return { error: message };
 }
 
 function visitColumns(d: NonNullable<ReturnType<typeof parseVisit>["data"]>) {
   return {
     visited_on: d.visitedOn,
+    rating: d.rating,
     smoking: d.smoking,
     price_range: d.priceRange,
     purpose: d.purpose,

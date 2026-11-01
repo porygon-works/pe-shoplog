@@ -56,7 +56,8 @@ export type VisitLogEntry = {
   id: string;
   shopId: string;
   shopName: string;
-  visitedOn: string;
+  visitedOn: string | null;
+  rating: number | null;
   purposeLabel: string;
   excerpt: string | null;
 };
@@ -65,11 +66,11 @@ export type VisitLogEntry = {
 export async function visitLogOf(supabase: SupabaseClient, userId: string): Promise<VisitLogEntry[]> {
   const { data, error } = await supabase
     .from("visits")
-    .select("id, shop_id, visited_on, purpose, comment, shops!inner(name, deleted_at)")
+    .select("id, shop_id, visited_on, rating, purpose, comment, shops!inner(name, deleted_at)")
     .eq("user_id", userId)
     .is("deleted_at", null)
     .is("shops.deleted_at", null)
-    .order("visited_on", { ascending: false })
+    .order("visited_on", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .limit(200);
   if (error) throw error;
@@ -80,6 +81,7 @@ export async function visitLogOf(supabase: SupabaseClient, userId: string): Prom
       shopId: v.shop_id,
       shopName: shop?.name ?? "",
       visitedOn: v.visited_on,
+      rating: v.rating,
       purposeLabel: labelOf(PURPOSES, v.purpose),
       excerpt: excerptOf(v.comment),
     };

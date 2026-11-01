@@ -12,6 +12,7 @@ import {
   SMOKING,
   labelOf,
 } from "@/lib/options";
+import { Stars, ratingText } from "@/components/rating";
 import { googleMapsUrl } from "@/lib/shops/google-maps-url";
 import { createServerClient } from "@/lib/supabase/server";
 import { summarizeVisits, type Count } from "@/lib/visits/summarize";
@@ -26,7 +27,8 @@ import { WebsiteButton } from "./website-button";
 type VisitRow = {
   id: string;
   user_id: string | null;
-  visited_on: string;
+  visited_on: string | null;
+  rating: number | null;
   party_size: number | null;
   smoking: string;
   price_range: string;
@@ -90,11 +92,11 @@ export default async function ShopPage({
     supabase
       .from("visits")
       .select(
-        "id, user_id, visited_on, party_size, smoking, price_range, purpose, reservation, payment_methods, comment, profiles(nickname, login_id)",
+        "id, user_id, visited_on, rating, party_size, smoking, price_range, purpose, reservation, payment_methods, comment, profiles(nickname, login_id)",
       )
       .eq("shop_id", id)
       .is("deleted_at", null)
-      .order("visited_on", { ascending: false })
+      .order("visited_on", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false }),
     supabase
       .from("photos")
@@ -156,6 +158,7 @@ export default async function ShopPage({
   const categories = await getCategories();
   const genreLabel = labelOf(categories.genres, shop.genre);
   const stylesLabel = ((shop.styles ?? []) as string[]).map((s) => labelOf(categories.styles, s)).join("・");
+  const avgText = ratingText(shop.avg_rating, shop.rating_count);
   const heroPhotos = photos.slice(0, 3);
 
   return (
@@ -184,6 +187,11 @@ export default async function ShopPage({
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-1.5">
           <div className="text-xs text-muted">{[genreLabel, stylesLabel].filter(Boolean).join("・")}</div>
+          {avgText && (
+            <div data-testid="shop-rating" className="text-[15px] font-bold text-warn">
+              {avgText}
+            </div>
+          )}
           <div className="flex flex-wrap gap-1">
             {!hasVisits && <span className={`${pill} bg-ai-soft font-bold text-ai`}>気になる（未訪問）</span>}
             <span className={`${pill} ${smokePill(smoking)}`}>
@@ -304,13 +312,14 @@ export default async function ShopPage({
                     <b>{who}</b>
                   )}
                   <span className="text-xs text-muted">
-                    {v.visited_on}
+                    {v.visited_on ?? "日付なし"}
                     {v.party_size !== null && `・${v.party_size}人`}
                   </span>
                   {v.user_id === user.id && <VisitOwnerActions visitId={v.id} />}
                   {user.isAdmin && v.user_id !== user.id && <VisitAdminActions visitId={v.id} />}
                 </div>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap items-center gap-1">
+                  {v.rating !== null && <Stars rating={v.rating} />}
                   {v.purpose !== "unknown" && (
                     <span className={`${pill} bg-surface-2 text-muted`}>{labelOf(PURPOSES, v.purpose)}</span>
                   )}

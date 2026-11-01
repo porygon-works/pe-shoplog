@@ -39,7 +39,9 @@ export const shopInputSchema = z.object({
 export type ShopInput = z.infer<typeof shopInputSchema>;
 
 export const visitInputSchema = z.object({
-  visitedOn: isoDate,
+  // 行った日は任意（空なら日付なし）。
+  visitedOn: isoDate.nullable().default(null),
+  rating: z.number().int().min(1).max(5).nullable().default(null),
   partySize: z.number().int().min(1).max(500).nullable().default(null),
   comment: z.string().max(1000).default(""),
   smoking: z.enum(values(SMOKING)).default("unknown"),

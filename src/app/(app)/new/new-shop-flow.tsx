@@ -57,7 +57,6 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
   const [name, setName] = useState(picked.name);
   const [genre, setGenre] = useState<ShopInput["genre"]>("unknown");
   const [styles, setStyles] = useState<ShopInput["styles"]>([]);
-  const [referenceUrl, setReferenceUrl] = useState("");
   const [location, setLocation] = useState<LatLng | null>(picked.location);
   const [mapFailed, setMapFailed] = useState(false);
   const onMapError = useCallback(() => setMapFailed(true), []);
@@ -108,21 +107,6 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">店の形態（複数可）</span>
         <ChipGroup name="styles" multiple options={selectableOptions(categories.styles)} value={styles} onChange={setStyles} aria-label="店の形態" />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label htmlFor="ref" className="text-[13px] font-bold text-muted">
-          予約・参考リンク
-        </label>
-        <input
-          id="ref"
-          name="referenceUrl"
-          type="url"
-          className="input"
-          value={referenceUrl}
-          onChange={(e) => setReferenceUrl(e.target.value)}
-          placeholder="ホットペッパーや食べログのURL（任意）"
-        />
       </div>
 
       <div className="grid grid-cols-2 gap-2">

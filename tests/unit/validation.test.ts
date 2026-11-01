@@ -55,6 +55,19 @@ describe("visitInputSchema", () => {
       visitInputSchema.safeParse({ visitedOn: "2026-13-40" }).success,
     ).toBe(false);
   });
+
+  it("行った日は未入力（null）でもよい", () => {
+    expect(visitInputSchema.parse({}).visitedOn).toBeNull();
+    expect(visitInputSchema.parse({ visitedOn: null }).visitedOn).toBeNull();
+  });
+
+  it("評価は 1〜5 か未入力", () => {
+    expect(visitInputSchema.parse({}).rating).toBeNull();
+    for (const r of [1, 3, 5]) expect(visitInputSchema.parse({ rating: r }).rating).toBe(r);
+    for (const r of [0, 6, 2.5, Number.NaN]) {
+      expect(visitInputSchema.safeParse({ rating: r }).success).toBe(false);
+    }
+  });
 });
 
 describe("shopInputSchema", () => {

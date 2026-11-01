@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCategories } from "@/components/categories-provider";
 import type { Categories } from "@/lib/category-utils";
+import { ratingText } from "@/components/rating";
 import { PRICE_RANGES, SMOKING, labelOf } from "@/lib/options";
 
 /** 店カードに必要な最小限の項目。一覧系の画面で共有する。 */
@@ -12,6 +13,8 @@ export type ShopCardData = {
   genre: string;
   styles: string[];
   visitCount: number;
+  avgRating: number | null;
+  ratingCount: number;
   smoking: string;
   priceRange: string;
   thumbUrl: string | null;
@@ -46,6 +49,9 @@ export function ShopThumb({ url, size = 72 }: { url: string | null; size?: numbe
 export function ShopPills({ shop }: { shop: ShopCardData }) {
   return (
     <div className="flex flex-wrap gap-1">
+      {ratingText(shop.avgRating, shop.ratingCount) && (
+        <span className={`${pill} bg-warn-soft font-bold text-warn`}>{ratingText(shop.avgRating, shop.ratingCount)}</span>
+      )}
       {shop.visitCount === 0 && <span className={`${pill} bg-ai-soft font-bold text-ai`}>気になる（未訪問）</span>}
       <span className={`${pill} ${smokePill(shop.smoking)}`}>
         {shop.smoking === "unknown" ? "喫煙 不明" : labelOf(SMOKING, shop.smoking)}

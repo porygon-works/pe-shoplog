@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Stars } from "@/components/rating";
 import type { VisitLogEntry } from "@/lib/lists/queries";
 
 /** 記録の一覧（店名・日付・用途・コメントの冒頭）。店の詳細へ移動できる。 */
@@ -16,7 +17,12 @@ export function VisitLogList({ entries }: { entries: VisitLogEntry[] }) {
         >
           <span className="text-[15px] font-bold">{v.shopName}</span>
           <span className="text-xs text-muted">
-            {v.visitedOn}・{v.purposeLabel}
+            {v.rating !== null && (
+              <>
+                <Stars rating={v.rating} />・
+              </>
+            )}
+            {v.visitedOn ?? "日付なし"}・{v.purposeLabel}
           </span>
           {v.excerpt && <span className="text-xs text-muted">「{v.excerpt}」</span>}
         </Link>

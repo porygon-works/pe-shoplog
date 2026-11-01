@@ -14,6 +14,35 @@ test("何も選ばずに記録を保存すると、詳細ページの喫煙は�
   await expect(page.getByText("1件")).toBeVisible();
 });
 
+test("★を付けて保存すると詳細に平均★が出る。同じ★の再タップで解除できる", async ({ page }) => {
+  const shopId = await createShop(null, { name: "記録テスト酒場★" });
+  await page.goto(`/shops/${shopId}/visits/new`);
+  await page.getByRole("button", { name: "★4", exact: true }).click();
+  await expect(page.getByRole("button", { name: "★4", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "★4", exact: true }).click();
+  await expect(page.getByRole("button", { name: "★4", exact: true })).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "★4", exact: true }).click();
+  await page.getByRole("button", { name: "記録を保存" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await expect(page.getByTestId("shop-rating")).toHaveText("★4.0（1件）");
+  await expect(page.getByRole("img", { name: "評価 ★4" })).toBeVisible();
+});
+
+test("行った日を空にして保存でき、詳細には「日付なし」と出る。/new に参考リンク欄はない", async ({ page }) => {
+  const shopId = await createShop(null, { name: "記録テスト酒場日付なし" });
+  await page.goto(`/shops/${shopId}/visits/new`);
+  await page.getByRole("button", { name: "日付なしにする" }).click();
+  await expect(page.getByLabel("行った日")).toHaveValue("");
+  await page.getByRole("button", { name: "記録を保存" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await expect(page.getByText("日付なし", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("shop-rating")).toHaveCount(0);
+
+  await page.goto("/new");
+  await expect(page.getByLabel("店名でさがす")).toBeVisible();
+  await expect(page.getByLabel("予約・参考リンク")).toHaveCount(0);
+});
+
 test("禁煙・打ち上げ・写真つきで保存すると詳細ページに反映され、本人は編集・削除できる", async ({ page }) => {
   const shopId = await createShop(null, { name: "記録テスト酒場B" });
   await page.goto(`/shops/${shopId}/visits/new`);
