@@ -149,6 +149,15 @@ npm run lint && npm run typecheck && npm run build
 
 ## 運用
 
+### 本番 DB のマイグレーション履歴（biz-works）
+
+- 本番プロジェクト `biz-works`（ref: `jpwazqjrqtlbwfvagstx`、Tokyo）の初回セットアップ（2026-11-01）では、作業環境から DB に直接接続できなかったため、`0001`〜`0006` を Management API（`POST /v1/projects/<ref>/database/query`）で番号順に適用しました。
+- そのため `supabase_migrations.schema_migrations` には記録がありません。次に `npx supabase db push` を使う前に、適用済みとして登録してください（DB には何も実行されず、履歴だけが入ります）。
+
+  ```bash
+  npx supabase migration repair --status applied 0001 0002 0003 0004 0005 0006
+  ```
+
 ### バックアップの取り出し方
 
 - **このリポジトリは必ず private にしてください。** public リポジトリでは workflow の artifact を誰でもダウンロードでき、`data.sql` にはユーザー情報やコメントが含まれます。

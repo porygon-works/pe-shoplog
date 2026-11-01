@@ -38,3 +38,12 @@
 - ただしリージョンが **eu-west-1** だった（予定は東京 ap-northeast-1）。中身は空（public テーブル0・バケット0・ユーザー0）。
 - ユーザー判断で「東京で作り直す」ことになったため、このセッションでは何も書き込まずに停止。
 - 再開時: 作り直した biz-works の region が `ap-northeast-1` であることを `GET /v1/projects` で確認してから手順1へ。ref は変わるので上記 ref は使わない。DB パスワードを新しくした場合は環境変数 `SUPABASE_DB_PASSWORD` も差し替えて新しいセッションで開始する。
+
+## 完了（2026-11-01 同セッション続き）
+- 2回目の作成もリージョンが ap-southeast-2（シドニー）だったため、ユーザーが削除し、Management API で `region: ap-northeast-1` を指定して作り直した。DB パスワードは `SUPABASE_DB_PASSWORD` の値。
+- 本番: `biz-works` ref **jpwazqjrqtlbwfvagstx**（ap-northeast-1）。
+- `supabase db push` は pooler への接続がタイムアウトしたため、0001〜0006 を Management API で番号順に適用。schema_migrations 未記録（README「運用」に repair 手順を記載）。
+- テーブル11・ビュー2・関数11・`photos` バケット（非公開）を確認。public の全テーブルで RLS 有効。
+- 認証: disable_signup=true / password_min_length=8 / mailer_autoconfirm=true（GET で確認）。site_url は localhost:3000 のまま（Vercel の URL が決まったら設定）。
+- 合言葉 `PE` を設定し、`app_settings.signup_passphrase_hash` を確認。publishable キーでの `auth/v1/signup` は `signup_disabled`（422）。
+- 残り: Vercel 環境変数、最初の管理者、ブランチの扱い、Google Cloud / GitHub Secrets（README 参照）。
