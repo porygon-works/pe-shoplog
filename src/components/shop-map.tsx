@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AdvancedMarker,
   APIProvider,
@@ -84,6 +84,25 @@ function LocateButton({ onLocate, locating }: { onLocate: () => void; locating: 
   );
 }
 
+/**
+ * 同じビルなど、ほぼ同じ位置（約 1m 以内）にある店はピンが完全に重なるので、画面上で左右にずらして並べる。
+ * ずらすのは見た目だけ（ピクセル）なので、拡大・縮小しても常に並んで見える。
+ */
+const PIN_GAP_PX = 28;
+export function pinOffsets(shops: readonly MapShop[]): globalThis.Map<string, number> {
+  // この中の Map は地図部品ではなく JavaScript の Map。
+  const groups = new globalThis.Map<string, string[]>();
+  for (const s of shops) {
+    const key = `${s.lat.toFixed(5)},${s.lng.toFixed(5)}`;
+    groups.set(key, [...(groups.get(key) ?? []), s.id]);
+  }
+  const out = new globalThis.Map<string, number>();
+  for (const ids of groups.values()) {
+    ids.forEach((id, i) => out.set(id, (i - (ids.length - 1) / 2) * PIN_GAP_PX));
+  }
+  return out;
+}
+
 function FocusController({ focus }: { focus?: MapFocus | null }) {
   const map = useMap();
   useEffect(() => {
@@ -132,6 +151,7 @@ export function ShopMap({
   const onError = useCallback(() => setFailed(true), []);
   // 地図を読み込む前に表示回数を数える（上限に達していたら Google の地図を読み込まない）。
   const quota = useMapLoadQuota(!!apiKey);
+  const offsets = useMemo(() => pinOffsets(shops), [shops]);
 
   useEffect(() => {
     const w = window as unknown as { gm_authFailure?: () => void };
@@ -195,7 +215,9 @@ export function ShopMap({
               onClick={() => onSelectShop(s.id)}
               zIndex={s.id === selectedShopId ? 2 : 1}
             >
-              <Pin visitCount={s.visitCount} selected={s.id === selectedShopId} />
+              <span className="block" style={{ transform: `translateX(${offsets.get(s.id) ?? 0}px)` }}>
+                <Pin visitCount={s.visitCount} selected={s.id === selectedShopId} />
+              </span>
             </AdvancedMarker>
           ))}
         </Map>
