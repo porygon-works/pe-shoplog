@@ -7,6 +7,7 @@ export type PickedPlace = { placeId: string; name: string; lat: number; lng: num
 export type Suggestion = { placeId: string; mainText: string; secondaryText: string };
 
 export const SEARCH_ERROR = "お店の検索に失敗しました。時間をおいてもう一度お試しください";
+export const LIMIT_ERROR = "今日のお店の検索回数の上限に達しました。明日もう一度お試しください";
 const DEBOUNCE_MS = 300;
 
 /**
@@ -45,6 +46,10 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
           params.set("lng", String(bias.lng));
         }
         const res = await fetch(`/api/places/autocomplete?${params}`);
+        if (res.status === 429) {
+          if (mine === seq.current) toast.show(LIMIT_ERROR, "error");
+          return;
+        }
         if (!res.ok) throw new Error(String(res.status));
         const data = (await res.json()) as { suggestions: Suggestion[] };
         if (mine !== seq.current) return; // 古い応答は捨てる
@@ -85,6 +90,10 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
       const params = new URLSearchParams({ id: s.placeId });
       if (session.current) params.set("session", session.current);
       const res = await fetch(`/api/places/details?${params}`);
+      if (res.status === 429) {
+        toast.show(LIMIT_ERROR, "error");
+        return null;
+      }
       if (!res.ok) throw new Error(String(res.status));
       const d = (await res.json()) as PickedPlace;
       session.current = null; // 選択で課金セッションは終了。次の検索では新しいトークンを使う

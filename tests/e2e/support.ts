@@ -32,4 +32,7 @@ export async function prepareSignup(): Promise<void> {
     .delete()
     .gte("attempted_at", "1970-01-01");
   if (del.error) throw del.error;
+  // ログインの失敗記録も消す（e2e は同じ IP からログインを失敗させるテストを含むため）。
+  const delLogin = await admin.from("login_attempts").delete().gte("attempted_at", "1970-01-01");
+  if (delLogin.error) throw delLogin.error;
 }
