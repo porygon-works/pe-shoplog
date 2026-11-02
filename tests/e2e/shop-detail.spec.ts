@@ -258,3 +258,15 @@ test("店情報の編集で新しいジャンルをその場で追加して保�
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
   await expect(page.getByTestId("shop-categories")).toContainText(label);
 });
+
+test("店情報の編集で、ジャンル・形態の選択肢に用途が混ざらない", async ({ page }) => {
+  const { shopId } = await fixture();
+  await page.goto(`/shops/${shopId}/edit`);
+  const styles = page.getByRole("group", { name: "店の形態" });
+  const genres = page.getByRole("group", { name: "ジャンル" });
+  await expect(styles.getByRole("button", { name: "居酒屋", exact: true })).toBeVisible();
+  for (const purpose of ["打ち上げ", "しごおわ", "接待"]) {
+    await expect(styles.getByRole("button", { name: purpose, exact: true })).toHaveCount(0);
+    await expect(genres.getByRole("button", { name: purpose, exact: true })).toHaveCount(0);
+  }
+});

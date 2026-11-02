@@ -19,7 +19,10 @@ export const getCategories = cache(async (): Promise<Categories> => {
   const purposes: Category[] = [];
   for (const r of data ?? []) {
     const c: Category = { value: r.value, label: r.label, hidden: r.hidden, sortOrder: r.sort_order };
-    (r.kind === "genre" ? genres : r.kind === "style" ? styles : purposes).push(c);
+    // 知らない種類は無視する（DB に新しい種類を先に足しても、ほかの区分に混ざらないように）。
+    if (r.kind === "genre") genres.push(c);
+    else if (r.kind === "style") styles.push(c);
+    else if (r.kind === "purpose") purposes.push(c);
   }
   return { genres, styles, purposes };
 });
