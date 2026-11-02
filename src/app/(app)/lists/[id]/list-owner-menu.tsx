@@ -113,7 +113,7 @@ export function ListOwnerMenu({
                 checked={draftPublic}
                 onChange={(e) => setDraftPublic(e.target.checked)}
               />
-              公開する
+              共有する（ログインしている人が見られます）
               <span className="text-xs text-muted">（オフなら自分だけが見られます）</span>
             </label>
             {error && (

@@ -40,10 +40,10 @@ export default async function UserPage({ params }: { params: Promise<{ loginId: 
         <span className="text-xs text-muted">{profile.login_id}</span>
       </header>
       <div className="flex flex-col gap-3 p-4">
-        <p className="m-0 text-[13px] font-bold text-muted">公開リスト</p>
+        <p className="m-0 text-[13px] font-bold text-muted">共有リスト</p>
         {publicLists.length === 0 ? (
           <p className="m-0 rounded-[10px] bg-surface-2 p-4 text-center text-[13px] text-muted">
-            公開しているリストはありません
+            共有しているリストはありません
           </p>
         ) : (
           publicLists.map((l) => <ListCard key={l.id} list={l} />)

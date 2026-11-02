@@ -24,7 +24,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       <>
         <ListSearchInput />
         <div className="flex items-center justify-between text-[13px] font-bold text-muted">
-          <span>公開されているリスト</span>
+          <span>共有リスト</span>
           <ListSortSelect />
         </div>
         {lists.length === 0 ? (

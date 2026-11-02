@@ -189,7 +189,7 @@ export function ListPickerSheet({
                 {l.isDefault && <span className="text-xs text-muted">（既定）</span>}
                 {mode === "any" && <span className="ml-1.5 text-xs text-muted">{LIST_KIND_LABEL[l.kind]}</span>}
               </span>
-              <span className="text-xs text-muted">{l.isPublic ? "公開" : "非公開"}</span>
+              <span className="text-xs text-muted">{l.isPublic ? "共有" : "自分だけ"}</span>
             </label>
           ))}
         </div>
@@ -199,7 +199,7 @@ export function ListPickerSheet({
       ? [
           {
             key: "shared",
-            heading: "共有リスト",
+            heading: "メンバーで編集する共有リスト",
             body: (
               <div className="flex flex-col">
                 {sharedError && (
@@ -383,7 +383,7 @@ function NewListForm({
           checked={isPublic}
           onChange={(e) => setIsPublic(e.target.checked)}
         />
-        公開する
+        共有する（ログインしている人が見られます）
         <span className="text-xs text-muted">（だれでも見られます）</span>
       </label>
       {error && (

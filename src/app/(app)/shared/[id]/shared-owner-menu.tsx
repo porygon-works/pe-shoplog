@@ -129,7 +129,7 @@ export function SharedOwnerMenu({
                 checked={draftPublic}
                 onChange={(e) => setDraftPublic(e.target.checked)}
               />
-              公開する
+              メンバー以外にも共有する（見るだけ）
               <span className="text-xs text-muted">（オフならメンバーだけが見られます）</span>
             </label>
             {error && (

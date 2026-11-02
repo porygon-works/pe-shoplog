@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { SharedListSummary } from "@/lib/lists/queries";
+import { ListCard } from "@/components/list-card";
+import type { ListSummary, SharedListSummary } from "@/lib/lists/queries";
 import { LIST_NAME_MAX } from "@/lib/lists/shared";
 import { createSharedListAction } from "@/lib/shared-lists/actions";
 import { SHARED_DESCRIPTION_MAX } from "@/lib/shared-lists/shared";
@@ -11,7 +12,7 @@ import { SHARED_DESCRIPTION_MAX } from "@/lib/shared-lists/shared";
 const pill = "whitespace-nowrap rounded-full px-2 py-0.5 text-[11px]";
 
 /** マイページの「共有リスト」タブ。参加中のリストと、新しく作るフォーム。 */
-export function SharedListTab({ lists }: { lists: SharedListSummary[] }) {
+export function SharedListTab({ lists, mine = [] }: { lists: SharedListSummary[]; mine?: ListSummary[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -39,11 +40,21 @@ export function SharedListTab({ lists }: { lists: SharedListSummary[] }) {
 
   return (
     <>
-      <div className="flex items-baseline justify-between text-[13px] font-bold text-muted">
-        <span>参加中の共有リスト</span>
+      {/* 共有にしたマイリスト（ほかの人は見るだけ）。共有リストはここにまとめて見せる。 */}
+      <div className="text-[13px] font-bold text-muted">自分が共有しているリスト（ほかの人は見るだけ）</div>
+      {mine.length === 0 ? (
+        <p className="m-0 rounded-[10px] bg-surface-2 p-4 text-center text-[13px] text-muted">
+          マイリストを「共有」にすると、ここに出ます
+        </p>
+      ) : (
+        mine.map((l) => <ListCard key={l.id} list={l} />)
+      )}
+
+      <div className="mt-2 flex items-baseline justify-between text-[13px] font-bold text-muted">
+        <span>メンバーで編集する共有リスト</span>
         {!open && (
           <button type="button" onClick={() => setOpen(true)} className="bg-transparent p-0 text-sm font-bold text-ai underline">
-            ＋ 共有リストを作る
+            ＋ メンバーで編集するリストを作る
           </button>
         )}
       </div>
@@ -76,7 +87,7 @@ export function SharedListTab({ lists }: { lists: SharedListSummary[] }) {
               checked={isPublic}
               onChange={(e) => setIsPublic(e.target.checked)}
             />
-            公開する
+            メンバー以外にも共有する（見るだけ）
             <span className="text-xs text-muted">（オフならメンバーだけが見られます）</span>
           </label>
           {error && (
@@ -101,7 +112,7 @@ export function SharedListTab({ lists }: { lists: SharedListSummary[] }) {
       )}
       {lists.length === 0 && !open && (
         <p className="m-0 rounded-[10px] bg-surface-2 p-4 text-center text-[13px] text-muted">
-          参加中の共有リストはありません
+          参加中のメンバー編集リストはありません
         </p>
       )}
       {lists.map((l) => (
@@ -116,7 +127,7 @@ export function SharedListTab({ lists }: { lists: SharedListSummary[] }) {
           <div className="flex flex-wrap gap-1">
             <span className={`${pill} bg-ai-soft font-bold text-ai`}>メンバー{l.memberCount}人</span>
             <span className={`${pill} bg-surface-2 text-muted`}>{l.shopCount}店</span>
-            <span className={`${pill} bg-surface-2 text-muted`}>{l.isPublic ? "公開" : "メンバーのみ"}</span>
+            <span className={`${pill} bg-surface-2 text-muted`}>{l.isPublic ? "共有" : "メンバーだけ"}</span>
           </div>
         </Link>
       ))}

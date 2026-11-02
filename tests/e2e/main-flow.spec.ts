@@ -78,7 +78,7 @@ test("主要フロー(1): 気になる登録 → 別ユーザーが記録 → �
   const favSheet = A.page.getByRole("dialog", { name: "「お気に入り」のリストに追加" });
   await favSheet.getByRole("button", { name: "＋ 新しいリストを作る" }).click();
   await favSheet.getByLabel("リスト名").fill(publicList);
-  await favSheet.getByRole("checkbox", { name: "公開する" }).check();
+  await favSheet.getByRole("checkbox", { name: "共有する（ログインしている人が見られます）" }).check();
   await favSheet.getByRole("button", { name: "作る" }).click();
   await expect(favSheet.getByRole("checkbox", { name: new RegExp(publicList) })).toBeChecked();
   await favSheet.getByRole("button", { name: "完了" }).click();
@@ -110,7 +110,7 @@ test("主要フロー(2): 共有リストを作って招待リンクで参加し
   // A: 共有リストを作り、招待リンクを B に渡す
   await A.page.goto("/me");
   await A.page.getByRole("tab", { name: "共有リスト" }).click();
-  await A.page.getByRole("button", { name: "＋ 共有リストを作る" }).click();
+  await A.page.getByRole("button", { name: "＋ メンバーで編集するリストを作る" }).click();
   await A.page.getByLabel("リスト名").fill(sharedList);
   await A.page.getByRole("button", { name: "作る" }).click();
   await expect(A.page).toHaveURL(/\/shared\/[0-9a-f-]+$/);

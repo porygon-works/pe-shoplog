@@ -65,7 +65,7 @@ test("Aが新しい公開リストを作って店を追加すると、Bは /user
   await expect(sheet.getByRole("checkbox")).toHaveCount(1); // 既定の「お気に入り」だけ（まだ入っていない）
   await sheet.getByRole("button", { name: "＋ 新しいリストを作る" }).click();
   await sheet.getByLabel("リスト名").fill("2次会向き");
-  await sheet.getByRole("checkbox", { name: "公開する" }).check();
+  await sheet.getByRole("checkbox", { name: "共有する（ログインしている人が見られます）" }).check();
   await sheet.getByRole("button", { name: "作る" }).click();
   await expect(sheet.getByRole("checkbox", { name: /2次会向き/ })).toBeChecked();
   await sheet.getByRole("button", { name: "完了" }).click();
@@ -166,10 +166,10 @@ test("リストの持ち主は名前の変更・公開の切り替え・削除�
   await A.page.goto(`/lists/${mine.id}`);
   await A.page.getByRole("button", { name: "編集" }).click();
   await A.page.getByLabel("リスト名").fill("編集後の名前");
-  await A.page.getByRole("checkbox", { name: "公開する" }).check();
+  await A.page.getByRole("checkbox", { name: "共有する（ログインしている人が見られます）" }).check();
   await A.page.getByRole("button", { name: "保存" }).click();
   await expect(A.page.getByRole("heading", { name: "編集後の名前" })).toBeVisible();
-  await expect(A.page.getByText(/公開（だれでも見られます）/)).toBeVisible();
+  await expect(A.page.getByText(/共有（ログインしている人が見られます）/)).toBeVisible();
 
   await A.page.getByRole("button", { name: "編集" }).click();
   await A.page.getByRole("button", { name: "リストを削除" }).click();
@@ -195,7 +195,7 @@ test("マイページ: マイリスト・自分の記録・アカウント（ニ
   await A.page.goto("/me");
   await expect(A.page.getByRole("link", { name: /気になる/ })).toBeVisible();
   await A.page.getByRole("tab", { name: "共有リスト" }).click();
-  await expect(A.page.getByRole("button", { name: "＋ 共有リストを作る" })).toBeVisible();
+  await expect(A.page.getByRole("button", { name: "＋ メンバーで編集するリストを作る" })).toBeVisible();
 
   await A.page.getByRole("tab", { name: "自分の記録" }).click();
   const log = A.page.getByRole("link", { name: /記録タブ酒場/ });

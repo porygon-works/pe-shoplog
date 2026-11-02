@@ -37,7 +37,7 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
                 ))}
               </>
             ),
-            shared: <SharedListTab lists={shared} />,
+            shared: <SharedListTab lists={shared} mine={lists.filter((l) => l.isPublic)} />,
             logs: <VisitLogList entries={visits} />,
             account: <AccountPanel nickname={user.nickname} isAdmin={user.isAdmin} />,
           }}

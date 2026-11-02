@@ -61,7 +61,7 @@ export default async function ListPage({ params }: { params: Promise<{ id: strin
             "退会したユーザー"
           )}
           {" "}のリスト・{LIST_KIND_LABEL[list.kind as ListKind]}・
-          {list.is_public ? "公開（だれでも見られます）" : "非公開（自分だけ）"}・
+          {list.is_public ? "共有（ログインしている人が見られます）" : "自分だけ"}・
           <span data-testid="list-count">{shops.length}店</span>
         </div>
         {shops.length === 0 ? (

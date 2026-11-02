@@ -77,7 +77,7 @@ export function NewListButton() {
           checked={isPublic}
           onChange={(e) => setIsPublic(e.target.checked)}
         />
-        公開する
+        共有する（ログインしている人が見られます）
       </label>
       {error && (
         <p role="alert" className="m-0 text-[13px] text-shu">

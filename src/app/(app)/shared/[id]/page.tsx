@@ -88,7 +88,7 @@ export default async function SharedListPage({ params }: { params: Promise<{ id:
       <div className="flex flex-col gap-3 p-4">
         <div className="text-xs text-muted">
           {list.description ? `${list.description}・` : ""}
-          {list.is_public ? "公開" : "メンバーのみ閲覧"}
+          {list.is_public ? "共有（だれでも見られます・編集はメンバー）" : "メンバーだけ"}
         </div>
         {inviteUrl && <InviteCard listId={id} initialUrl={inviteUrl} isOwner={isOwner} />}
 

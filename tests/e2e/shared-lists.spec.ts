@@ -51,7 +51,7 @@ test("共有リスト(a): 作成 → 招待リンク → 参加 → メモ付き
   const A = await asUser(browser, a.loginId);
   await A.page.goto("/me");
   await A.page.getByRole("tab", { name: "共有リスト" }).click();
-  await A.page.getByRole("button", { name: "＋ 共有リストを作る" }).click();
+  await A.page.getByRole("button", { name: "＋ メンバーで編集するリストを作る" }).click();
   await A.page.getByLabel("リスト名").fill(listName);
   await A.page.getByLabel("説明").fill("開発チームの打ち上げ候補");
   await A.page.getByRole("button", { name: "作る" }).click();
@@ -75,7 +75,7 @@ test("共有リスト(a): 作成 → 招待リンク → 参加 → メモ付き
   await B.page.goto(`/shops/${shopId}`);
   await B.page.getByRole("button", { name: "＋ リスト" }).click();
   const sheet = B.page.getByRole("dialog", { name: "リストに追加" });
-  await expect(sheet.getByText("共有リスト", { exact: true })).toBeVisible();
+  await expect(sheet.getByText("メンバーで編集する共有リスト", { exact: true })).toBeVisible();
   await sheet.getByLabel(`メモ（${listName}）`).fill("個室あり、15人まで");
   await sheet.getByRole("checkbox", { name: new RegExp(listName) }).check();
   await expect
@@ -205,7 +205,7 @@ test("共有リスト(c): メンバーの退出・オーナーが外す・設定
 
   await A.page.getByRole("button", { name: "設定" }).click();
   await A.page.getByLabel("リスト名").fill("改名後の共有リスト");
-  await A.page.getByRole("checkbox", { name: "公開する" }).check();
+  await A.page.getByRole("checkbox", { name: "メンバー以外にも共有する（見るだけ）" }).check();
   await A.page.getByRole("button", { name: "保存" }).click();
   await expect(A.page.getByRole("heading", { name: "改名後の共有リスト" })).toBeVisible();
   await A.page.getByRole("button", { name: "設定" }).click();

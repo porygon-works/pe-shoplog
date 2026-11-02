@@ -5,7 +5,7 @@ import type { PublicListRow } from "@/lib/filters/public-list-filters";
 
 const pill = "whitespace-nowrap rounded-full px-2 py-0.5 text-[11px]";
 
-/** マイリスト 1 件のカード。名前、種類・店数、公開/非公開と既定の印。 */
+/** マイリスト 1 件のカード。名前、種類・店数、共有/自分だけと既定の印。 */
 export function ListCard({ list }: { list: ListSummary }) {
   return (
     <Link
@@ -19,7 +19,7 @@ export function ListCard({ list }: { list: ListSummary }) {
       </div>
       <div className="flex flex-wrap gap-1">
         <span className={`${pill} ${list.isPublic ? "bg-ai-soft font-bold text-ai" : "bg-surface-2 text-muted"}`}>
-          {list.isPublic ? "公開" : "非公開"}
+          {list.isPublic ? "共有" : "自分だけ"}
         </span>
         {list.isDefault && <span className={`${pill} bg-surface-2 text-muted`}>既定</span>}
       </div>
@@ -27,11 +27,11 @@ export function ListCard({ list }: { list: ListSummary }) {
   );
 }
 
-/** さがす画面の公開リスト 1 件。マイリストは /lists、共有リストは /shared へ移動する。 */
+/** さがす画面の共有リスト 1 件。マイリストは /lists、共有リストは /shared へ移動する。 */
 export function PublicListCard({ list }: { list: PublicListRow }) {
   const badge =
     list.kind === "shared"
-      ? "共有リスト"
+      ? "メンバーで編集"
       : `マイリスト${list.list_kind ? `・${LIST_KIND_LABEL[list.list_kind]}` : ""}`;
   return (
     <Link
