@@ -17,7 +17,7 @@ export function LoginForm({ next }: { next: string }) {
         id="loginId"
         name="loginId"
         label="ユーザーID"
-        placeholder="半角英小文字・数字・_ で3〜20文字"
+        placeholder="半角英小文字・数字・記号（. _ -）で3〜20文字"
         autoComplete="username"
         autoCapitalize="none"
         defaultValue={state.loginId}

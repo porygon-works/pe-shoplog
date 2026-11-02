@@ -116,7 +116,10 @@ describe("signupInputSchema", () => {
       signupInputSchema.safeParse({ ...base, loginId: "ab" }).success,
     ).toBe(false);
     expect(
-      signupInputSchema.safeParse({ ...base, loginId: "a-b-c" }).success,
+      signupInputSchema.safeParse({ ...base, loginId: "a@b-c" }).success,
+    ).toBe(false);
+    expect(
+      signupInputSchema.safeParse({ ...base, loginId: "-abc" }).success,
     ).toBe(false);
     expect(
       signupInputSchema.safeParse({ ...base, password: "short" }).success,

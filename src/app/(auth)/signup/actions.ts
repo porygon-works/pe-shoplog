@@ -18,7 +18,7 @@ export type SignupState = {
 };
 
 const FIELD_MESSAGES = {
-  loginId: "ユーザーIDは半角英小文字・数字・_ で3〜20文字です",
+  loginId: "ユーザーIDは半角英小文字・数字・記号（. _ -）で3〜20文字です（最初と最後は英数字）",
   nickname: "ニックネームは1〜20文字です",
   password: "パスワードは8文字以上です",
   passphrase: "合言葉を入れてください",

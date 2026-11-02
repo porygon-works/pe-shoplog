@@ -15,8 +15,15 @@ describe("login-id", () => {
     expect(isValidLoginId("abc")).toBe(true);
     expect(isValidLoginId("a".repeat(20))).toBe(true);
     expect(isValidLoginId("a".repeat(21))).toBe(false);
-    expect(isValidLoginId("taro-1")).toBe(false);
     expect(isValidLoginId("taro_1")).toBe(true);
+    // 記号 . _ - を使える。最初と最後は英数字、ドットの連続は不可。
+    expect(isValidLoginId("taro-1")).toBe(true);
+    expect(isValidLoginId("rena.kenmoku")).toBe(true);
+    expect(isValidLoginId(".taro")).toBe(false);
+    expect(isValidLoginId("taro-")).toBe(false);
+    expect(isValidLoginId("ta..ro")).toBe(false);
+    expect(isValidLoginId("ta@ro")).toBe(false);
+    expect(isValidLoginId("ta ro")).toBe(false);
   });
   it("maps to a dummy email", () => {
     expect(AUTH_EMAIL_DOMAIN).toBe("users.pe-shoplog.invalid");

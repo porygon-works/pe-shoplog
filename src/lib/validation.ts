@@ -1,3 +1,4 @@
+import { LOGIN_ID_PATTERN } from "@/lib/auth/login-id";
 import { z } from "zod";
 import { CATEGORY_VALUE_RE } from "@/lib/category-utils";
 import {
@@ -58,8 +59,8 @@ export const signupInputSchema = z.object({
     .trim()
     .toLowerCase()
     .regex(
-      /^[a-z0-9_]{3,20}$/,
-      "ユーザーIDは英小文字・数字・_ の 3〜20 文字です",
+      LOGIN_ID_PATTERN,
+      "ユーザーIDは英小文字・数字・記号（. _ -）の 3〜20 文字です（最初と最後は英数字）",
     ),
   nickname: z.string().trim().min(1).max(20),
   password: z.string().min(8),

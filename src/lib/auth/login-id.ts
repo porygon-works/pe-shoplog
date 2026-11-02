@@ -1,6 +1,10 @@
 export const AUTH_EMAIL_DOMAIN = "users.pe-shoplog.invalid";
 
-const LOGIN_ID_PATTERN = /^[a-z0-9_]{3,20}$/;
+/**
+ * 英小文字・数字と記号 . _ - の 3〜20 文字。ダミーのメールアドレスの前半に使うので、
+ * 最初と最後は英数字、ドットの連続は不可（メールアドレスとして正しい形にする）。
+ */
+export const LOGIN_ID_PATTERN = /^(?!.*\.\.)[a-z0-9][a-z0-9._-]{1,18}[a-z0-9]$/;
 
 export function normalizeLoginId(s: string): string {
   return s.trim().toLowerCase();
