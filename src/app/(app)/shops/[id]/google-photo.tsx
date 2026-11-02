@@ -29,11 +29,11 @@ export function GooglePhoto({ placeId, fallback }: { placeId: string; fallback: 
   if (photo === "loading") return <div aria-hidden="true" className="h-[190px] bg-surface-2" />;
   if (!photo) return <>{fallback}</>;
   return (
-    <figure data-testid="google-photo" className="m-0 flex flex-col gap-1">
+    <figure data-testid="google-photo" className="relative m-0 h-[190px]">
       {/* 外部 URL で、キャッシュ・最適化してはいけない画像なので next/image は使わない。 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={photo.url} alt="Google の写真" loading="lazy" className="h-[190px] w-full bg-surface-2 object-cover" />
-      <figcaption className="px-4 text-[11px] text-muted">
+      <img src={photo.url} alt="Google の写真" loading="lazy" className="h-full w-full bg-surface-2 object-cover" />
+      <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 pb-1.5 pt-4 text-[11px] text-white [&_a]:text-white [&_a]:underline">
         写真: Google
         {photo.authors.map((a, i) => (
           <span key={i}>

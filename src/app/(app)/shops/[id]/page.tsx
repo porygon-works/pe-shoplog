@@ -103,7 +103,7 @@ export default async function ShopPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("photos")
-      .select("id, visit_id, kind, storage_path")
+      .select("id, visit_id, kind, storage_path, width, height")
       .eq("shop_id", id)
       .is("deleted_at", null)
       .order("created_at", { ascending: false }),
@@ -162,9 +162,60 @@ export default async function ShopPage({
   const genreLabel = labelOf(categories.genres, shop.genre);
   const stylesLabel = ((shop.styles ?? []) as string[]).map((s) => labelOf(categories.styles, s)).join("・");
   const avgText = ratingText(shop.avg_rating, shop.rating_count);
-  const heroPhotos = photos.slice(0, 3);
+  // 一番上の写真: 横長・正方形を先に、縦長は後ろに回して最大 3 枚。高さはどの店でも 190px にそろえる。
+  const portraitIds = new Set(
+    photoRows.filter((p) => p.width && p.height && p.height > p.width).map((p) => p.id),
+  );
+  const heroPhotos = [
+    ...photos.filter((p) => !portraitIds.has(p.id)),
+    ...photos.filter((p) => portraitIds.has(p.id)),
+  ].slice(0, 3);
+  const allPortrait = heroPhotos.length > 0 && heroPhotos.every((p) => portraitIds.has(p.id));
+  const heroAlt = (p: GalleryPhoto) => `${labelOf(PHOTO_KINDS, p.kind)}の写真`;
+  let userHero: React.ReactNode = null;
+  if (allPortrait && heroPhotos.length === 1) {
+    // 縦長 1 枚: ぼかした同じ写真を背景に敷き、写真は切らずに中央に出す。
+    const p = heroPhotos[0];
+    userHero = (
+      <div className="relative h-[190px] overflow-hidden bg-surface-2">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={p.url} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-70" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={p.url} alt={heroAlt(p)} className="relative mx-auto h-full w-auto object-contain" />
+      </div>
+    );
+  } else if (allPortrait) {
+    // 縦長が 2〜3 枚: 縦長の列として横に並べる。
+    userHero = (
+      <div className={`grid h-[190px] grid-rows-1 gap-1 ${heroPhotos.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+        {heroPhotos.map((p) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={p.id} src={p.url} alt={heroAlt(p)} className="h-full min-h-0 w-full bg-surface-2 object-cover" />
+        ))}
+      </div>
+    );
+  } else if (heroPhotos.length > 0) {
+    // 横長が先頭: 1 枚なら横いっぱい、2 枚なら半分ずつ、3 枚なら大 1 枚 + 小 2 枚。
+    userHero = (
+      <div
+        className={`grid h-[190px] gap-1 ${
+          heroPhotos.length === 1 ? "grid-cols-1 grid-rows-1" : heroPhotos.length === 2 ? "grid-cols-2 grid-rows-1" : "grid-cols-[2fr_1fr] grid-rows-2"
+        }`}
+      >
+        {heroPhotos.map((p, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={p.id}
+            src={p.url}
+            alt={heroAlt(p)}
+            className={`h-full min-h-0 w-full bg-surface-2 object-cover ${heroPhotos.length >= 3 && i === 0 ? "row-span-2" : ""}`}
+          />
+        ))}
+      </div>
+    );
+  }
   const noPhoto = (
-    <div data-testid="shop-illustration" className="flex h-[170px] flex-col items-center justify-center gap-1 bg-shu-soft text-shu">
+    <div data-testid="shop-illustration" className="flex h-[190px] flex-col items-center justify-center gap-1 bg-shu-soft text-shu">
       <ShopIllustration genre={shop.genre} styles={(shop.styles ?? []) as string[]} className="h-[110px] w-[110px]" />
       <span className="text-[11px] text-muted">写真はまだありません。行った人が追加できます。</span>
     </div>
@@ -175,24 +226,8 @@ export default async function ShopPage({
       <NoticeToast notice={notice} />
       <ShopHeader shopId={id} name={shop.name} isAdmin={user.isAdmin} />
 
-      {heroPhotos.length > 0 ? (
-        <div className="grid h-[190px] grid-cols-[2fr_1fr] grid-rows-2 gap-1">
-          {heroPhotos.map((p, i) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={p.id}
-              src={p.url}
-              alt={`${labelOf(PHOTO_KINDS, p.kind)}の写真`}
-              className={`h-full w-full bg-surface-2 object-cover ${i === 0 ? "row-span-2" : ""}`}
-            />
-          ))}
-        </div>
-      ) : shop.place_id ? (
-        // 誰も写真を載せていなければ Google の写真を 1 枚。それもなければ案内を出す。
-        <GooglePhoto placeId={shop.place_id} fallback={noPhoto} />
-      ) : (
-        noPhoto
-      )}
+      {/* 一番上の写真: ユーザーの写真を優先。なければ Google の写真（1 枚）、それもなければイラスト。 */}
+      {userHero ?? (shop.place_id ? <GooglePhoto placeId={shop.place_id} fallback={noPhoto} /> : noPhoto)}
 
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-1.5">
