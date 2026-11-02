@@ -92,3 +92,22 @@ test("リストタブで公開リストだけが出て、タブは URL に残る
   await expect(page).toHaveURL(/tab=lists/);
   await expect(cards).toHaveCount(1);
 });
+
+test("昼を付けて登録した店は、時間帯「昼」で絞ると出て「夜」では出ない", async ({ page }) => {
+  const user = await createTestUser(uniqueId("e2e"));
+  const tag = uniqueId("tm");
+  await createShop(user.id, { name: `${tag}昼もやる酒場`, time_slots: ["lunch", "dinner"] });
+  await createShop(user.id, { name: `${tag}夜だけ酒場` });
+  await page.goto(`/search?q=${tag}`);
+  const cards = page.getByTestId("shop-card");
+  await expect(cards).toHaveCount(2);
+
+  await page.getByLabel("時間帯", { exact: true }).selectOption({ label: "昼" });
+  await expect(page).toHaveURL(/time=lunch/);
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText(`${tag}昼もやる酒場`);
+  await expect(cards.first()).toContainText("昼・夜");
+
+  await page.getByLabel("時間帯", { exact: true }).selectOption({ label: "夜" });
+  await expect(cards).toHaveCount(2);
+});

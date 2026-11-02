@@ -34,6 +34,7 @@ export async function createShop(
       location_fetched_at: input.placeId ? new Date().toISOString() : null,
       genre: input.genre,
       styles: input.styles,
+      time_slots: input.timeSlots,
       reference_url: input.referenceUrl === "" ? null : input.referenceUrl,
       created_by: input.userId,
     })

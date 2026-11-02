@@ -21,6 +21,18 @@ async function indexRow(client: SupabaseClient, shop: string) {
 }
 
 describe("shop_index", () => {
+  it("time_slots は既定で夜、CHECK で不正値・空配列は拒否され、shop_index の末尾の列にも出る", async () => {
+    const shop = await createShop(a.id);
+    expect((await indexRow(a.client, shop))?.time_slots).toEqual(["dinner"]);
+    const both = await createShop(a.id, { time_slots: ["lunch", "dinner"] });
+    expect((await indexRow(a.client, both))?.time_slots).toEqual(["lunch", "dinner"]);
+    await expect(createShop(a.id, { time_slots: [] })).rejects.toMatchObject({ code: "23514" });
+    await expect(createShop(a.id, { time_slots: ["night"] })).rejects.toMatchObject({ code: "23514" });
+    const upd = await a.client.from("shops").update({ time_slots: ["lunch"] }).eq("id", shop).select("id");
+    expect(upd.error).toBeNull();
+    expect((await indexRow(a.client, shop))?.time_slots).toEqual(["lunch"]);
+  });
+
   it("smoking は unknown 以外で最も新しい記録", async () => {
     const shop = await createShop(a.id);
     await createVisit(shop, a.id, { visited_on: "2026-01-01", smoking: "smoking_ok" });

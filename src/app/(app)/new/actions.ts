@@ -34,12 +34,14 @@ export async function createShopAction(
     name: text(formData, "name"),
     genre: text(formData, "genre") || "unknown",
     styles: formData.getAll("styles").map(String),
+    timeSlots: formData.getAll("timeSlots").map(String),
     // 参考リンクは登録時には入力しない（店の編集画面で付ける）。
     referenceUrl: "",
   });
   if (!parsed.success) {
     const field = parsed.error.issues[0]?.path[0];
     if (field === "name") return { error: "店名を1〜100文字で入力してください" };
+    if (field === "timeSlots") return { error: "時間帯を1つ以上選んでください" };
     return { error: "入力内容を確認してください" };
   }
 

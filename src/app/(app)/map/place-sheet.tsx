@@ -60,6 +60,8 @@ export function PlaceSheet({
         <input type="hidden" name="name" value={place?.name ?? ""} />
         <input type="hidden" name="lat" value={place?.lat ?? ""} />
         <input type="hidden" name="lng" value={place?.lng ?? ""} />
+        {/* ワンタップ登録の時間帯は既定の「夜」。 */}
+        <input type="hidden" name="timeSlots" value="dinner" />
         <button
           type="submit"
           name="mode"

@@ -11,10 +11,12 @@ const base: ShopFilters = {
   price: [],
   purpose: [],
   want: false,
+  time: [],
   sort: "new",
 };
 
 let client: SupabaseClient;
+let userId: string;
 let tag: string;
 let smokeShop: string; // 禁煙・打ち上げ・焼き鳥
 let wantShop: string; // 記録なし
@@ -24,6 +26,7 @@ let percentShop: string;
 beforeAll(async () => {
   const u = await createTestUser(uniqueId("f"));
   client = u.client;
+  userId = u.id;
   tag = uniqueId("t");
   smokeShop = await createShop(u.id, { name: `${tag}-禁煙店`, genre: "yakitori", styles: ["izakaya"] });
   await createVisit(smokeShop, u.id, { smoking: "no_smoking", purpose: "celebration", price_range: "3000_4999" });
@@ -72,6 +75,13 @@ describe("applyShopFilters（shop_index）", () => {
     expect(await ids({ q: "0%_" })).toEqual([percentShop]);
     expect(await ids({ q: "%" })).toEqual([percentShop]);
     expect(await ids({ q: "禁煙店" })).toEqual([smokeShop]);
+  });
+
+  it("time: 既定は夜、昼を持つ店だけ lunch で絞れる", async () => {
+    const lunchShop = await createShop(userId, { name: `${tag}-昼店`, time_slots: ["lunch", "dinner"] });
+    expect((await ids({ time: ["lunch"] })).sort()).toEqual([lunchShop]);
+    expect(await ids({ time: ["dinner"] })).toHaveLength(5);
+    expect(await ids({ time: ["lunch", "dinner"] })).toHaveLength(5);
   });
 
   it("sort: visits は記録の多い順", async () => {

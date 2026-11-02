@@ -3,6 +3,7 @@
 import { useQueryStates } from "nuqs";
 import { useCategories } from "@/components/categories-provider";
 import { selectableOptions } from "@/lib/category-utils";
+import { TIME_SLOTS } from "@/lib/options";
 import {
   PRICE_FILTER_OPTIONS,
   PURPOSE_FILTER_OPTIONS,
@@ -63,7 +64,7 @@ function FilterSelect({
 }
 
 /** 絞り込みの項目。並び順はこの順が既定（マップでは並び替えできる）。 */
-export const FILTER_KEYS = ["smoking", "price", "purpose", "genre", "styles", "want"] as const;
+export const FILTER_KEYS = ["smoking", "price", "purpose", "genre", "styles", "want", "time"] as const;
 export type FilterKey = (typeof FILTER_KEYS)[number];
 export const FILTER_LABELS: Record<FilterKey, string> = {
   smoking: "喫煙",
@@ -72,6 +73,7 @@ export const FILTER_LABELS: Record<FilterKey, string> = {
   genre: "ジャンル",
   styles: "形態",
   want: "気になる",
+  time: "時間帯",
 };
 
 /** 保存された並び順を検証し、足りない項目は既定の順で後ろに足す。 */
@@ -114,6 +116,8 @@ export function ShopFilterBar({
             onChange={(v) => setF({ want: v ? true : null })}
           />
         );
+      case "time":
+        return <FilterSelect key={k} label={label} options={TIME_SLOTS} value={f.time} onChange={(time) => setF({ time })} />;
       case "genre":
         return <FilterSelect key={k} label={label} options={genreOptions} value={f.genre} onChange={(genre) => setF({ genre })} />;
       case "styles":

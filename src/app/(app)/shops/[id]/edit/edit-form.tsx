@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { useCategories } from "@/components/categories-provider";
 import { ChipGroup } from "@/components/chip-group";
 import { selectableOptions } from "@/lib/category-utils";
+import { TIME_SLOTS } from "@/lib/options";
 import type { ShopInput } from "@/lib/validation";
 import { updateShopAction, type EditShopState } from "./actions";
 
@@ -13,13 +14,16 @@ export function EditShopForm({
   initial,
 }: {
   shopId: string;
-  initial: { name: string; genre: ShopInput["genre"]; styles: ShopInput["styles"]; referenceUrl: string };
+  initial: { name: string; genre: ShopInput["genre"]; styles: ShopInput["styles"];
+    timeSlots: ShopInput["timeSlots"];
+    referenceUrl: string };
 }) {
   const [state, action, pending] = useActionState<EditShopState, FormData>(updateShopAction, {});
   const categories = useCategories();
   const [name, setName] = useState(initial.name);
   const [genre, setGenre] = useState(initial.genre);
   const [styles, setStyles] = useState(initial.styles);
+  const [timeSlots, setTimeSlots] = useState(initial.timeSlots);
   const [referenceUrl, setReferenceUrl] = useState(initial.referenceUrl);
 
   return (
@@ -49,6 +53,11 @@ export function EditShopForm({
       </div>
 
       <div className="flex flex-col gap-2">
+        <span className="text-[13px] font-bold text-muted">時間帯（複数可）</span>
+        <ChipGroup name="timeSlots" multiple options={TIME_SLOTS} value={timeSlots} onChange={setTimeSlots} aria-label="時間帯" />
+      </div>
+
+      <div className="flex flex-col gap-2">
         <label htmlFor="ref" className="text-[13px] font-bold text-muted">
           予約・参考リンク
         </label>
@@ -67,7 +76,7 @@ export function EditShopForm({
         <Link href={`/shops/${shopId}`} className="btn">
           キャンセル
         </Link>
-        <button type="submit" className="btn btn-primary" disabled={pending || name.trim() === ""}>
+        <button type="submit" className="btn btn-primary" disabled={pending || name.trim() === "" || timeSlots.length === 0}>
           保存
         </button>
       </div>

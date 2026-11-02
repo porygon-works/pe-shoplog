@@ -17,6 +17,7 @@ const base: ShopFilters = {
   price: [],
   purpose: [],
   want: false,
+  time: [],
   sort: "new",
 };
 
@@ -123,6 +124,15 @@ describe("URL パラメータの検証", () => {
     expect(f.styles).toEqual(["bar"]);
     expect(f.price).toEqual(["under_3000"]);
     expect(f.purpose).toEqual(["celebration"]);
+  });
+
+  it("time は lunch / dinner だけ残し、与えられたときだけ time_slots の overlaps になる", () => {
+    const f = shopFilterCache.parse({ time: "lunch,unknown,bogus,dinner" });
+    expect(f.time).toEqual(["lunch", "dinner"]);
+    expect(shopFilterCache.parse({}).time).toEqual([]);
+    const { q, calls } = recorder();
+    applyShopFilters(q, { ...base, time: ["lunch"] });
+    expect(calls).toContainEqual(["overlaps", "time_slots", ["lunch"]]);
   });
 
   it("ジャンル・形態は形式だけ検査する（DB で増減するため許可リストは持たない）", () => {

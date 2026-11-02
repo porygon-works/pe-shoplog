@@ -11,6 +11,7 @@ const base: Omit<CreateShopInput, "userId" | "placeId"> = {
   name: "テスト店",
   genre: "unknown",
   styles: [],
+  timeSlots: ["dinner"],
   referenceUrl: "",
   lat: 35.68,
   lng: 139.76,

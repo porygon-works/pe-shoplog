@@ -7,6 +7,7 @@ import {
   PURPOSES,
   RESERVATIONS,
   SMOKING,
+  TIME_SLOTS,
   values,
 } from "@/lib/options";
 
@@ -36,6 +37,12 @@ export const shopInputSchema = z.object({
   genre: z.string().regex(CATEGORY_VALUE_RE).default("unknown"),
   styles: z.array(z.string().regex(CATEGORY_VALUE_RE)).max(50).default([]),
   referenceUrl: z.union([httpUrl, z.literal("")]).default(""),
+  // 時間帯は最低 1 つ。重複は除く。
+  timeSlots: z
+    .array(z.enum(values(TIME_SLOTS)))
+    .min(1)
+    .transform((a) => [...new Set(a)])
+    .default(["dinner"]),
 });
 export type ShopInput = z.infer<typeof shopInputSchema>;
 

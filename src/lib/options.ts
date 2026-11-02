@@ -52,6 +52,19 @@ export const PHOTO_KINDS = [
   { value: "other", label: "その他" },
 ] as const satisfies readonly Option<string>[];
 
+/** 店の時間帯区分。1 店に複数可（最低 1 つ）。既定は夜。 */
+export const TIME_SLOTS = [
+  { value: "lunch", label: "昼" },
+  { value: "dinner", label: "夜" },
+] as const satisfies readonly Option<string>[];
+
+/** 「昼・夜」のように TIME_SLOTS の並び順で返す。 */
+export function timeSlotsText(slots: readonly string[]): string {
+  return TIME_SLOTS.filter((t) => slots.includes(t.value))
+    .map((t) => t.label)
+    .join("・");
+}
+
 export const LIST_KINDS = [
   { value: "want", label: "気になる" },
   { value: "favorite", label: "お気に入り" },

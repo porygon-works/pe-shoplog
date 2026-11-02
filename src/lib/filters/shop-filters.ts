@@ -7,7 +7,7 @@ import {
 } from "nuqs/server";
 
 import { CATEGORY_VALUE_RE } from "@/lib/category-utils";
-import { PRICE_RANGES, PURPOSES, SMOKING, type Option } from "@/lib/options";
+import { PRICE_RANGES, PURPOSES, SMOKING, TIME_SLOTS, type Option } from "@/lib/options";
 
 /** 絞り込みの選択肢。「不明」では絞り込めないので外す。URL の値の検証にもこれを使う。 */
 const known = <O extends readonly Option<string>[]>(o: O) => o.filter((x) => x.value !== "unknown");
@@ -54,6 +54,7 @@ export const shopFilterParsers = {
   price: allowedArray(PRICE_FILTER_OPTIONS),
   purpose: allowedArray(PURPOSE_FILTER_OPTIONS),
   want: parseAsBoolean.withDefault(false),
+  time: allowedArray(TIME_SLOTS),
   sort: parseAsStringLiteral(SORTS).withDefault("new"),
 };
 
@@ -67,6 +68,7 @@ export type ShopFilters = {
   price: string[];
   purpose: string[];
   want: boolean;
+  time: string[];
   sort: ShopSort;
 };
 
@@ -111,6 +113,7 @@ export function applyShopFilters<Q>(query: Q, f: ShopFilters): Q {
   if (f.price.length) r = r.in("price_range", f.price);
   if (f.purpose.length) r = r.overlaps("purposes", f.purpose);
   if (f.want) r = r.eq("visit_count", 0);
+  if (f.time.length) r = r.overlaps("time_slots", f.time);
   if (f.sort === "visits") {
     r = r.order("visit_count", { ascending: false }).order("created_at", { ascending: false });
   } else {

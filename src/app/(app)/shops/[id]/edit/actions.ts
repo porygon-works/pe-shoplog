@@ -18,7 +18,7 @@ function text(formData: FormData, key: string): string {
   return typeof v === "string" ? v : "";
 }
 
-/** 店名・ジャンル・形態・参考リンクだけを更新する（位置や place_id は変えない）。 */
+/** 店名・ジャンル・形態・時間帯・参考リンクだけを更新する（位置や place_id は変えない）。 */
 export async function updateShopAction(
   _prev: EditShopState,
   formData: FormData,
@@ -32,11 +32,13 @@ export async function updateShopAction(
     name: text(formData, "name"),
     genre: text(formData, "genre") || "unknown",
     styles: formData.getAll("styles").map(String),
+    timeSlots: formData.getAll("timeSlots").map(String),
     referenceUrl: text(formData, "referenceUrl").trim(),
   });
   if (!parsed.success) {
     const field = parsed.error.issues[0]?.path[0];
     if (field === "name") return { error: "店名を1〜100文字で入力してください" };
+    if (field === "timeSlots") return { error: "時間帯を1つ以上選んでください" };
     if (field === "referenceUrl") return { error: "予約・参考リンクは http:// または https:// で始まるURLを入力してください" };
     return { error: "入力内容を確認してください" };
   }
@@ -66,6 +68,7 @@ export async function updateShopAction(
       name: parsed.data.name,
       genre: parsed.data.genre,
       styles: parsed.data.styles,
+      time_slots: parsed.data.timeSlots,
       reference_url: parsed.data.referenceUrl === "" ? null : parsed.data.referenceUrl,
     })
     .eq("id", shopId)

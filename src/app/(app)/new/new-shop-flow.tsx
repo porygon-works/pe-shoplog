@@ -5,6 +5,7 @@ import { useCategories } from "@/components/categories-provider";
 import { ChipGroup } from "@/components/chip-group";
 import { useToast } from "@/components/toast";
 import { selectableOptions } from "@/lib/category-utils";
+import { TIME_SLOTS } from "@/lib/options";
 import type { ShopInput } from "@/lib/validation";
 import { createShopAction, type NewShopState } from "./actions";
 import { LocationPicker, type LatLng } from "./location-picker";
@@ -57,11 +58,12 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
   const [name, setName] = useState(picked.name);
   const [genre, setGenre] = useState<ShopInput["genre"]>("unknown");
   const [styles, setStyles] = useState<ShopInput["styles"]>([]);
+  const [timeSlots, setTimeSlots] = useState<ShopInput["timeSlots"]>(["dinner"]);
   const [location, setLocation] = useState<LatLng | null>(picked.location);
   const [mapFailed, setMapFailed] = useState(false);
   const onMapError = useCallback(() => setMapFailed(true), []);
 
-  const blocked = pending || name.trim() === "" || (picked.manual && (mapFailed || !location));
+  const blocked = pending || name.trim() === "" || timeSlots.length === 0 || (picked.manual && (mapFailed || !location));
 
   return (
     <form action={action} className="flex flex-col gap-4 p-4">
@@ -107,6 +109,11 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">店の形態（複数可）</span>
         <ChipGroup name="styles" multiple options={selectableOptions(categories.styles)} value={styles} onChange={setStyles} aria-label="店の形態" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-[13px] font-bold text-muted">時間帯（複数可）</span>
+        <ChipGroup name="timeSlots" multiple options={TIME_SLOTS} value={timeSlots} onChange={setTimeSlots} aria-label="時間帯" />
       </div>
 
       <div className="grid grid-cols-2 gap-2">

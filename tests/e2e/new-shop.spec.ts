@@ -82,3 +82,31 @@ test("手入力は地図が読み込めないとエラーが出て登録ボタ�
   await expect(page.getByRole("button", { name: "気になるで登録" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "行った記録を付ける" })).toBeDisabled();
 });
+
+test("時間帯を昼だけにして登録 → 時間帯「昼」の絞り込みに出て、「夜」では出ない", async ({ page }) => {
+  const placeId = `e2e_${randomUUID().replaceAll("-", "")}`;
+  const name = `昼営業のテスト店${placeId.slice(-6)}`;
+  await page.route("**/api/places/autocomplete**", (route) =>
+    route.fulfill(json({ suggestions: [{ placeId, mainText: name, secondaryText: "東京都" }] })),
+  );
+  await page.route("**/api/places/details**", (route) => route.fulfill(json({ placeId, name, lat: 35.6, lng: 139.7 })));
+
+  await page.goto("/new");
+  await page.getByLabel("店名でさがす").fill("昼営業");
+  await page.getByRole("button", { name: new RegExp(name) }).click();
+  // 既定は「夜」。最低 1 つ必要なので、全部外すと登録できない。
+  await expect(page.getByRole("button", { name: "夜", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "夜", exact: true }).click();
+  await expect(page.getByRole("button", { name: "気になるで登録" })).toBeDisabled();
+  await page.getByRole("button", { name: "昼", exact: true }).click();
+  await page.getByRole("button", { name: "気になるで登録" }).click();
+  await expect(page).toHaveURL(/\/shops\/[0-9a-f-]{36}$/);
+
+  await page.goto(`/search?q=${encodeURIComponent(name)}`);
+  const cards = page.getByTestId("shop-card");
+  await expect(cards).toHaveCount(1);
+  await page.getByLabel("時間帯", { exact: true }).selectOption({ label: "昼" });
+  await expect(cards).toHaveCount(1);
+  await page.getByLabel("時間帯", { exact: true }).selectOption({ label: "夜" });
+  await expect(cards).toHaveCount(0);
+});

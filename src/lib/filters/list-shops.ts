@@ -7,13 +7,14 @@ const SIGNED_URL_SECONDS = 3600;
 // .in() の URL が長くなりすぎないよう、写真の問い合わせは店 ID をこの件数ずつに分ける。
 const PHOTO_CHUNK = 100;
 
-const CARD_COLUMNS = "id, name, genre, styles, visit_count, smoking, price_range, avg_rating, rating_count";
+const CARD_COLUMNS = "id, name, genre, styles, time_slots, visit_count, smoking, price_range, avg_rating, rating_count";
 
 type CardRow = {
   id: string;
   name: string;
   genre: string;
   styles: string[] | null;
+  time_slots: string[] | null;
   visit_count: number;
   avg_rating: number | string | null;
   rating_count: number;
@@ -28,6 +29,7 @@ function toCardData(r: CardRow, thumbUrl: string | null): ShopCardData {
     name: r.name,
     genre: r.genre,
     styles: r.styles ?? [],
+    timeSlots: r.time_slots ?? ["dinner"],
     visitCount: r.visit_count,
     avgRating: r.avg_rating === null ? null : Number(r.avg_rating),
     ratingCount: r.rating_count,

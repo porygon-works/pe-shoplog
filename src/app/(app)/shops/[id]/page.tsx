@@ -11,6 +11,7 @@ import {
   RESERVATIONS,
   SMOKING,
   labelOf,
+  timeSlotsText,
 } from "@/lib/options";
 import { Stars, ratingText } from "@/components/rating";
 import { googleMapsUrl } from "@/lib/shops/google-maps-url";
@@ -195,7 +196,7 @@ export default async function ShopPage({
 
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-1.5">
-          <div className="text-xs text-muted">{[genreLabel, stylesLabel].filter(Boolean).join("・")}</div>
+          <div className="text-xs text-muted">{[genreLabel, stylesLabel, timeSlotsText((shop.time_slots ?? []) as string[])].filter(Boolean).join("・")}</div>
           {avgText && (
             <div data-testid="shop-rating" className="text-[15px] font-bold text-warn">
               {avgText}
