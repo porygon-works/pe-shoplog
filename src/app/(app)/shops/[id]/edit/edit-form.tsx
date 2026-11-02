@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { useReturnTo } from "@/lib/nav/use-return-to";
 import { useCategories } from "@/components/categories-provider";
 import { ChipGroup } from "@/components/chip-group";
 import { selectableOptions } from "@/lib/category-utils";
@@ -25,6 +26,14 @@ export function EditShopForm({
   const [styles, setStyles] = useState(initial.styles);
   const [timeSlots, setTimeSlots] = useState(initial.timeSlots);
   const [referenceUrl, setReferenceUrl] = useState(initial.referenceUrl);
+  const returnTo = useReturnTo();
+  const navigated = useRef(false);
+  useEffect(() => {
+    if (state.ok && !navigated.current) {
+      navigated.current = true;
+      returnTo(`/shops/${shopId}`);
+    }
+  }, [state.ok, returnTo, shopId]);
 
   return (
     <form action={action} className="flex flex-col gap-4 p-4">

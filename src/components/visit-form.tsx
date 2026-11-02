@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useReturnTo } from "@/lib/nav/use-return-to";
 import { useEffect, useRef, useState } from "react";
 import { ChipGroup } from "@/components/chip-group";
 import { PhotoUploader, type ExistingPhoto, type UploadSummary } from "@/components/photo-uploader";
@@ -30,7 +30,6 @@ export function VisitForm({
   initial: VisitFormInitial;
   existingPhotos?: ExistingPhoto[];
 }) {
-  const router = useRouter();
   const [visitedOn, setVisitedOn] = useState(initial.visitedOn ?? "");
   const [rating, setRating] = useState<number | null>(initial.rating);
   const [smoking, setSmoking] = useState(initial.smoking);
@@ -48,13 +47,17 @@ export function VisitForm({
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<UploadSummary>({ pending: 0, failed: 0, done: 0 });
   const formRef = useRef<HTMLFormElement>(null);
+  const returnTo = useReturnTo();
+  const navigated = useRef(false);
   const isEdit = editingId !== null;
 
   useEffect(() => {
-    if (saved && summary.pending === 0 && summary.failed === 0) {
-      router.push(`/shops/${shopId}`);
+    // 1 回だけ移動する（2 回「戻る」と、店の詳細のさらに前まで戻ってしまう）。
+    if (saved && summary.pending === 0 && summary.failed === 0 && !navigated.current) {
+      navigated.current = true;
+      returnTo(`/shops/${shopId}`);
     }
-  }, [saved, summary, router, shopId]);
+  }, [saved, summary, returnTo, shopId]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

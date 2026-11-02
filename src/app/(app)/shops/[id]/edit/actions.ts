@@ -2,14 +2,13 @@
 
 import { isUuid } from "@/lib/ids";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
 import { CHECK_VIOLATION, INVALID_CATEGORY_MESSAGE, hasInvalidCategory } from "@/lib/category-utils";
 import { createServerClient } from "@/lib/supabase/server";
 import { shopInputSchema } from "@/lib/validation";
 
-export type EditShopState = { error?: string };
+export type EditShopState = { error?: string; ok?: boolean };
 
 const SERVER_ERROR = "保存に失敗しました。時間をおいてもう一度お試しください";
 
@@ -83,5 +82,6 @@ export async function updateShopAction(
 
   // 画面の一時保存（staleTimes）を破棄して、地図や一覧に最新の状態を出す。
   revalidatePath("/", "layout");
-  redirect(`/shops/${shopId}`);
+  // 画面側で詳細へ戻る（redirect で進むと、戻るで編集画面と詳細を行き来してしまう）。
+  return { ok: true };
 }

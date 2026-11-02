@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
 import { CHECK_VIOLATION, INVALID_CATEGORY_MESSAGE, hasInvalidCategory } from "@/lib/category-utils";
@@ -73,16 +73,16 @@ export async function createShopAction(
 
   // 画面の一時保存（staleTimes）を破棄して、地図や一覧に最新の状態を出す。
   revalidatePath("/", "layout");
-  if (existed) redirect(`/shops/${shopId}?notice=exists`);
+  if (existed) redirect(`/shops/${shopId}?notice=exists`, RedirectType.replace);
 
-  if (mode === "visit") redirect(`/shops/${shopId}/visits/new`);
+  if (mode === "visit") redirect(`/shops/${shopId}/visits/new`, RedirectType.replace);
 
   try {
     await addShopToDefaultList(supabase, user.id, shopId, "want");
   } catch (e) {
     console.error("addShopToDefaultList failed", e);
     // 店は作成済みなので、やり直しで重複させず詳細ページへ進めて知らせる。
-    redirect(`/shops/${shopId}?notice=list_failed`);
+    redirect(`/shops/${shopId}?notice=list_failed`, RedirectType.replace);
   }
-  redirect(`/shops/${shopId}`);
+  redirect(`/shops/${shopId}`, RedirectType.replace);
 }

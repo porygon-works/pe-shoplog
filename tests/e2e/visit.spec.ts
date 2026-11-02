@@ -91,3 +91,16 @@ test("他人の記録には編集・削除が出ず、編集ページは 404", a
   await page.goto(`/visits/${visitId}/edit`);
   await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
 });
+
+test("詳細 → 記録を付けて保存 → 詳細に戻り、「戻る」で入力画面に戻らない（行き来のループにならない）", async ({ page }) => {
+  const shopId = await createShop(null, { name: "戻るテスト酒場" });
+  await page.goto("/search");
+  await page.goto(`/shops/${shopId}`);
+  await page.getByRole("link", { name: "行った記録を付ける" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}/visits/new$`));
+  await page.getByRole("button", { name: "記録を保存" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await expect(page.getByText("1件")).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/search/);
+});
