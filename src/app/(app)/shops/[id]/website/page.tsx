@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ReturnLink } from "@/components/return-link";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { isUuid } from "@/lib/ids";
@@ -12,9 +12,9 @@ function Message({ shopId, children }: { shopId: string; children: React.ReactNo
       <p role="alert" className="m-0 rounded-[10px] bg-surface-2 p-3 text-[13px]">
         {children}
       </p>
-      <Link href={`/shops/${shopId}`} className="btn">
+      <ReturnLink href={`/shops/${shopId}`} className="btn">
         店の詳細に戻る
-      </Link>
+      </ReturnLink>
     </main>
   );
 }

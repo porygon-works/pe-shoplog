@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { ReturnLink } from "@/components/return-link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useReturnTo } from "@/lib/nav/use-return-to";
 import { useCategories } from "@/components/categories-provider";
@@ -82,9 +82,9 @@ export function EditShopForm({
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <Link href={`/shops/${shopId}`} className="btn">
+        <ReturnLink href={`/shops/${shopId}`} className="btn">
           キャンセル
-        </Link>
+        </ReturnLink>
         <button type="submit" className="btn btn-primary" disabled={pending || name.trim() === "" || timeSlots.length === 0}>
           保存
         </button>

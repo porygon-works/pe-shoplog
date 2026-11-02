@@ -11,7 +11,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const PLACES_LIMITS = {
   autocomplete: { daily: 200, monthly: 9000 },
   details: { daily: 60, monthly: 4500 },
-  photo: { daily: 40, monthly: 900 },
+  // 写真は店の詳細を開くたびに使う。同じ店はブラウザで 30 分使い回すので、1 日 150 回あれば足りる。
+  photo: { daily: 150, monthly: 900 },
   website: { daily: 30, monthly: 900 },
   // 地図の表示（Maps JavaScript API の地図読み込み）。Google 側では上限を変えられないため、アプリで止める。無料枠は月 10,000 回。
   mapload: { daily: 150, monthly: 9000 },

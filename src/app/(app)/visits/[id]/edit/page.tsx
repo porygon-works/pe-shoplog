@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ReturnLink } from "@/components/return-link";
 import { notFound } from "next/navigation";
 import { VisitForm } from "@/components/visit-form";
 import type { ExistingPhoto } from "@/components/photo-uploader";
@@ -56,9 +56,9 @@ export default async function EditVisitPage({ params }: { params: Promise<{ id: 
   return (
     <main className="flex flex-1 flex-col bg-surface">
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
-        <Link href={`/shops/${visit.shop_id}`} className="text-[13px] text-ai no-underline">
+        <ReturnLink href={`/shops/${visit.shop_id}`} className="text-[13px] text-ai no-underline">
           ← 戻る
-        </Link>
+        </ReturnLink>
         <h1 className="m-0 text-base font-bold">行った記録を編集</h1>
       </header>
       <VisitForm

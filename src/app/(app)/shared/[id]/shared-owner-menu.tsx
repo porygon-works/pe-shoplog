@@ -81,7 +81,7 @@ export function SharedOwnerMenu({
         return;
       }
       toast.show("リストを削除しました");
-      router.push("/me?tab=shared");
+      router.replace("/me?tab=shared");
     } catch {
       setError("削除に失敗しました。時間をおいてもう一度お試しください");
     } finally {

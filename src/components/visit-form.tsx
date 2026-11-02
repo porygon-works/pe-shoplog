@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { ReturnLink } from "@/components/return-link";
 import { useReturnTo } from "@/lib/nav/use-return-to";
 import { useEffect, useRef, useState } from "react";
 import { ChipGroup } from "@/components/chip-group";
@@ -216,9 +216,9 @@ export function VisitForm({
               ? "記録を保存しました。写真を送信しています…"
               : "記録は保存しました。送信できなかった写真があります。再送するか、あきらめて戻れます。"}
           </p>
-          <Link href={`/shops/${shopId}`} className="btn">
+          <ReturnLink href={`/shops/${shopId}`} className="btn">
             写真をあきらめて戻る
-          </Link>
+          </ReturnLink>
         </div>
       ) : null}
     </form>

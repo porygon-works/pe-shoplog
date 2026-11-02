@@ -18,7 +18,7 @@ export function JoinButton({ token }: { token: string }) {
         setError(res.error);
         return;
       }
-      router.push(`/shared/${res.id}`);
+      router.replace(`/shared/${res.id}`);
     } catch {
       setError("参加できませんでした。時間をおいてもう一度お試しください");
     } finally {

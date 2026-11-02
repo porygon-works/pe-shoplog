@@ -60,7 +60,7 @@ export function LeaveButton({ listId, userId }: { listId: string; userId: string
       if ("error" in res) toast.show(res.error, "error");
       else {
         toast.show("リストから抜けました");
-        router.push("/me?tab=shared");
+        router.replace("/me?tab=shared");
       }
     } catch {
       toast.show("抜けられませんでした。時間をおいてもう一度お試しください", "error");

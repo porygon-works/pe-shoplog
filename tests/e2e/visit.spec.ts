@@ -104,3 +104,27 @@ test("詳細 → 記録を付けて保存 → 詳細に戻り、「戻る」で�
   await page.goBack();
   await expect(page).toHaveURL(/\/search/);
 });
+
+test("記録の入力画面で「← 戻る」→ 詳細 →「戻る」で、入力画面ではなくその前の画面に戻る", async ({ page }) => {
+  const shopId = await createShop(null, { name: "戻るテスト酒場2" });
+  await page.goto("/search");
+  await page.goto(`/shops/${shopId}`);
+  await page.getByRole("link", { name: "行った記録を付ける" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}/visits/new$`));
+  await page.getByRole("link", { name: "← 戻る" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await page.getByRole("button", { name: "← 戻る" }).click();
+  await expect(page).toHaveURL(/\/search/);
+});
+
+test("店情報の編集画面で「キャンセル」→ 詳細 →「戻る」で、編集画面ではなくその前の画面に戻る", async ({ page }) => {
+  const shopId = await createShop(null, { name: "戻るテスト酒場3" });
+  await page.goto("/search");
+  await page.goto(`/shops/${shopId}`);
+  await page.getByRole("link", { name: "店情報を編集" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}/edit$`));
+  await page.getByRole("link", { name: "キャンセル" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await page.goBack();
+  await expect(page).toHaveURL(/\/search/);
+});
