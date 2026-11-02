@@ -130,3 +130,30 @@ describe("shops の区分検証トリガー", () => {
     expect(data).toEqual([{ genre: g, styles: [s] }]);
   });
 });
+
+describe("ジャンルの複数選択（0011）", () => {
+  it("genres に複数入れられ、genre は先頭にそろう。不明・存在しない値は入れられない", async () => {
+    const { data, error } = await svc
+      .from("shops")
+      .insert({ name: "複数ジャンル", lat: 1, lng: 1, genres: ["ramen", "chinese"] })
+      .select("id, genre, genres")
+      .single();
+    expect(error).toBeNull();
+    expect(data).toMatchObject({ genre: "ramen", genres: ["ramen", "chinese"] });
+
+    const empty = await svc.from("shops").update({ genres: [] }).eq("id", data!.id).select("genre, genres").single();
+    expect(empty.data).toEqual({ genre: "unknown", genres: [] });
+
+    expect((await svc.from("shops").insert({ name: "x", lat: 1, lng: 1, genres: ["unknown"] })).error?.code).toBe("23514");
+    expect((await svc.from("shops").insert({ name: "x", lat: 1, lng: 1, genres: ["ramen", "nonsense"] })).error?.code).toBe(
+      "23514",
+    );
+  });
+
+  it("genre だけを書く古い書き込みは genres に反映される", async () => {
+    const { data } = await svc.from("shops").insert({ name: "旧形式", lat: 1, lng: 1, genre: "sushi_seafood" }).select("id, genres").single();
+    expect(data?.genres).toEqual(["sushi_seafood"]);
+    const upd = await svc.from("shops").update({ genre: "unknown" }).eq("id", data!.id).select("genres").single();
+    expect(upd.data?.genres).toEqual([]);
+  });
+});

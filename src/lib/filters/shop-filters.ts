@@ -107,7 +107,7 @@ export function applyShopFilters<Q>(query: Q, f: ShopFilters): Q {
   let r = query as unknown as Chain;
   const q = f.q.trim();
   if (q) r = r.ilike("name", `%${escapeLike(q)}%`);
-  if (f.genre.length) r = r.in("genre", f.genre);
+  if (f.genre.length) r = r.overlaps("genres", f.genre);
   if (f.styles.length) r = r.overlaps("styles", f.styles);
   if (f.smoking.length) r = r.in("smoking", f.smoking);
   if (f.price.length) r = r.in("price_range", f.price);

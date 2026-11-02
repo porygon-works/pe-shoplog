@@ -29,7 +29,7 @@ export async function updateShopAction(
 
   const parsed = shopInputSchema.safeParse({
     name: text(formData, "name"),
-    genre: text(formData, "genre") || "unknown",
+    genres: formData.getAll("genres").map(String),
     styles: formData.getAll("styles").map(String),
     timeSlots: formData.getAll("timeSlots").map(String),
     referenceUrl: text(formData, "referenceUrl").trim(),
@@ -47,7 +47,7 @@ export async function updateShopAction(
   // 元の値なら非表示の区分でも保てる。新しく選ぶ値は非表示不可。
   const { data: current, error: currentError } = await supabase
     .from("shops")
-    .select("genre, styles")
+    .select("genres, styles")
     .eq("id", shopId)
     .is("deleted_at", null)
     .maybeSingle();
@@ -56,7 +56,7 @@ export async function updateShopAction(
     return { error: SERVER_ERROR };
   }
   if (!current) return { error: "店が見つかりませんでした" };
-  const currentValues = { genre: current.genre as string, styles: (current.styles ?? []) as string[] };
+  const currentValues = { genres: (current.genres ?? []) as string[], styles: (current.styles ?? []) as string[] };
   if (hasInvalidCategory(await getCategories(), parsed.data, currentValues)) {
     return { error: INVALID_CATEGORY_MESSAGE };
   }
@@ -65,7 +65,7 @@ export async function updateShopAction(
     .from("shops")
     .update({
       name: parsed.data.name,
-      genre: parsed.data.genre,
+      genres: parsed.data.genres,
       styles: parsed.data.styles,
       time_slots: parsed.data.timeSlots,
       reference_url: parsed.data.referenceUrl === "" ? null : parsed.data.referenceUrl,

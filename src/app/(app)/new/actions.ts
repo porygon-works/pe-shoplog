@@ -32,7 +32,7 @@ export async function createShopAction(
 
   const parsed = shopInputSchema.safeParse({
     name: text(formData, "name"),
-    genre: text(formData, "genre") || "unknown",
+    genres: formData.getAll("genres").map(String),
     styles: formData.getAll("styles").map(String),
     timeSlots: formData.getAll("timeSlots").map(String),
     // 参考リンクは登録時には入力しない（店の編集画面で付ける）。

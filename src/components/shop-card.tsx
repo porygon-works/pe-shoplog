@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCategories } from "@/components/categories-provider";
-import type { Categories } from "@/lib/category-utils";
+import { genresText, type Categories } from "@/lib/category-utils";
 import { ratingText } from "@/components/rating";
 import { ShopIllustration } from "@/components/shop-illustration";
 import { PRICE_RANGES, SMOKING, labelOf, timeSlotsText } from "@/lib/options";
@@ -11,7 +11,7 @@ import { PRICE_RANGES, SMOKING, labelOf, timeSlotsText } from "@/lib/options";
 export type ShopCardData = {
   id: string;
   name: string;
-  genre: string;
+  genres: string[];
   styles: string[];
   timeSlots: string[];
   visitCount: number;
@@ -32,12 +32,12 @@ function smokePill(v: string) {
 
 export function ShopThumb({
   url,
-  genre,
+  genres,
   styles,
   size = 72,
 }: {
   url: string | null;
-  genre: string;
+  genres: readonly string[];
   styles: readonly string[];
   size?: number;
 }) {
@@ -46,7 +46,7 @@ export function ShopThumb({
     // 写真がなければジャンル・形態ごとのイラスト。
     return (
       <div style={style} className="grid flex-none place-items-center rounded-[10px] bg-shu-soft text-shu">
-        <ShopIllustration genre={genre} styles={styles} className="h-[72%] w-[72%]" />
+        <ShopIllustration genres={genres} styles={styles} className="h-[72%] w-[72%]" />
       </div>
     );
   }
@@ -75,7 +75,7 @@ export function ShopPills({ shop }: { shop: ShopCardData }) {
 
 /** 非表示の区分も含めて表示名を引く（見つからなければ value のまま）。 */
 export function shopMeta(shop: ShopCardData, categories: Categories): string {
-  const genre = shop.genre === "unknown" ? "" : labelOf(categories.genres, shop.genre);
+  const genre = genresText(categories.genres, shop.genres);
   const styles = shop.styles.map((s) => labelOf(categories.styles, s)).join("・");
   return [genre, styles, timeSlotsText(shop.timeSlots), `記録 ${shop.visitCount}件`].filter(Boolean).join("・");
 }
@@ -88,7 +88,7 @@ export function ShopCard({ shop }: { shop: ShopCardData }) {
       data-testid="shop-card"
       className="flex gap-3 rounded-[14px] border border-line bg-surface p-3 text-inherit no-underline hover:border-ai"
     >
-      <ShopThumb url={shop.thumbUrl} genre={shop.genre} styles={shop.styles} />
+      <ShopThumb url={shop.thumbUrl} genres={shop.genres} styles={shop.styles} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="text-[15px] font-bold">{shop.name}</div>
         <div className="text-xs text-muted">{shopMeta(shop, categories)}</div>

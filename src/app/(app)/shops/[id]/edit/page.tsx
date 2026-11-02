@@ -13,7 +13,7 @@ export default async function EditShopPage({ params }: { params: Promise<{ id: s
   const supabase = await createServerClient();
   const { data: shop, error } = await supabase
     .from("shops")
-    .select("name, genre, styles, time_slots, reference_url")
+    .select("name, genres, styles, time_slots, reference_url")
     .eq("id", id)
     .is("deleted_at", null)
     .maybeSingle();
@@ -27,7 +27,7 @@ export default async function EditShopPage({ params }: { params: Promise<{ id: s
         shopId={id}
         initial={{
           name: shop.name,
-          genre: shop.genre as ShopInput["genre"],
+          genres: (shop.genres ?? []) as ShopInput["genres"],
           styles: (shop.styles ?? []) as ShopInput["styles"],
           timeSlots: (shop.time_slots ?? ["dinner"]) as ShopInput["timeSlots"],
           referenceUrl: shop.reference_url ?? "",

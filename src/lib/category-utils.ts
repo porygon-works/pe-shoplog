@@ -31,17 +31,32 @@ export function selectableOptions(
     .map((c) => ({ value: c.value, label: c.label }));
 }
 
+/** 店の登録・編集で選ぶジャンルの選択肢。「不明」は何も選ばないことで表すので出さない。 */
+export function genreOptions(list: readonly Category[], keep: readonly string[] = []): Option<string>[] {
+  return selectableOptions(list, keep, true);
+}
+
+/** ジャンルの表示名を「・」でつなぐ（未設定なら空文字）。 */
+export function genresText(list: readonly Category[], genres: readonly string[]): string {
+  return genres
+    .map((g) => list.find((c) => c.value === g)?.label ?? g)
+    .join("・");
+}
+
 /**
  * 店のジャンル・形態が区分に存在するか確認する。新規に選ぶ値は非表示不可。
  * `current`（編集前の値）と同じ値なら非表示でも可。問題があれば true。
  */
 export function hasInvalidCategory(
   categories: Categories,
-  input: { genre: string; styles: readonly string[] },
-  current?: { genre: string; styles: readonly string[] },
+  input: { genres: readonly string[]; styles: readonly string[] },
+  current?: { genres: readonly string[]; styles: readonly string[] },
 ): boolean {
-  const g = categories.genres.find((c) => c.value === input.genre);
-  if (!g || (g.hidden && input.genre !== current?.genre)) return true;
+  const badGenre = input.genres.some((v) => {
+    const c = categories.genres.find((x) => x.value === v);
+    return !c || v === "unknown" || (c.hidden && !current?.genres.includes(v));
+  });
+  if (badGenre) return true;
   return input.styles.some((s) => {
     const c = categories.styles.find((x) => x.value === s);
     return !c || (c.hidden && !current?.styles.includes(s));

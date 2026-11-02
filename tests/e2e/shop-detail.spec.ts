@@ -139,12 +139,14 @@ test("店情報を編集すると詳細ページに反映される", async ({ pa
   await page.getByRole("link", { name: "店情報を編集" }).click();
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}/edit$`));
   await page.getByLabel("店名（必須）").fill("名前を変えた酒場");
+  // ジャンルは複数選べる（元の焼き鳥に、ラーメンとカレーを足す）
   await page.getByRole("button", { name: "ラーメン", exact: true }).click();
+  await page.getByRole("button", { name: "カレー", exact: true }).click();
   await page.getByLabel("予約・参考リンク").fill("https://example.com/reserve");
   await page.getByRole("button", { name: "保存" }).click();
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
   await expect(page.getByTestId("shop-name")).toHaveText("名前を変えた酒場");
-  await expect(page.getByTestId("shop-categories")).toContainText("ラーメン");
+  await expect(page.getByTestId("shop-categories")).toContainText("焼き鳥・串・ラーメン・カレー");
   await expect(page.getByRole("link", { name: "https://example.com/reserve" })).toBeVisible();
 });
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
+import { genresText } from "@/lib/category-utils";
 import {
   PAYMENT_METHODS,
   PHOTO_KINDS,
@@ -159,7 +160,7 @@ export default async function ShopPage({
   const smoking: string = shop.smoking;
   const priceRange: string = shop.price_range;
   const categories = await getCategories();
-  const genreLabel = labelOf(categories.genres, shop.genre);
+  const genreLabel = genresText(categories.genres, (shop.genres ?? []) as string[]);
   const stylesLabel = ((shop.styles ?? []) as string[]).map((s) => labelOf(categories.styles, s)).join("・");
   const avgText = ratingText(shop.avg_rating, shop.rating_count);
   // 一番上の写真: 横長・正方形を先に、縦長は後ろに回して最大 3 枚。高さはどの店でも 190px にそろえる。
@@ -216,7 +217,7 @@ export default async function ShopPage({
   }
   const noPhoto = (
     <div data-testid="shop-illustration" className="flex h-[190px] flex-col items-center justify-center gap-1 bg-shu-soft text-shu">
-      <ShopIllustration genre={shop.genre} styles={(shop.styles ?? []) as string[]} className="h-[110px] w-[110px]" />
+      <ShopIllustration genres={(shop.genres ?? []) as string[]} styles={(shop.styles ?? []) as string[]} className="h-[110px] w-[110px]" />
       <span className="text-[11px] text-muted">写真はまだありません。行った人が追加できます。</span>
     </div>
   );

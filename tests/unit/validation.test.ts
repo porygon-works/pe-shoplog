@@ -84,7 +84,12 @@ describe("shopInputSchema", () => {
       name: "店",
       referenceUrl: "https://example.com/x",
     });
-    expect(a.genre).toBe("unknown");
+    expect(a.genres).toEqual([]);
+    // 重複と「不明」は除く
+    expect(shopInputSchema.parse({ name: "店", genres: ["ramen", "ramen", "unknown", "cafe"] }).genres).toEqual([
+      "ramen",
+      "cafe",
+    ]);
     expect(a.styles).toEqual([]);
     expect(
       shopInputSchema.safeParse({ name: "店", referenceUrl: "" }).success,

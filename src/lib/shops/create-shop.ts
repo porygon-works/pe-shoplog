@@ -32,7 +32,7 @@ export async function createShop(
       lat: input.lat,
       lng: input.lng,
       location_fetched_at: input.placeId ? new Date().toISOString() : null,
-      genre: input.genre,
+      genres: input.genres,
       styles: input.styles,
       time_slots: input.timeSlots,
       reference_url: input.referenceUrl === "" ? null : input.referenceUrl,

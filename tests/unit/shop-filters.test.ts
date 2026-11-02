@@ -73,7 +73,7 @@ describe("applyShopFilters", () => {
       want: true,
     });
     expect(calls).toContainEqual(["ilike", "name", "%とり%"]);
-    expect(calls).toContainEqual(["in", "genre", ["yakitori"]]);
+    expect(calls).toContainEqual(["overlaps", "genres", ["yakitori"]]);
     expect(calls).toContainEqual(["overlaps", "styles", ["izakaya"]]);
     expect(calls).toContainEqual(["in", "smoking", ["no_smoking"]]);
     expect(calls).toContainEqual(["in", "price_range", ["3000_4999"]]);

@@ -64,29 +64,36 @@ describe("selectableOptions", () => {
 
 describe("hasInvalidCategory", () => {
   it("存在する表示中の値は問題なし", () => {
-    expect(hasInvalidCategory(categories, { genre: "ramen", styles: ["bar"] })).toBe(false);
+    expect(hasInvalidCategory(categories, { genres: ["ramen"], styles: ["bar"] })).toBe(false);
   });
 
   it("存在しない値は問題あり", () => {
-    expect(hasInvalidCategory(categories, { genre: "nope", styles: [] })).toBe(true);
-    expect(hasInvalidCategory(categories, { genre: "ramen", styles: ["nope"] })).toBe(true);
+    expect(hasInvalidCategory(categories, { genres: ["nope"], styles: [] })).toBe(true);
+    expect(hasInvalidCategory(categories, { genres: ["ramen"], styles: ["nope"] })).toBe(true);
   });
 
   it("非表示の値は新規選択では不可、元の値なら可", () => {
-    expect(hasInvalidCategory(categories, { genre: "old", styles: [] })).toBe(true);
-    expect(hasInvalidCategory(categories, { genre: "ramen", styles: ["oldstyle"] })).toBe(true);
-    const current = { genre: "old", styles: ["oldstyle"] };
-    expect(hasInvalidCategory(categories, { genre: "old", styles: ["oldstyle", "bar"] }, current)).toBe(false);
-    expect(hasInvalidCategory(categories, { genre: "ramen", styles: ["oldstyle"] }, { genre: "ramen", styles: [] })).toBe(
+    expect(hasInvalidCategory(categories, { genres: ["old"], styles: [] })).toBe(true);
+    expect(hasInvalidCategory(categories, { genres: ["ramen"], styles: ["oldstyle"] })).toBe(true);
+    const current = { genres: ["old"], styles: ["oldstyle"] };
+    expect(hasInvalidCategory(categories, { genres: ["old"], styles: ["oldstyle", "bar"] }, current)).toBe(false);
+    expect(hasInvalidCategory(categories, { genres: ["ramen"], styles: ["oldstyle"] }, { genres: ["ramen"], styles: [] })).toBe(
       true,
     );
+  });
+
+  it("ジャンルは複数でき、どれか 1 つでも選べない値なら問題あり。「不明」は選べない", () => {
+    expect(hasInvalidCategory(categories, { genres: ["ramen"], styles: [] })).toBe(false);
+    expect(hasInvalidCategory(categories, { genres: [], styles: [] })).toBe(false);
+    expect(hasInvalidCategory(categories, { genres: ["ramen", "nope"], styles: [] })).toBe(true);
+    expect(hasInvalidCategory(categories, { genres: ["unknown"], styles: [] })).toBe(true);
   });
 });
 
 describe("shopInputSchema の区分", () => {
   it("形式だけ検査する（存在確認はサーバー側）", () => {
-    expect(shopInputSchema.safeParse({ name: "店", genre: "c_0a1b2c3d", styles: ["bar"] }).success).toBe(true);
-    expect(shopInputSchema.safeParse({ name: "店", genre: "Bad Value" }).success).toBe(false);
+    expect(shopInputSchema.safeParse({ name: "店", genres: ["c_0a1b2c3d"], styles: ["bar"] }).success).toBe(true);
+    expect(shopInputSchema.safeParse({ name: "店", genres: ["Bad Value"] }).success).toBe(false);
     expect(shopInputSchema.safeParse({ name: "店", styles: ["x;y"] }).success).toBe(false);
   });
 });

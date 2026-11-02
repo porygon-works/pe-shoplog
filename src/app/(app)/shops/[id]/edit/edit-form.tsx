@@ -5,7 +5,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useReturnTo } from "@/lib/nav/use-return-to";
 import { useCategories } from "@/components/categories-provider";
 import { ChipGroup } from "@/components/chip-group";
-import { selectableOptions } from "@/lib/category-utils";
+import { genreOptions, selectableOptions } from "@/lib/category-utils";
 import { TIME_SLOTS } from "@/lib/options";
 import type { ShopInput } from "@/lib/validation";
 import { updateShopAction, type EditShopState } from "./actions";
@@ -15,14 +15,14 @@ export function EditShopForm({
   initial,
 }: {
   shopId: string;
-  initial: { name: string; genre: ShopInput["genre"]; styles: ShopInput["styles"];
+  initial: { name: string; genres: ShopInput["genres"]; styles: ShopInput["styles"];
     timeSlots: ShopInput["timeSlots"];
     referenceUrl: string };
 }) {
   const [state, action, pending] = useActionState<EditShopState, FormData>(updateShopAction, {});
   const categories = useCategories();
   const [name, setName] = useState(initial.name);
-  const [genre, setGenre] = useState(initial.genre);
+  const [genres, setGenres] = useState(initial.genres);
   const [styles, setStyles] = useState(initial.styles);
   const [timeSlots, setTimeSlots] = useState(initial.timeSlots);
   const [referenceUrl, setReferenceUrl] = useState(initial.referenceUrl);
@@ -52,8 +52,8 @@ export function EditShopForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-[13px] font-bold text-muted">ジャンル</span>
-        <ChipGroup name="genre" options={selectableOptions(categories.genres, [initial.genre])} value={genre} onChange={setGenre} aria-label="ジャンル" />
+        <span className="text-[13px] font-bold text-muted">ジャンル（複数可）</span>
+        <ChipGroup name="genres" multiple options={genreOptions(categories.genres, initial.genres)} value={genres} onChange={setGenres} aria-label="ジャンル" />
       </div>
 
       <div className="flex flex-col gap-2">

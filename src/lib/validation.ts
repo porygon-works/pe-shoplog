@@ -34,7 +34,12 @@ const httpUrl = z
 export const shopInputSchema = z.object({
   name: z.string().trim().min(1).max(100),
   // ジャンル・形態は DB で管理するので形式だけ見る。存在チェックは Server Action 側で行う。
-  genre: z.string().regex(CATEGORY_VALUE_RE).default("unknown"),
+  // ジャンルは複数可。何も選ばない = 未設定（「不明」は入れない）。重複は除く。
+  genres: z
+    .array(z.string().regex(CATEGORY_VALUE_RE))
+    .max(50)
+    .transform((a) => [...new Set(a)].filter((g) => g !== "unknown"))
+    .default([]),
   styles: z.array(z.string().regex(CATEGORY_VALUE_RE)).max(50).default([]),
   referenceUrl: z.union([httpUrl, z.literal("")]).default(""),
   // 時間帯は最低 1 つ。重複は除く。

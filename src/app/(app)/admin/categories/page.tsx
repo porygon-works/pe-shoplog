@@ -16,13 +16,15 @@ async function usageCounts() {
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase
       .from("shops")
-      .select("genre, styles")
+      .select("genres, styles")
       .is("deleted_at", null)
       .order("id")
       .range(from, from + PAGE - 1);
     if (error) throw error;
     for (const s of data ?? []) {
-      genre.set(s.genre, (genre.get(s.genre) ?? 0) + 1);
+      // ジャンル未設定の店は「不明」として数える。
+      const gs: string[] = s.genres?.length ? s.genres : ["unknown"];
+      for (const v of new Set<string>(gs)) genre.set(v, (genre.get(v) ?? 0) + 1);
       for (const v of new Set<string>(s.styles ?? [])) style.set(v, (style.get(v) ?? 0) + 1);
     }
     if ((data?.length ?? 0) < PAGE) break;

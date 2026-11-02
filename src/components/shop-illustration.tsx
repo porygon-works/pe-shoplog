@@ -149,8 +149,10 @@ const DRAWINGS: Record<string, ReactNode> = {
 const LANTERN_STYLES = ["izakaya", "taishu_izakaya", "tachinomi", "private_room"];
 const BAR_STYLES = ["bar", "dining_bar"];
 
-export function illustrationKey(genre: string, styles: readonly string[]): string {
-  if (genre !== "unknown" && genre !== "other" && genre in DRAWINGS) return genre;
+export function illustrationKey(genres: readonly string[], styles: readonly string[]): string {
+  // ジャンルが複数なら、絵のある最初のジャンル。
+  const genre = genres.find((g) => g !== "unknown" && g !== "other" && g in DRAWINGS);
+  if (genre) return genre;
   if (styles.some((s) => LANTERN_STYLES.includes(s))) return "lantern";
   if (styles.some((s) => BAR_STYLES.includes(s))) return "bar";
   return "jokki";
@@ -169,15 +171,15 @@ export function IllustrationDefs() {
 }
 
 export function ShopIllustration({
-  genre,
+  genres,
   styles,
   className,
 }: {
-  genre: string;
+  genres: readonly string[];
   styles: readonly string[];
   className?: string;
 }) {
-  const key = illustrationKey(genre, styles);
+  const key = illustrationKey(genres, styles);
   return (
     <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false" className={className} data-illustration={key}>
       <g
