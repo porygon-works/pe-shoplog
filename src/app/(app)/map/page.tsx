@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth/current-user";
 import { listShops } from "@/lib/filters/list-shops";
 import { shopFilterCache } from "@/lib/filters/shop-filters";
 import { createServerClient } from "@/lib/supabase/server";
-import { MapScreen } from "./map-screen";
+import { MapScreenBridge } from "./map-host";
 
 export default async function MapPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const filters = shopFilterCache.parse(await searchParams);
@@ -15,7 +15,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   ]);
 
   return (
-    <main className="flex flex-1 flex-col bg-surface">
+    <main className="flex flex-col bg-surface">
       <header className="flex items-center gap-2 border-b border-line px-4 py-2.5">
         <span className="font-display text-base text-shu">
           ぺーろぐ
@@ -30,7 +30,8 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
           </button>
         </form>
       </header>
-      <MapScreen shops={shops} />
+      {/* 地図そのものはレイアウトの MapHost が出す（画面を行き来しても地図を作り直さないため）。 */}
+      <MapScreenBridge shops={shops} />
     </main>
   );
 }

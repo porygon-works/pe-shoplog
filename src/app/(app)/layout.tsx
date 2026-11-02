@@ -3,6 +3,7 @@ import { CategoriesProvider } from "@/components/categories-provider";
 import { ConfirmProvider } from "@/components/confirm-dialog";
 import { NavTracker } from "@/components/nav-tracker";
 import { ToastProvider } from "@/components/toast";
+import { MapHost, MapHostProvider } from "./map/map-host";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
 
@@ -13,11 +14,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <ToastProvider>
       <ConfirmProvider>
         <CategoriesProvider categories={categories}>
-          <NavTracker />
-          <div className="flex min-h-[calc(100dvh-env(safe-area-inset-top))] flex-1 flex-col">
-            <div className="flex flex-1 flex-col">{children}</div>
-            <BottomNav />
-          </div>
+          <MapHostProvider>
+            <NavTracker />
+            <div className="flex min-h-[calc(100dvh-env(safe-area-inset-top))] flex-1 flex-col">
+              <div className="flex flex-1 flex-col">
+                {children}
+                <MapHost />
+              </div>
+              <BottomNav />
+            </div>
+          </MapHostProvider>
         </CategoriesProvider>
       </ConfirmProvider>
     </ToastProvider>

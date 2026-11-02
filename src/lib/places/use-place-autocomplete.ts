@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "@/components/toast";
+import { createMemo } from "./client-cache";
 
 export type PickedPlace = { placeId: string; name: string; lat: number; lng: number };
 export type Suggestion = { placeId: string; mainText: string; secondaryText: string };
@@ -9,6 +10,12 @@ export type Suggestion = { placeId: string; mainText: string; secondaryText: str
 export const SEARCH_ERROR = "お店の検索に失敗しました。時間をおいてもう一度お試しください";
 export const LIMIT_ERROR = "今日のお店の検索回数の上限に達しました。明日もう一度お試しください";
 const DEBOUNCE_MS = 300;
+
+// 同じ言葉・ほぼ同じ場所（約 1km）での検索、同じ店の名前と位置は、このタブの中で使い回す。
+const suggestionMemo = createMemo<Suggestion[]>();
+export const placeMemo = createMemo<PickedPlace>();
+const biasKey = (b: { lat: number; lng: number } | null | undefined) =>
+  b ? `${b.lat.toFixed(2)},${b.lng.toFixed(2)}` : "-";
 
 /**
  * Google の店舗候補（autocomplete）を引き、選ばれた候補の名前と位置（details）を取る。
@@ -41,6 +48,14 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
       try {
         const params = new URLSearchParams({ q, session: token });
         const bias = biasRef.current?.();
+        const memoKey = `${q}|${biasKey(bias)}`;
+        const memo = suggestionMemo.get(memoKey);
+        if (memo) {
+          if (mine !== seq.current) return;
+          setSuggestions(memo);
+          setSearched(true);
+          return;
+        }
         if (bias) {
           params.set("lat", String(bias.lat));
           params.set("lng", String(bias.lng));
@@ -52,6 +67,7 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
         }
         if (!res.ok) throw new Error(String(res.status));
         const data = (await res.json()) as { suggestions: Suggestion[] };
+        suggestionMemo.set(memoKey, data.suggestions);
         if (mine !== seq.current) return; // 古い応答は捨てる
         setSuggestions(data.suggestions);
         setSearched(true);
@@ -86,6 +102,11 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
     setPicking(true);
     seq.current++; // 選択後に遅れて届く検索結果は無視する
     if (timer.current) clearTimeout(timer.current);
+    const memo = placeMemo.get(s.placeId);
+    if (memo) {
+      setPicking(false);
+      return memo;
+    }
     try {
       const params = new URLSearchParams({ id: s.placeId });
       if (session.current) params.set("session", session.current);
@@ -97,7 +118,9 @@ export function usePlaceAutocomplete(getBias?: () => { lat: number; lng: number 
       if (!res.ok) throw new Error(String(res.status));
       const d = (await res.json()) as PickedPlace;
       session.current = null; // 選択で課金セッションは終了。次の検索では新しいトークンを使う
-      return { placeId: d.placeId, name: d.name, lat: d.lat, lng: d.lng };
+      const picked = { placeId: d.placeId, name: d.name, lat: d.lat, lng: d.lng };
+      placeMemo.set(picked.placeId, picked);
+      return picked;
     } catch {
       toast.show(SEARCH_ERROR, "error");
       return null;

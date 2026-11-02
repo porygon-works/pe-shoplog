@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { createShopAction, type NewShopState } from "@/app/(app)/new/actions";
-import type { PickedPlace } from "@/lib/places/use-place-autocomplete";
+import { placeMemo, type PickedPlace } from "@/lib/places/use-place-autocomplete";
 
 /**
  * まだ登録されていない Google の店のカード。その場で「気になる」「行った」で登録できる。
@@ -18,19 +18,23 @@ export function PlaceSheet({
   place?: PickedPlace;
   onClose: () => void;
 }) {
-  const [place, setPlace] = useState<PickedPlace | null>(given ?? null);
+  // 一度開いた店は、このタブの中では Google に問い合わせ直さない。
+  const [place, setPlace] = useState<PickedPlace | null>(given ?? placeMemo.get(placeId) ?? null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [state, action, pending] = useActionState<NewShopState, FormData>(createShopAction, {});
 
   useEffect(() => {
-    if (given) return;
+    if (given || placeMemo.get(placeId)) return;
     let alive = true;
     fetch(`/api/places/details?${new URLSearchParams({ id: placeId })}`)
       .then((res) => {
         if (!res.ok) throw new Error(String(res.status));
         return res.json() as Promise<PickedPlace>;
       })
-      .then((d) => alive && setPlace(d))
+      .then((d) => {
+        placeMemo.set(placeId, d);
+        if (alive) setPlace(d);
+      })
       .catch(() => alive && setLoadFailed(true));
     return () => {
       alive = false;

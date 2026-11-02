@@ -111,3 +111,18 @@ test("昼を付けて登録した店は、時間帯「昼」で絞ると出て�
   await page.getByLabel("時間帯", { exact: true }).selectOption({ label: "夜" });
   await expect(cards).toHaveCount(2);
 });
+
+test("地図はタブを行き来しても作り直さない（Google の地図の読み込みを数え直さない）", async ({ page }) => {
+  await page.goto("/map");
+  const host = page.getByTestId("map-host");
+  await expect(host).toBeVisible();
+  await host.evaluate((el) => el.setAttribute("data-mark", "kept"));
+  await page.getByRole("link", { name: "さがす" }).click();
+  await expect(page).toHaveURL(/\/search/);
+  await expect(host).toBeHidden();
+  // 開発時は左下に Next.js のボタンが重なるので、キーボードで押す。
+  await page.getByRole("link", { name: "マップ" }).press("Enter");
+  await expect(page).toHaveURL(/\/map/);
+  await expect(host).toBeVisible();
+  await expect(host).toHaveAttribute("data-mark", "kept");
+});
