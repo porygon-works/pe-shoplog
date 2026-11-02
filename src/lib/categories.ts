@@ -16,9 +16,10 @@ export const getCategories = cache(async (): Promise<Categories> => {
 
   const genres: Category[] = [];
   const styles: Category[] = [];
+  const purposes: Category[] = [];
   for (const r of data ?? []) {
     const c: Category = { value: r.value, label: r.label, hidden: r.hidden, sortOrder: r.sort_order };
-    (r.kind === "genre" ? genres : styles).push(c);
+    (r.kind === "genre" ? genres : r.kind === "style" ? styles : purposes).push(c);
   }
-  return { genres, styles };
+  return { genres, styles, purposes };
 });

@@ -7,13 +7,12 @@ import {
 } from "nuqs/server";
 
 import { CATEGORY_VALUE_RE } from "@/lib/category-utils";
-import { PRICE_RANGES, PURPOSES, SMOKING, TIME_SLOTS, type Option } from "@/lib/options";
+import { PRICE_RANGES, SMOKING, TIME_SLOTS, type Option } from "@/lib/options";
 
 /** 絞り込みの選択肢。「不明」では絞り込めないので外す。URL の値の検証にもこれを使う。 */
 const known = <O extends readonly Option<string>[]>(o: O) => o.filter((x) => x.value !== "unknown");
 export const SMOKING_FILTER_OPTIONS = known(SMOKING);
 export const PRICE_FILTER_OPTIONS = known(PRICE_RANGES);
-export const PURPOSE_FILTER_OPTIONS = known(PURPOSES);
 
 export const MAX_Q_LENGTH = 100;
 
@@ -52,7 +51,7 @@ export const shopFilterParsers = {
   styles: categoryArray(),
   smoking: allowedArray(SMOKING_FILTER_OPTIONS),
   price: allowedArray(PRICE_FILTER_OPTIONS),
-  purpose: allowedArray(PURPOSE_FILTER_OPTIONS),
+  purpose: categoryArray(),
   want: parseAsBoolean.withDefault(false),
   time: allowedArray(TIME_SLOTS),
   sort: parseAsStringLiteral(SORTS).withDefault("new"),

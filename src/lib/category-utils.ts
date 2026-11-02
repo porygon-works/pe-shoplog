@@ -1,10 +1,12 @@
 import { z } from "zod";
 import type { Option } from "@/lib/options";
 
-/** 区分（ジャンル・形態）。`value` は不変の ID、`label` は管理画面から変えられる。 */
+/** 区分（ジャンル・形態・用途）。`value` は不変の ID、`label` は管理画面から変えられる。 */
 export type Category = { value: string; label: string; hidden: boolean; sortOrder: number };
-export type Categories = { genres: Category[]; styles: Category[] };
-export type CategoryKind = "genre" | "style";
+export type Categories = { genres: Category[]; styles: Category[]; purposes: Category[] };
+export type CategoryKind = "genre" | "style" | "purpose";
+export const CATEGORY_KINDS: readonly CategoryKind[] = ["genre", "style", "purpose"];
+export const isCategoryKind = (k: unknown): k is CategoryKind => CATEGORY_KINDS.includes(k as CategoryKind);
 
 /** DB の shop_categories.value の形。URL クエリや入力の形式チェックにも使う。 */
 export const CATEGORY_VALUE_RE = /^[a-z0-9_]{1,40}$/;

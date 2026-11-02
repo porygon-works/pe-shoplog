@@ -15,6 +15,7 @@ const c = (value: string, label: string, hidden = false): Category => ({ value, 
 const categories: Categories = {
   genres: [c("ramen", "ラーメン"), c("old", "旧ジャンル", true), c("unknown", "不明")],
   styles: [c("bar", "バー"), c("oldstyle", "旧形態", true)],
+  purposes: [c("celebration", "打ち上げ")],
 };
 
 describe("generateCategoryValue", () => {

@@ -6,25 +6,18 @@ import { ChipGroup } from "@/components/chip-group";
 import type { CategoryKind } from "@/lib/category-utils";
 import type { Option } from "@/lib/options";
 
+type Common = { kind: CategoryKind; name: string; label: string; options: Option<string>[] };
+type Props =
+  | (Common & { multiple?: true; value: string[]; onChange: (v: string[]) => void })
+  | (Common & { multiple: false; value: string; onChange: (v: string) => void });
+
 /**
- * ジャンル・形態を複数選ぶチップと、その場で新しい区分を足す「＋ 追加」。
+ * 区分（ジャンル・形態・用途）を選ぶチップと、その場で新しい区分を足す「＋ 追加」。
  * 足した区分はすぐ選択した状態になる（一覧の再取得を待たずに選択肢にも出す）。
+ * multiple: false のときは 1 つだけ選ぶ（選択中をもう一度押すと未選択 = 'unknown'）。
  */
-export function CategoryPicker({
-  kind,
-  name,
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  kind: CategoryKind;
-  name: string;
-  label: string;
-  options: Option<string>[];
-  value: string[];
-  onChange: (v: string[]) => void;
-}) {
+export function CategoryPicker(props: Props) {
+  const { kind, name, label, options } = props;
   const [extra, setExtra] = useState<Option<string>[]>([]);
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState("");
@@ -44,7 +37,8 @@ export function CategoryPicker({
           return;
         }
         setExtra((x) => (x.some((e) => e.value === res.value) ? x : [...x, { value: res.value, label: res.label }]));
-        if (!value.includes(res.value)) onChange([...value, res.value]);
+        if (props.multiple === false) props.onChange(res.value);
+        else if (!props.value.includes(res.value)) props.onChange([...props.value, res.value]);
         setText("");
         setAdding(false);
       } catch {
@@ -55,7 +49,11 @@ export function CategoryPicker({
 
   return (
     <div className="flex flex-col gap-2">
-      <ChipGroup name={name} multiple options={all} value={value} onChange={onChange} aria-label={label} />
+      {props.multiple === false ? (
+        <ChipGroup name={name} options={all} value={props.value} onChange={props.onChange} aria-label={label} />
+      ) : (
+        <ChipGroup name={name} multiple options={all} value={props.value} onChange={props.onChange} aria-label={label} />
+      )}
       {adding ? (
         <div className="flex gap-2">
           <input

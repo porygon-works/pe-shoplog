@@ -45,7 +45,7 @@ test.describe("管理者", () => {
 
     await loginAs(page, adminId);
     await page.goto("/admin");
-    await page.getByRole("link", { name: "ジャンル・形態の編集" }).click();
+    await page.getByRole("link", { name: "ジャンル・形態・用途の編集" }).click();
     await expect(page).toHaveURL(/\/admin\/categories$/);
 
     const genres = page.getByTestId("category-section-genre");

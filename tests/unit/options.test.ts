@@ -4,7 +4,6 @@ import {
   PAYMENT_METHODS,
   PHOTO_KINDS,
   PRICE_RANGES,
-  PURPOSES,
   RESERVATIONS,
   SMOKING,
   labelOf,
@@ -15,7 +14,6 @@ describe("options", () => {
   const all = {
     SMOKING,
     PRICE_RANGES,
-    PURPOSES,
     RESERVATIONS,
     PAYMENT_METHODS,
     PHOTO_KINDS,

@@ -5,7 +5,10 @@ import { useReturnTo } from "@/lib/nav/use-return-to";
 import { useEffect, useRef, useState } from "react";
 import { ChipGroup } from "@/components/chip-group";
 import { PhotoUploader, type ExistingPhoto, type UploadSummary } from "@/components/photo-uploader";
-import { PAYMENT_METHODS, PRICE_RANGES, PURPOSES, RESERVATIONS, SMOKING } from "@/lib/options";
+import { useCategories } from "@/components/categories-provider";
+import { CategoryPicker } from "@/components/category-picker";
+import { selectableOptions } from "@/lib/category-utils";
+import { PAYMENT_METHODS, PRICE_RANGES, RESERVATIONS, SMOKING } from "@/lib/options";
 import { createVisitAction, updateVisitAction } from "@/lib/visits/actions";
 import type { VisitInput } from "@/lib/validation";
 
@@ -34,6 +37,7 @@ export function VisitForm({
   const [rating, setRating] = useState<number | null>(initial.rating);
   const [smoking, setSmoking] = useState(initial.smoking);
   const [priceRange, setPriceRange] = useState(initial.priceRange);
+  const categories = useCategories();
   const [purpose, setPurpose] = useState(initial.purpose);
   const [reservation, setReservation] = useState(initial.reservation);
   const [paymentMethods, setPaymentMethods] = useState(initial.paymentMethods);
@@ -150,7 +154,15 @@ export function VisitForm({
       </div>
       <div className="flex flex-col gap-2">
         <span className={label}>用途（実際に使ったもの）</span>
-        <ChipGroup name="purpose" options={PURPOSES} value={purpose} onChange={setPurpose} aria-label="用途" />
+        <CategoryPicker
+          kind="purpose"
+          name="purpose"
+          label="用途"
+          multiple={false}
+          options={selectableOptions(categories.purposes, [initial.purpose])}
+          value={purpose}
+          onChange={setPurpose}
+        />
       </div>
 
       <div className="flex flex-col gap-2">

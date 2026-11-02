@@ -32,7 +32,7 @@ export default async function AdminPage() {
       <h1 className="m-0 text-lg font-bold">管理画面</h1>
 
       <Link href="/admin/categories" className="btn self-start">
-        ジャンル・形態の編集
+        ジャンル・形態・用途の編集
       </Link>
 
       <section className="flex flex-col gap-2">

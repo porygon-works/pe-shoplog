@@ -8,7 +8,6 @@ import {
   PAYMENT_METHODS,
   PHOTO_KINDS,
   PRICE_RANGES,
-  PURPOSES,
   RESERVATIONS,
   SMOKING,
   labelOf,
@@ -331,7 +330,7 @@ export default async function ShopPage({
 
             <section className="flex flex-col gap-2">
               <h2 className="m-0 text-[13px] font-bold text-muted">使った用途</h2>
-              <Bars items={breakdown.purpose} options={PURPOSES} />
+              <Bars items={breakdown.purpose} options={categories.purposes} />
             </section>
             <section className="flex flex-col gap-2">
               <h2 className="m-0 text-[13px] font-bold text-muted">予約</h2>
@@ -383,7 +382,7 @@ export default async function ShopPage({
                 <div className="flex flex-wrap items-center gap-1">
                   {v.rating !== null && <Stars rating={v.rating} />}
                   {v.purpose !== "unknown" && (
-                    <span className={`${pill} bg-surface-2 text-muted`}>{labelOf(PURPOSES, v.purpose)}</span>
+                    <span className={`${pill} bg-surface-2 text-muted`}>{labelOf(categories.purposes, v.purpose)}</span>
                   )}
                   {v.smoking !== "unknown" && (
                     <span className={`${pill} ${smokePill(v.smoking)}`}>{labelOf(SMOKING, v.smoking)}</span>

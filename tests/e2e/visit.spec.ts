@@ -128,3 +128,16 @@ test("店情報の編集画面で「キャンセル」→ 詳細 →「戻る」
   await page.goBack();
   await expect(page).toHaveURL(/\/search/);
 });
+
+test("記録の画面で新しい用途をその場で追加して保存できる", async ({ page }) => {
+  const shopId = await createShop(null, { name: "用途追加テスト酒場" });
+  const label = `用途${Date.now().toString(36).slice(-5)}`;
+  await page.goto(`/shops/${shopId}/visits/new`);
+  await page.getByRole("button", { name: "＋ 用途を追加" }).click();
+  await page.getByLabel("新しい用途の名前").fill(label);
+  await page.getByLabel("新しい用途の名前").press("Enter");
+  await expect(page.getByRole("button", { name: label, exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "記録を保存" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await expect(page.getByText(label).first()).toBeVisible();
+});

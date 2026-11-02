@@ -7,6 +7,7 @@ import {
   generateCategoryValue,
   hasDuplicateLabel,
   type Category,
+  isCategoryKind,
   type CategoryKind,
 } from "@/lib/category-utils";
 import { createServerClient } from "@/lib/supabase/server";
@@ -38,7 +39,7 @@ async function loadKind(kind: CategoryKind): Promise<{ rows: Row[] } | { error: 
 }
 
 async function loadOne(kind: CategoryKind, value: string): Promise<{ row: Row; rows: Row[] } | { error: string }> {
-  if (kind !== "genre" && kind !== "style") return { error: SERVER_ERROR };
+  if (!isCategoryKind(kind)) return { error: SERVER_ERROR };
   const all = await loadKind(kind);
   if ("error" in all) return all;
   const row = all.rows.find((r) => r.value === value);
@@ -55,7 +56,7 @@ function done(): Out {
 
 export async function addCategoryAction(kind: CategoryKind, rawLabel: string): Promise<Out> {
   await requireAdmin();
-  if (kind !== "genre" && kind !== "style") return { error: SERVER_ERROR };
+  if (!isCategoryKind(kind)) return { error: SERVER_ERROR };
   const label = categoryLabelSchema.safeParse(rawLabel);
   if (!label.success) return { error: LABEL_ERROR };
 

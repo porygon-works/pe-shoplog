@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { PURPOSES, labelOf } from "@/lib/options";
+import { getCategories } from "@/lib/categories";
+import { labelOf } from "@/lib/options";
 import { type ListKind, excerptOf } from "./shared";
 
 export type ListSummary = {
@@ -64,15 +65,18 @@ export type VisitLogEntry = {
 
 /** あるユーザーの、削除されていない記録（新しい順）。削除済みの店の記録は除く。 */
 export async function visitLogOf(supabase: SupabaseClient, userId: string): Promise<VisitLogEntry[]> {
-  const { data, error } = await supabase
-    .from("visits")
-    .select("id, shop_id, visited_on, rating, purpose, comment, shops!inner(name, deleted_at)")
-    .eq("user_id", userId)
-    .is("deleted_at", null)
-    .is("shops.deleted_at", null)
-    .order("visited_on", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .limit(200);
+  const [{ data, error }, { purposes }] = await Promise.all([
+    supabase
+      .from("visits")
+      .select("id, shop_id, visited_on, rating, purpose, comment, shops!inner(name, deleted_at)")
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .is("shops.deleted_at", null)
+      .order("visited_on", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(200),
+    getCategories(),
+  ]);
   if (error) throw error;
   return (data ?? []).map((v) => {
     const shop = (Array.isArray(v.shops) ? v.shops[0] : v.shops) as { name: string } | null;
@@ -82,7 +86,7 @@ export async function visitLogOf(supabase: SupabaseClient, userId: string): Prom
       shopName: shop?.name ?? "",
       visitedOn: v.visited_on,
       rating: v.rating,
-      purposeLabel: labelOf(PURPOSES, v.purpose),
+      purposeLabel: v.purpose === "unknown" ? "不明" : labelOf(purposes, v.purpose),
       excerpt: excerptOf(v.comment),
     };
   });

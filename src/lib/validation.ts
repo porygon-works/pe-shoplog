@@ -4,7 +4,6 @@ import { CATEGORY_VALUE_RE } from "@/lib/category-utils";
 import {
   PAYMENT_METHODS,
   PRICE_RANGES,
-  PURPOSES,
   RESERVATIONS,
   SMOKING,
   TIME_SLOTS,
@@ -59,7 +58,8 @@ export const visitInputSchema = z.object({
   comment: z.string().max(1000).default(""),
   smoking: z.enum(values(SMOKING)).default("unknown"),
   priceRange: z.enum(values(PRICE_RANGES)).default("unknown"),
-  purpose: z.enum(values(PURPOSES)).default("unknown"),
+  // 用途は DB で管理するので形式だけ見る（存在確認は Server Action と DB のトリガー）。
+  purpose: z.string().regex(CATEGORY_VALUE_RE).default("unknown"),
   reservation: z.enum(values(RESERVATIONS)).default("unknown"),
   paymentMethods: z.array(z.enum(values(PAYMENT_METHODS))).default([]),
 });

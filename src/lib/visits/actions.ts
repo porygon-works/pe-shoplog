@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/current-user";
+import { getCategories } from "@/lib/categories";
 import { isUuid } from "@/lib/ids";
 import { PHOTO_KINDS, values } from "@/lib/options";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -49,6 +50,16 @@ function parseVisit(formData: FormData) {
   return { error: message };
 }
 
+const PURPOSE_ERROR = "選べない用途です。画面を開き直してもう一度お試しください";
+const CHECK_VIOLATION = "23514";
+
+/** 用途が区分にあるか。新しく記録するときは非表示の用途は選べない（編集では元の値を保てるよう許す）。 */
+async function invalidPurpose(purpose: string, allowHidden: boolean): Promise<boolean> {
+  if (purpose === "unknown") return false;
+  const c = (await getCategories()).purposes.find((p) => p.value === purpose);
+  return !c || (c.hidden && !allowHidden);
+}
+
 function visitColumns(d: NonNullable<ReturnType<typeof parseVisit>["data"]>) {
   return {
     visited_on: d.visitedOn,
@@ -71,6 +82,7 @@ export async function createVisitAction(
   if (!isUuid(shopId)) return { error: "店の情報が正しくありません" };
   const parsed = parseVisit(formData);
   if (!parsed.data) return { error: parsed.error! };
+  if (await invalidPurpose(parsed.data.purpose, false)) return { error: PURPOSE_ERROR };
 
   const supabase = await createServerClient();
   const { data: shop, error: shopError } = await supabase
@@ -92,6 +104,7 @@ export async function createVisitAction(
     .single();
   if (error || !data) {
     console.error("createVisit failed", error);
+    if (error?.code === CHECK_VIOLATION) return { error: PURPOSE_ERROR };
     return { error: SERVER_ERROR };
   }
   revalidatePath(`/shops/${shopId}`);
@@ -106,6 +119,7 @@ export async function updateVisitAction(
   if (!isUuid(visitId)) return { error: "記録の情報が正しくありません" };
   const parsed = parseVisit(formData);
   if (!parsed.data) return { error: parsed.error! };
+  if (await invalidPurpose(parsed.data.purpose, true)) return { error: PURPOSE_ERROR };
 
   const supabase = await createServerClient();
   const { data, error } = await supabase
@@ -117,6 +131,7 @@ export async function updateVisitAction(
     .select("id, shop_id");
   if (error) {
     console.error("updateVisit failed", error);
+    if (error.code === CHECK_VIOLATION) return { error: PURPOSE_ERROR };
     return { error: SERVER_ERROR };
   }
   if (!data || data.length === 0) return { error: "記録が見つかりませんでした" };

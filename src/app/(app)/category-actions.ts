@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/current-user";
-import { categoryLabelSchema, generateCategoryValue, type CategoryKind } from "@/lib/category-utils";
+import { categoryLabelSchema, generateCategoryValue, isCategoryKind, type CategoryKind } from "@/lib/category-utils";
 import { consumePlacesQuota } from "@/lib/places/quota";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -12,13 +12,13 @@ const SERVER_ERROR = "追加できませんでした。時間をおいてもう�
 const UNIQUE_VIOLATION = "23505";
 
 /**
- * 店の登録・編集画面から、ログインしている人ならだれでもジャンル・形態を追加できる。
+ * 店の登録・編集画面や記録の画面から、ログインしている人ならだれでもジャンル・形態・用途を追加できる。
  * 同じ名前がすでにあればそれを返す（重複して作らない）。管理者が非表示にした名前は使えない。
  * 名前の変更・非表示は今までどおり管理画面（管理者のみ）で行う。
  */
 export async function quickAddCategoryAction(kind: CategoryKind, rawLabel: string): Promise<QuickAddResult> {
   const user = await requireUser();
-  if (kind !== "genre" && kind !== "style") return { error: SERVER_ERROR };
+  if (!isCategoryKind(kind)) return { error: SERVER_ERROR };
   const parsed = categoryLabelSchema.safeParse(rawLabel);
   if (!parsed.success) return { error: "名前は 1〜20 文字で入力してください" };
   const label = parsed.data;

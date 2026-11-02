@@ -6,7 +6,6 @@ import { selectableOptions } from "@/lib/category-utils";
 import { TIME_SLOTS } from "@/lib/options";
 import {
   PRICE_FILTER_OPTIONS,
-  PURPOSE_FILTER_OPTIONS,
   SMOKING_FILTER_OPTIONS,
   shopFilterParsers,
 } from "@/lib/filters/shop-filters";
@@ -102,6 +101,7 @@ export function ShopFilterBar({
   // 非表示の区分は新しく選べないが、今の絞り込みに入っているものは残す。ジャンルの「不明」は絞り込みに使わない。
   const genreOptions = selectableOptions(categories.genres, f.genre, true);
   const styleOptions = selectableOptions(categories.styles, f.styles);
+  const purposeOptions = selectableOptions(categories.purposes, f.purpose);
 
   const item = (k: FilterKey) => {
     const label = FILTER_LABELS[k];
@@ -130,7 +130,7 @@ export function ShopFilterBar({
         return <FilterSelect key={k} label={label} options={PRICE_FILTER_OPTIONS} value={f.price} onChange={(price) => setF({ price })} />;
       case "purpose":
         return (
-          <FilterSelect key={k} label={label} options={PURPOSE_FILTER_OPTIONS} value={f.purpose} onChange={(purpose) => setF({ purpose })} />
+          <FilterSelect key={k} label={label} options={purposeOptions} value={f.purpose} onChange={(purpose) => setF({ purpose })} />
         );
     }
   };

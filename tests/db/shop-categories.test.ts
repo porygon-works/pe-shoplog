@@ -14,7 +14,7 @@ beforeAll(async () => {
 /** value は `^[a-z0-9_]{1,40}$` なので、テスト用にその形で一意な値を作る。 */
 const val = () => `t_${uniqueId("")}`;
 
-async function seedCategory(kind: "genre" | "style", extra: Record<string, unknown> = {}) {
+async function seedCategory(kind: "genre" | "style" | "purpose", extra: Record<string, unknown> = {}) {
   const value = val();
   const { error } = await svc.from("shop_categories").insert({ kind, value, label: "テスト", ...extra });
   if (error) throw error;
@@ -155,5 +155,22 @@ describe("ジャンルの複数選択（0011）", () => {
     expect(data?.genres).toEqual(["sushi_seafood"]);
     const upd = await svc.from("shops").update({ genre: "unknown" }).eq("id", data!.id).select("genres").single();
     expect(upd.data?.genres).toEqual([]);
+  });
+});
+
+describe("用途の区分（0013）", () => {
+  it("既存の用途が種データにあり、存在しない用途の記録は保存できない。追加した用途は使える", async () => {
+    const { data: seeded } = await svc.from("shop_categories").select("value").eq("kind", "purpose");
+    expect(seeded?.map((r) => r.value)).toEqual(expect.arrayContaining(["training_2", "celebration", "other"]));
+
+    const u = await createTestUser(uniqueId("cp"));
+    const shop = await createShop(u.id);
+    const bad = await svc.from("visits").insert({ shop_id: shop, user_id: u.id, purpose: "nonsense" });
+    expect(bad.error?.code).toBe("23514");
+
+    const value = await seedCategory("purpose");
+    const ok = await svc.from("visits").insert({ shop_id: shop, user_id: u.id, purpose: value }).select("purpose").single();
+    expect(ok.error).toBeNull();
+    expect(ok.data?.purpose).toBe(value);
   });
 });

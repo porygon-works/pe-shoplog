@@ -80,7 +80,7 @@ function CategoryRow({
         </button>
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-        <span className="text-xs text-muted">{item.count}店</span>
+        <span className="text-xs text-muted">{item.count}{kind === "purpose" ? "件" : "店"}</span>
         {item.hidden && <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] text-muted">非表示</span>}
         <button
           type="button"
