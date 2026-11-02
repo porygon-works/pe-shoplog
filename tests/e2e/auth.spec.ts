@@ -61,7 +61,7 @@ test("入力が不正ならフィールドごとに日本語で表示される",
   await page.getByLabel("合言葉").fill("pe");
   await page.getByRole("button", { name: "登録してはじめる" }).click();
   await expect(
-    page.getByText("ユーザーIDは半角英小文字・数字・_ で3〜20文字です"),
+    page.getByText("ユーザーIDは半角英小文字・数字・記号（. _ -）で3〜20文字です（最初と最後は英数字）"),
   ).toBeVisible();
   await expect(page.getByText("パスワードは8文字以上です")).toBeVisible();
 });
