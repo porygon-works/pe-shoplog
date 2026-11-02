@@ -238,6 +238,10 @@ test("公開の共有リストは非メンバーが読み取り専用で見ら�
   await expect(B.page.getByLabel("招待リンク")).toHaveCount(0);
   await expect(B.page.getByRole("button", { name: "設定" })).toHaveCount(0);
   await expect(B.page.getByRole("button", { name: "このリストから抜ける" })).toHaveCount(0);
+
+  // 作った人のユーザーページの「共有リスト」にも出る（メンバー編集のリストも含める）
+  await B.page.goto(`/users/${a.loginId}`);
+  await expect(B.page.getByTestId("public-list-card").filter({ hasText: "公開の共有" })).toBeVisible();
   await B.context.close();
 });
 

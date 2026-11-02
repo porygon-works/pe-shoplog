@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { BackButton } from "@/components/back-link";
-import { ListCard } from "@/components/list-card";
+import { PublicListCard } from "@/components/list-card";
 import { VisitLogList } from "@/components/visit-log-list";
 import { requireUser } from "@/lib/auth/current-user";
 import { isValidLoginId, normalizeLoginId } from "@/lib/auth/login-id";
-import { listSummariesOf, visitLogOf } from "@/lib/lists/queries";
+import type { PublicListRow } from "@/lib/filters/public-list-filters";
+import { visitLogOf } from "@/lib/lists/queries";
 import { createServerClient } from "@/lib/supabase/server";
 
 export default async function UserPage({ params }: { params: Promise<{ loginId: string }> }) {
@@ -27,8 +28,17 @@ export default async function UserPage({ params }: { params: Promise<{ loginId: 
   if (error) throw error;
   if (!profile) notFound();
 
-  const [lists, visits] = await Promise.all([listSummariesOf(supabase, profile.id), visitLogOf(supabase, profile.id)]);
-  const publicLists = lists.filter((l) => l.isPublic);
+  // 共有リスト = 共有にしたマイリスト + この人が作ったメンバー編集の共有リスト（公開のもの）。さがすのリストタブと同じビュー。
+  const [shared, visits] = await Promise.all([
+    supabase
+      .from("public_lists")
+      .select("kind, id, name, list_kind, owner_id, owner_nickname, shop_count, updated_at")
+      .eq("owner_id", profile.id)
+      .order("updated_at", { ascending: false }),
+    visitLogOf(supabase, profile.id),
+  ]);
+  if (shared.error) throw shared.error;
+  const publicLists = (shared.data ?? []) as PublicListRow[];
 
   return (
     <main className="flex flex-1 flex-col bg-surface">
@@ -46,7 +56,7 @@ export default async function UserPage({ params }: { params: Promise<{ loginId: 
             共有しているリストはありません
           </p>
         ) : (
-          publicLists.map((l) => <ListCard key={l.id} list={l} />)
+          publicLists.map((l) => <PublicListCard key={`${l.kind}-${l.id}`} list={l} />)
         )}
         <p className="m-0 mt-2 text-[13px] font-bold text-muted">記録</p>
         <VisitLogList entries={visits} />
