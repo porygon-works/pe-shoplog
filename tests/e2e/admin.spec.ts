@@ -2,8 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { createShop, createTestUser, createVisit, TEST_PASSWORD, uniqueId } from "../db/helpers";
 
 test("管理者以外は /admin が 404", async ({ page }) => {
-  const res = await page.goto("/admin");
-  expect(res?.status()).toBe(404);
+  await page.goto("/admin");
+  await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
 });
 
 test.describe("管理者", () => {

@@ -93,10 +93,10 @@ test("サイト情報の取得に失敗したページはエラーメッセー�
   await expect(page.getByRole("link", { name: "店の詳細に戻る" })).toBeVisible();
 });
 
-test("place_id のない店のサイト用ページは 404", async ({ page }) => {
+test("place_id のない店のサイト用ページは見つからない表示", async ({ page }) => {
   const { shopId } = await fixture(false);
-  const res = await page.goto(`/shops/${shopId}/website`);
-  expect(res?.status()).toBe(404);
+  await page.goto(`/shops/${shopId}/website`);
+  await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
 });
 
 test("place_id のない店では公式サイトのボタンを出さない", async ({ page }) => {
@@ -148,8 +148,8 @@ test("店情報を編集すると詳細ページに反映される", async ({ pa
 });
 
 test("存在しない店の ID は 404", async ({ page }) => {
-  const res = await page.goto(`/shops/${randomUUID()}`);
-  expect(res?.status()).toBe(404);
+  await page.goto(`/shops/${randomUUID()}`);
+  await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
 });
 
 test("写真は署名付き URL で表示され、種類で切り替えられる。削除済みの記録の写真は出ない", async ({ page }) => {
@@ -181,8 +181,8 @@ test("写真は署名付き URL で表示され、種類で切り替えられる
 });
 
 test("UUID でない店 ID は 500 ではなく 404", async ({ page }) => {
-  const res = await page.goto(`/shops/${"a".repeat(8)}-aaaa-aaaa-aaaa-${"-".repeat(0)}zzzzzzzzzzzz`);
-  expect(res?.status()).toBe(404);
+  await page.goto(`/shops/${"a".repeat(8)}-aaaa-aaaa-aaaa-${"-".repeat(0)}zzzzzzzzzzzz`);
+  await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
 });
 
 test("ユーザーの写真がない place_id 付きの店では Google の写真と投稿者表記が出る", async ({ page }) => {

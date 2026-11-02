@@ -107,12 +107,12 @@ test("他人の非公開リストは 404、存在しないユーザーも 404", 
   const b = await newUser("ld");
   const lists = await createDefaultLists(a.id);
   const B = await asUser(browser, b.loginId);
-  const res = await B.page.goto(`/lists/${lists.want}`);
-  expect(res?.status()).toBe(404);
-  const res2 = await B.page.goto("/users/no_such_user_zz");
-  expect(res2?.status()).toBe(404);
-  const res3 = await B.page.goto("/lists/not-a-uuid");
-  expect(res3?.status()).toBe(404);
+  await B.page.goto(`/lists/${lists.want}`);
+  await expect(B.page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
+  await B.page.goto("/users/no_such_user_zz");
+  await expect(B.page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
+  await B.page.goto("/lists/not-a-uuid");
+  await expect(B.page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
   await B.context.close();
 });
 

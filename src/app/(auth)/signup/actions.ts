@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { toAuthEmail } from "@/lib/auth/login-id";
 import { safeNextPath } from "@/lib/auth/next-path";
@@ -68,6 +69,8 @@ export async function signupAction(
     email: toAuthEmail(parsed.data.loginId),
     password: parsed.data.password,
   });
+  // 画面の一時保存（staleTimes）を破棄して、地図や一覧に最新の状態を出す。
+  revalidatePath("/", "layout");
   if (error) redirect("/login");
 
   redirect(next);

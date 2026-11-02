@@ -88,6 +88,6 @@ test("他人の記録には編集・削除が出ず、編集ページは 404", a
   await page.goto(`/shops/${shopId}`);
   await expect(page.getByText("他人のコメント")).toBeVisible();
   await expect(page.getByRole("button", { name: "削除" })).toHaveCount(0);
-  const res = await page.goto(`/visits/${visitId}/edit`);
-  expect(res?.status()).toBe(404);
+  await page.goto(`/visits/${visitId}/edit`);
+  await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
 });

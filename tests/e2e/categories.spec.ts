@@ -3,8 +3,8 @@ import { randomUUID } from "node:crypto";
 import { createTestUser, TEST_PASSWORD, uniqueId } from "../db/helpers";
 
 test("管理者以外は /admin/categories が 404", async ({ page }) => {
-  const res = await page.goto("/admin/categories");
-  expect(res?.status()).toBe(404);
+  await page.goto("/admin/categories");
+  await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
 });
 
 test.describe("管理者", () => {

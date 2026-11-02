@@ -1,6 +1,7 @@
 "use server";
 
 import { isUuid } from "@/lib/ids";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
@@ -77,5 +78,7 @@ export async function updateShopAction(
   }
   if (!data || data.length === 0) return { error: "店が見つかりませんでした" };
 
+  // 画面の一時保存（staleTimes）を破棄して、地図や一覧に最新の状態を出す。
+  revalidatePath("/", "layout");
   redirect(`/shops/${shopId}`);
 }

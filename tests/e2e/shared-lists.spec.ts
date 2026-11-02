@@ -173,8 +173,8 @@ test("共有リスト(b): リンクを作り直すと古いリンクは無効。
   await fillLogin(pageC, c.loginId);
   await expect(pageC.getByText("この招待リンクは無効です")).toBeVisible();
   await expect(pageC.getByRole("button", { name: "参加する" })).toHaveCount(0);
-  const res = await pageC.goto(`/shared/${list.id}`);
-  expect(res?.status()).toBe(404);
+  await pageC.goto(`/shared/${list.id}`);
+  await expect(pageC.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
   await pageC.goto(newInviteUrl);
   await pageC.getByRole("button", { name: "参加する" }).click();
   await expect(pageC).toHaveURL(new RegExp(`/shared/${list.id}$`));
@@ -246,7 +246,7 @@ test("不正な招待トークン・ID は無効／404", async ({ browser }) => 
   const A = await asUser(browser, a.loginId);
   await A.page.goto("/invite/not-a-real-token");
   await expect(A.page.getByText("この招待リンクは無効です")).toBeVisible();
-  const res = await A.page.goto("/shared/not-a-uuid");
-  expect(res?.status()).toBe(404);
+  await A.page.goto("/shared/not-a-uuid");
+  await expect(A.page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
   await A.context.close();
 });

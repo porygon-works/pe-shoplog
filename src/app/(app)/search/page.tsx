@@ -10,16 +10,21 @@ import { createServerClient } from "@/lib/supabase/server";
 import { ListSearchInput, ListSortSelect, SearchInput, SortSelect } from "./search-controls";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await requireUser();
+  // ログイン確認とデータ取得を同時に進める（未ログインなら requireUser がリダイレクトし、データは RLS で空）。
   const sp = await searchParams;
   const { tab, lq, lsort, ...filters } = searchPageCache.parse(sp);
+  const supabase = await createServerClient();
+  const [, lists, shops] = await Promise.all([
+    requireUser(),
+    tab === "lists" ? listPublicLists(supabase, { q: lq, sort: lsort }) : Promise.resolve([]),
+    tab === "lists" ? Promise.resolve([]) : listShops(supabase, filters),
+  ]);
 
   const seg = (on: boolean) =>
     `flex-1 rounded-lg py-1.5 text-center text-sm no-underline ${on ? "bg-surface font-bold text-ink shadow-sm" : "text-muted"}`;
 
   let body: React.ReactNode;
   if (tab === "lists") {
-    const lists = await listPublicLists(await createServerClient(), { q: lq, sort: lsort });
     body = (
       <>
         <ListSearchInput />
@@ -37,7 +42,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       </>
     );
   } else {
-    const shops = await listShops(await createServerClient(), filters);
     body = (
       <>
         <SearchInput />

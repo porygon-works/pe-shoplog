@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { normalizeLoginId, toAuthEmail } from "@/lib/auth/login-id";
 import { safeNextPath } from "@/lib/auth/next-path";
@@ -46,11 +47,15 @@ export async function loginAction(
     return { error: SERVER_ERROR, loginId };
   }
 
+  // 画面の一時保存（staleTimes）を破棄して、地図や一覧に最新の状態を出す。
+  revalidatePath("/", "layout");
   redirect(next);
 }
 
 export async function logoutAction(): Promise<void> {
   const supabase = await createServerClient();
   await supabase.auth.signOut();
+  // 画面の一時保存（staleTimes）を破棄して、地図や一覧に最新の状態を出す。
+  revalidatePath("/", "layout");
   redirect("/login");
 }

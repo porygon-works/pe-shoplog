@@ -7,9 +7,12 @@ import { createServerClient } from "@/lib/supabase/server";
 import { MapScreen } from "./map-screen";
 
 export default async function MapPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const user = await requireUser();
   const filters = shopFilterCache.parse(await searchParams);
-  const shops = await listShops(await createServerClient(), filters);
+  // ログイン確認と店の取得を同時に進める（未ログインなら requireUser がリダイレクトし、店は RLS で空）。
+  const [user, shops] = await Promise.all([
+    requireUser(),
+    createServerClient().then((supabase) => listShops(supabase, filters)),
+  ]);
 
   return (
     <main className="flex flex-1 flex-col bg-surface">
