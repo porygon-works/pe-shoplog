@@ -40,12 +40,18 @@ export async function refreshStaleLocations(
   return { updated, failed };
 }
 
-/** 本番用の依存。25 日より古い（または未取得の）place_id 付きの店が対象。 */
-export function createRefreshDeps(): RefreshDeps {
+/**
+ * 本番用の依存。既定は 25 日より古い（または未取得の）place_id 付きの店が対象。
+ * all: true なら place_id 付きの全店（管理画面の「Google の位置に合わせる」用）。
+ */
+export function createRefreshDeps(opts: { all?: boolean } = {}): RefreshDeps {
   const db = createAdminClient();
   return {
     async listStale(limit) {
-      const cutoff = new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString();
+      // all のときは未来の日時を区切りにして、全店を「古い」扱いにする。
+      const cutoff = opts.all
+        ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        : new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await db
         .from("shops")
         .select("id, place_id")

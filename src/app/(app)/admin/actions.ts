@@ -14,6 +14,7 @@ import {
 } from "@/lib/admin/actions";
 import { adminErrorMessage, type AdminError } from "@/lib/admin/messages";
 import { requireAdmin } from "@/lib/auth/current-user";
+import { createRefreshDeps, refreshStaleLocations } from "@/lib/places/refresh-locations";
 
 /**
  * 薄いラッパー。ここでも requireAdmin() を呼ぶが、権限確認の本体は
@@ -85,4 +86,17 @@ export async function deletePhotoAction(photoId: string): Promise<Out> {
   const res = await deletePhoto(user.id, photoId);
   if (res.ok && res.shopId) revalidatePath(`/shops/${res.shopId}`);
   return toOut(res);
+}
+
+/** place_id のある全店の位置を Google の店の位置で取り直す（住所から取った位置のずれを直す）。 */
+export async function refreshAllLocationsAction(): Promise<{ updated: number; failed: number } | { error: string }> {
+  await requireAdmin();
+  try {
+    const res = await refreshStaleLocations(createRefreshDeps({ all: true }), 200);
+    revalidatePath("/", "layout");
+    return res;
+  } catch (e) {
+    console.error("refreshAllLocations failed", e);
+    return { error: "位置を取り直せませんでした。時間をおいてもう一度お試しください" };
+  }
 }

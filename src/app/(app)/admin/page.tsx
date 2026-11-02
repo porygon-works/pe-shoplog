@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth/current-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BackButton } from "@/components/back-link";
 import { PassphraseForm } from "./passphrase-form";
+import { RefreshLocationsButton } from "./refresh-locations-button";
 import { UserRow, type AdminUser } from "./user-row";
 
 export const metadata = { title: "管理画面" };
@@ -33,6 +34,11 @@ export default async function AdminPage() {
       <Link href="/admin/categories" className="btn self-start">
         ジャンル・形態の編集
       </Link>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="m-0 text-[13px] font-bold text-muted">店の位置</h2>
+        <RefreshLocationsButton />
+      </section>
 
       <section className="flex flex-col gap-2">
         <h2 className="m-0 text-[13px] font-bold text-muted">合言葉</h2>
