@@ -61,11 +61,11 @@ test("禁煙・打ち上げ・写真つきで保存すると詳細ページに�
     .poll(async () => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0))
     .toBe(true);
 
-  await expect(page.getByRole("link", { name: "編集", exact: true }).nth(1)).toBeVisible();
+  await expect(page.getByRole("link", { name: "編集", exact: true }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "削除" })).toBeVisible();
 
   // 編集: コメントを変えて、写真は残る
-  await page.getByRole("link", { name: "編集", exact: true }).nth(1).click();
+  await page.getByRole("link", { name: "編集", exact: true }).first().click();
   await expect(page).toHaveURL(/\/visits\/[0-9a-f-]+\/edit$/);
   await expect(page.getByLabel("コメント")).toHaveValue("写真つきのコメント");
   await expect(page.getByTestId("photo-tile")).toHaveCount(1);

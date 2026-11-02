@@ -136,7 +136,7 @@ test("退会したユーザーの記録は「退会したユーザー」と表�
 test("店情報を編集すると詳細ページに反映される", async ({ page }) => {
   const { shopId } = await fixture();
   await page.goto(`/shops/${shopId}`);
-  await page.getByRole("link", { name: "編集" }).click();
+  await page.getByRole("link", { name: "店情報を編集" }).click();
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}/edit$`));
   await page.getByLabel("店名（必須）").fill("名前を変えた酒場");
   await page.getByRole("button", { name: "ラーメン", exact: true }).click();
@@ -144,6 +144,7 @@ test("店情報を編集すると詳細ページに反映される", async ({ pa
   await page.getByRole("button", { name: "保存" }).click();
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
   await expect(page.getByTestId("shop-name")).toHaveText("名前を変えた酒場");
+  await expect(page.getByTestId("shop-categories")).toContainText("ラーメン");
   await expect(page.getByRole("link", { name: "https://example.com/reserve" })).toBeVisible();
 });
 

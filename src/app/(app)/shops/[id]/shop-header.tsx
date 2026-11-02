@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast";
@@ -36,9 +35,6 @@ export function ShopHeader({ shopId, name, isAdmin }: { shopId: string; name: st
       <h1 className="m-0 min-w-0 flex-1 truncate text-base font-bold" data-testid="shop-name">
         {name}
       </h1>
-      <Link href={`/shops/${shopId}/edit`} className="text-[13px] text-ai no-underline">
-        編集
-      </Link>
       {isAdmin && (
         <details className="relative">
           <summary aria-label="管理者メニュー" className="cursor-pointer list-none px-1 text-lg leading-none text-muted">

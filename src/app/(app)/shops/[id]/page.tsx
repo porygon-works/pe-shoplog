@@ -231,12 +231,28 @@ export default async function ShopPage({
 
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-1.5">
-          <div className="text-xs text-muted">{[genreLabel, stylesLabel, timeSlotsText((shop.time_slots ?? []) as string[])].filter(Boolean).join("・")}</div>
-          {avgText && (
-            <div data-testid="shop-rating" className="text-[15px] font-bold text-warn">
-              {avgText}
+          <div className="flex min-h-[30px] items-center gap-2">
+            <div className="flex-1 text-[15px] font-bold text-warn">
+              {avgText ? <span data-testid="shop-rating">{avgText}</span> : <span className="text-[13px] font-normal text-muted">★ まだ評価なし</span>}
             </div>
-          )}
+            <Link href={`/shops/${id}/edit`} className="btn !px-3 !py-[5px] text-[13px]">
+              店情報を編集
+            </Link>
+          </div>
+          <dl data-testid="shop-categories" className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-xl bg-surface-2 px-3 py-2.5 text-[13px]">
+            {(
+              [
+                ["ジャンル", genreLabel],
+                ["形態", stylesLabel],
+                ["時間帯", timeSlotsText((shop.time_slots ?? []) as string[])],
+              ] as const
+            ).map(([k, v]) => (
+              <div key={k} className="contents">
+                <dt className="text-muted">{k}</dt>
+                <dd className={`m-0 ${v ? "font-bold" : "text-muted"}`}>{v || "未設定"}</dd>
+              </div>
+            ))}
+          </dl>
           <div className="flex flex-wrap gap-1">
             {!hasVisits && <span className={`${pill} bg-ai-soft font-bold text-ai`}>気になる（未訪問）</span>}
             <span className={`${pill} ${smokePill(smoking)}`}>
