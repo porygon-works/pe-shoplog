@@ -2,6 +2,7 @@
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { useCategories } from "@/components/categories-provider";
+import { CategoryPicker } from "@/components/category-picker";
 import { ChipGroup } from "@/components/chip-group";
 import { useToast } from "@/components/toast";
 import { genreOptions, selectableOptions } from "@/lib/category-utils";
@@ -102,12 +103,12 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">ジャンル（複数可）</span>
-        <ChipGroup name="genres" multiple options={genreOptions(categories.genres)} value={genres} onChange={setGenres} aria-label="ジャンル" />
+        <CategoryPicker kind="genre" name="genres" label="ジャンル" options={genreOptions(categories.genres)} value={genres} onChange={setGenres} />
       </div>
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">店の形態（複数可）</span>
-        <ChipGroup name="styles" multiple options={selectableOptions(categories.styles)} value={styles} onChange={setStyles} aria-label="店の形態" />
+        <CategoryPicker kind="style" name="styles" label="店の形態" options={selectableOptions(categories.styles)} value={styles} onChange={setStyles} />
       </div>
 
       <div className="flex flex-col gap-2">

@@ -235,3 +235,26 @@ test("ユーザーの写真がある店、place_id のない店では Google の
   expect(requested).toBe(0);
   await expect(page.getByTestId("google-photo")).toHaveCount(0);
 });
+
+test("店情報の編集で新しいジャンルをその場で追加して保存できる（管理者でなくても）。同じ名前は重複して作らない", async ({ page }) => {
+  const { shopId } = await fixture();
+  const label = `新ジャンル${Date.now().toString(36).slice(-5)}`;
+  await page.goto(`/shops/${shopId}/edit`);
+  await page.getByRole("button", { name: "＋ ジャンルを追加" }).click();
+  await page.getByLabel("新しいジャンルの名前").fill(label);
+  await page.getByLabel("新しいジャンルの名前").press("Enter");
+  // Enter でフォームは送信されず、追加したジャンルが選ばれた状態になる
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}/edit$`));
+  await expect(page.getByRole("button", { name: label, exact: true })).toHaveAttribute("aria-pressed", "true");
+
+  // 同じ名前をもう一度追加しても、チップは 1 つのまま
+  await page.getByRole("button", { name: "＋ ジャンルを追加" }).click();
+  await page.getByLabel("新しいジャンルの名前").fill(label);
+  await page.getByRole("button", { name: "追加", exact: true }).click();
+  await expect(page.getByRole("button", { name: "＋ ジャンルを追加" })).toBeVisible();
+  await expect(page.getByRole("button", { name: label, exact: true })).toHaveCount(1);
+
+  await page.getByRole("button", { name: "保存" }).click();
+  await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+  await expect(page.getByTestId("shop-categories")).toContainText(label);
+});

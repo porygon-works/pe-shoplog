@@ -16,6 +16,8 @@ export const PLACES_LIMITS = {
   website: { daily: 30, monthly: 900 },
   // 地図の表示（Maps JavaScript API の地図読み込み）。Google 側では上限を変えられないため、アプリで止める。無料枠は月 10,000 回。
   mapload: { daily: 150, monthly: 9000 },
+  // Google ではないが、だれでもできる区分（ジャンル・形態）の追加も、いたずらで増やされないよう回数を絞る。
+  category: { daily: 20, monthly: 300 },
 } as const;
 export type PlacesKind = keyof typeof PLACES_LIMITS;
 

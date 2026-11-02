@@ -19,13 +19,16 @@ export const PRICE_RANGES = [
 ] as const satisfies readonly Option<string>[];
 
 export const PURPOSES = [
-  { value: "team_meeting", label: "チーム会議" },
-  { value: "all_hands", label: "社員総会" },
+  { value: "training_2", label: "養成講座２部" },
+  { value: "mentor", label: "メンター面談" },
+  { value: "team_meeting", label: "チーム会議後" },
+  { value: "after_work", label: "しごおわ" },
+  { value: "all_night", label: "朝まで" },
+  { value: "all_hands", label: "社員総会後" },
   { value: "celebration", label: "打ち上げ" },
   { value: "welcome_farewell", label: "歓送迎会" },
-  { value: "peers_only", label: "同期のみ" },
+  { value: "peers_only", label: "同期飲み" },
   { value: "entertainment", label: "接待" },
-  { value: "private", label: "プライベート" },
   { value: "other", label: "その他" },
   { value: "unknown", label: "不明" },
 ] as const satisfies readonly Option<string>[];
@@ -41,7 +44,7 @@ export const PAYMENT_METHODS = [
   { value: "credit_card", label: "クレジットカード" },
   { value: "qr", label: "QR決済" },
   { value: "transit_ic", label: "交通系IC" },
-  { value: "cash_only", label: "現金のみ" },
+  { value: "cash_only", label: "現金" },
 ] as const satisfies readonly Option<string>[];
 
 export const PHOTO_KINDS = [
