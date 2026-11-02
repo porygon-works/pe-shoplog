@@ -8,7 +8,7 @@ import {
 describe("visitInputSchema", () => {
   it("選択項目の既定は unknown", () => {
     const v = visitInputSchema.parse({ visitedOn: "2026-10-31" });
-    expect(v.smoking).toBe("unknown");
+    expect("smoking" in v).toBe(false); // 喫煙は店の項目
     expect(v.priceRange).toBe("unknown");
     expect(v.purpose).toBe("unknown");
     expect(v.reservation).toBe("unknown");
@@ -85,6 +85,7 @@ describe("shopInputSchema", () => {
       referenceUrl: "https://example.com/x",
     });
     expect(a.genres).toEqual([]);
+    expect(a.smoking).toBe("unknown");
     // 重複と「不明」は除く
     expect(shopInputSchema.parse({ name: "店", genres: ["ramen", "ramen", "unknown", "cafe"] }).genres).toEqual([
       "ramen",

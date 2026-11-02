@@ -4,10 +4,10 @@ import { adminClient, createShop, createTestUser, createVisit, uniqueId } from "
 async function fixture() {
   const user = await createTestUser(uniqueId("e2e"));
   const tag = uniqueId("srch");
-  const smoke = await createShop(user.id, { name: `${tag}喫煙酒場`, genre: "yakitori" });
-  await createVisit(smoke, user.id, { smoking: "separated", purpose: "celebration" });
-  const clean = await createShop(user.id, { name: `${tag}禁煙食堂`, genre: "washoku" });
-  await createVisit(clean, user.id, { smoking: "no_smoking" });
+  const smoke = await createShop(user.id, { name: `${tag}喫煙酒場`, genre: "yakitori", smoking: "separated" });
+  await createVisit(smoke, user.id, { purpose: "celebration" });
+  const clean = await createShop(user.id, { name: `${tag}禁煙食堂`, genre: "washoku", smoking: "no_smoking" });
+  await createVisit(clean, user.id, {});
   await createShop(user.id, { name: `${tag}気になる店` });
   return { tag };
 }

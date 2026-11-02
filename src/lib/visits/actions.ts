@@ -29,7 +29,6 @@ function parseVisit(formData: FormData) {
     rating,
     partySize,
     comment: text(formData, "comment"),
-    smoking: text(formData, "smoking") || "unknown",
     priceRange: text(formData, "priceRange") || "unknown",
     purpose: text(formData, "purpose") || "unknown",
     reservation: text(formData, "reservation") || "unknown",
@@ -64,7 +63,6 @@ function visitColumns(d: NonNullable<ReturnType<typeof parseVisit>["data"]>) {
   return {
     visited_on: d.visitedOn,
     rating: d.rating,
-    smoking: d.smoking,
     price_range: d.priceRange,
     purpose: d.purpose,
     party_size: d.partySize,

@@ -58,7 +58,6 @@ test("主要フロー(1): 気になる登録 → 別ユーザーが記録 → �
 
   // B: 同じ店に写真つきで記録を付ける
   await B.page.goto(`/shops/${shopId}/visits/new`);
-  await B.page.getByRole("button", { name: "禁煙", exact: true }).click();
   await B.page.getByLabel("コメント").fill("通しテストのコメント");
   await B.page.getByLabel("写真を追加").setInputFiles(PHOTO);
   await B.page.getByRole("button", { name: "記録を保存" }).click();

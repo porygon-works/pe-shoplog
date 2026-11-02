@@ -8,13 +8,13 @@ import { PhotoUploader, type ExistingPhoto, type UploadSummary } from "@/compone
 import { useCategories } from "@/components/categories-provider";
 import { CategoryPicker } from "@/components/category-picker";
 import { selectableOptions } from "@/lib/category-utils";
-import { PAYMENT_METHODS, PRICE_RANGES, RESERVATIONS, SMOKING } from "@/lib/options";
+import { PAYMENT_METHODS, PRICE_RANGES, RESERVATIONS } from "@/lib/options";
 import { createVisitAction, updateVisitAction } from "@/lib/visits/actions";
 import type { VisitInput } from "@/lib/validation";
 
 export type VisitFormInitial = Pick<
   VisitInput,
-  "visitedOn" | "rating" | "smoking" | "priceRange" | "purpose" | "reservation" | "paymentMethods" | "comment"
+  "visitedOn" | "rating" | "priceRange" | "purpose" | "reservation" | "paymentMethods" | "comment"
 > & { partySize: string };
 
 const label = "text-[13px] font-bold text-muted";
@@ -35,7 +35,6 @@ export function VisitForm({
 }) {
   const [visitedOn, setVisitedOn] = useState(initial.visitedOn ?? "");
   const [rating, setRating] = useState<number | null>(initial.rating);
-  const [smoking, setSmoking] = useState(initial.smoking);
   const [priceRange, setPriceRange] = useState(initial.priceRange);
   const categories = useCategories();
   const [purpose, setPurpose] = useState(initial.purpose);
@@ -142,11 +141,6 @@ export function VisitForm({
           ))}
         </div>
         <input type="hidden" name="rating" value={rating ?? ""} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className={label}>喫煙（行ったときの状況）</span>
-        <ChipGroup name="smoking" options={SMOKING} value={smoking} onChange={setSmoking} aria-label="喫煙" />
       </div>
       <div className="flex flex-col gap-2">
         <span className={label}>値段感（1人あたり）</span>

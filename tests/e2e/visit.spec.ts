@@ -43,17 +43,16 @@ test("行った日を空にして保存でき、詳細には「日付なし」�
   await expect(page.getByLabel("予約・参考リンク")).toHaveCount(0);
 });
 
-test("禁煙・打ち上げ・写真つきで保存すると詳細ページに反映され、本人は編集・削除できる", async ({ page }) => {
+test("打ち上げ・写真つきで保存すると詳細ページに反映され、本人は編集・削除できる。記録の画面に喫煙はない", async ({ page }) => {
   const shopId = await createShop(null, { name: "記録テスト酒場B" });
   await page.goto(`/shops/${shopId}/visits/new`);
-  await page.getByRole("button", { name: "禁煙", exact: true }).click();
+  await expect(page.getByRole("group", { name: "喫煙" })).toHaveCount(0);
   await page.getByRole("button", { name: "打ち上げ", exact: true }).click();
   await page.getByLabel("コメント").fill("写真つきのコメント");
   await page.getByLabel("写真を追加").setInputFiles(FIXTURE);
   await page.getByRole("button", { name: "記録を保存" }).click();
 
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`), { timeout: 20_000 });
-  await expect(page.getByTestId("stat-smoking")).toContainText("禁煙");
   await expect(page.getByText("写真つきのコメント")).toBeVisible();
   const img = page.getByRole("img", { name: "その他の写真" }).first();
   await expect(img).toBeVisible();
@@ -140,4 +139,28 @@ test("記録の画面で新しい用途をその場で追加して保存でき�
   await page.getByRole("button", { name: "記録を保存" }).click();
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
   await expect(page.getByText(label).first()).toBeVisible();
+});
+
+test("さがす → 店の詳細 → 記録を保存 →「戻る」で、さがすの元のスクロール位置に戻り一覧が見えている", async ({ page }) => {
+  // 一覧がスクロールできる長さになるよう店を用意する
+  const tag = `戻り位置${Date.now().toString(36).slice(-4)}`;
+  for (let i = 0; i < 12; i++) await createShop(null, { name: `${tag}-${String(i).padStart(2, "0")}` });
+  await page.goto(`/search?q=${encodeURIComponent(tag)}`);
+  await expect(page.getByTestId("shop-card")).toHaveCount(12);
+  const target = page.getByTestId("shop-card").nth(9);
+  await target.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  const before = await page.evaluate(() => window.scrollY);
+  expect(before).toBeGreaterThan(300);
+
+  await target.click();
+  await expect(page).toHaveURL(/\/shops\/[0-9a-f-]+$/);
+  await page.getByRole("link", { name: "行った記録を付ける" }).click();
+  await page.getByRole("button", { name: "記録を保存" }).click();
+  await expect(page).toHaveURL(/\/shops\/[0-9a-f-]+$/);
+  await page.getByRole("button", { name: "← 戻る" }).click();
+
+  await expect(page).toHaveURL(/\/search/);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before - 40);
+  await expect(page.getByTestId("shop-card").nth(9)).toBeInViewport();
 });

@@ -28,12 +28,12 @@ beforeAll(async () => {
   client = u.client;
   userId = u.id;
   tag = uniqueId("t");
-  smokeShop = await createShop(u.id, { name: `${tag}-禁煙店`, genre: "yakitori", styles: ["izakaya"] });
-  await createVisit(smokeShop, u.id, { smoking: "no_smoking", purpose: "celebration", price_range: "3000_4999" });
+  smokeShop = await createShop(u.id, { name: `${tag}-禁煙店`, genre: "yakitori", styles: ["izakaya"], smoking: "no_smoking" });
+  await createVisit(smokeShop, u.id, { purpose: "celebration", price_range: "3000_4999" });
   wantShop = await createShop(u.id, { name: `${tag}-気になる店`, genre: "ramen" });
-  otherShop = await createShop(u.id, { name: `${tag}-喫煙店`, genre: "washoku", styles: ["bar"] });
-  await createVisit(otherShop, u.id, { smoking: "smoking_ok", purpose: "team_meeting", price_range: "5000_6999" });
-  await createVisit(otherShop, u.id, { smoking: "smoking_ok", purpose: "team_meeting" });
+  otherShop = await createShop(u.id, { name: `${tag}-喫煙店`, genre: "washoku", styles: ["bar"], smoking: "smoking_ok" });
+  await createVisit(otherShop, u.id, { purpose: "team_meeting", price_range: "5000_6999" });
+  await createVisit(otherShop, u.id, { purpose: "team_meeting" });
   percentShop = await createShop(u.id, { name: `${tag}-100%_店` });
 });
 

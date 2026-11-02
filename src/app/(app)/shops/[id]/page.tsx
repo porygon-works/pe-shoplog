@@ -33,7 +33,6 @@ type VisitRow = {
   visited_on: string | null;
   rating: number | null;
   party_size: number | null;
-  smoking: string;
   price_range: string;
   purpose: string;
   reservation: string;
@@ -95,7 +94,7 @@ export default async function ShopPage({
     supabase
       .from("visits")
       .select(
-        "id, user_id, visited_on, rating, party_size, smoking, price_range, purpose, reservation, payment_methods, comment, profiles(nickname, login_id)",
+        "id, user_id, visited_on, rating, party_size, price_range, purpose, reservation, payment_methods, comment, profiles(nickname, login_id)",
       )
       .eq("shop_id", id)
       .is("deleted_at", null)
@@ -147,7 +146,6 @@ export default async function ShopPage({
   const hasVisits = visits.length > 0;
   const breakdown = summarizeVisits(
     visits.map((v) => ({
-      smoking: v.smoking,
       priceRange: v.price_range,
       purpose: v.purpose,
       reservation: v.reservation,
@@ -299,11 +297,8 @@ export default async function ShopPage({
           <>
             <div className="grid grid-cols-2 gap-2">
               <div data-testid="stat-smoking" className="flex flex-col gap-0.5 rounded-xl bg-surface-2 px-3 py-2.5">
-                <span className="text-[11px] text-muted">喫煙（最新の記録）</span>
+                <span className="text-[11px] text-muted">喫煙</span>
                 <span className="text-[15px] font-bold">{labelOf(SMOKING, smoking)}</span>
-                <span className="text-[11px] text-muted">
-                  {breakdown.smoking.map((c) => `${labelOf(SMOKING, c.value)} ${c.count}件`).join("・")}
-                </span>
               </div>
               <div data-testid="stat-price" className="flex flex-col gap-0.5 rounded-xl bg-surface-2 px-3 py-2.5">
                 <span className="text-[11px] text-muted">値段感（1人あたり）</span>
@@ -383,9 +378,6 @@ export default async function ShopPage({
                   {v.rating !== null && <Stars rating={v.rating} />}
                   {v.purpose !== "unknown" && (
                     <span className={`${pill} bg-surface-2 text-muted`}>{labelOf(categories.purposes, v.purpose)}</span>
-                  )}
-                  {v.smoking !== "unknown" && (
-                    <span className={`${pill} ${smokePill(v.smoking)}`}>{labelOf(SMOKING, v.smoking)}</span>
                   )}
                   {v.price_range !== "unknown" && (
                     <span className={`${pill} bg-shu-soft text-shu`}>¥{labelOf(PRICE_RANGES, v.price_range)}</span>

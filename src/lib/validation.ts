@@ -40,6 +40,8 @@ export const shopInputSchema = z.object({
     .transform((a) => [...new Set(a)].filter((g) => g !== "unknown"))
     .default([]),
   styles: z.array(z.string().regex(CATEGORY_VALUE_RE)).max(50).default([]),
+  // 喫煙は店の項目（0014）。
+  smoking: z.enum(values(SMOKING)).default("unknown"),
   referenceUrl: z.union([httpUrl, z.literal("")]).default(""),
   // 時間帯は最低 1 つ。重複は除く。
   timeSlots: z
@@ -56,7 +58,6 @@ export const visitInputSchema = z.object({
   rating: z.number().int().min(1).max(5).nullable().default(null),
   partySize: z.number().int().min(1).max(500).nullable().default(null),
   comment: z.string().max(1000).default(""),
-  smoking: z.enum(values(SMOKING)).default("unknown"),
   priceRange: z.enum(values(PRICE_RANGES)).default("unknown"),
   // 用途は DB で管理するので形式だけ見る（存在確認は Server Action と DB のトリガー）。
   purpose: z.string().regex(CATEGORY_VALUE_RE).default("unknown"),

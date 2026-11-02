@@ -33,13 +33,17 @@ describe("shop_index", () => {
     expect((await indexRow(a.client, shop))?.time_slots).toEqual(["lunch"]);
   });
 
-  it("smoking は unknown 以外で最も新しい記録", async () => {
-    const shop = await createShop(a.id);
+  it("smoking は店の値（記録の喫煙は使わない）。店を編集すると変わる", async () => {
+    const shop = await createShop(a.id, { smoking: "separated" });
     await createVisit(shop, a.id, { visited_on: "2026-01-01", smoking: "smoking_ok" });
     await createVisit(shop, a.id, { visited_on: "2026-02-01", smoking: "no_smoking" });
     await createVisit(shop, a.id, { visited_on: "2026-03-01", smoking: "unknown" });
     const row = await indexRow(a.client, shop);
-    expect(row?.smoking).toBe("no_smoking");
+    expect(row?.smoking).toBe("separated");
+    const upd = await a.client.from("shops").update({ smoking: "no_smoking" }).eq("id", shop).select("id");
+    expect(upd.error).toBeNull();
+    expect((await indexRow(a.client, shop))?.smoking).toBe("no_smoking");
+    await expect(createShop(a.id, { smoking: "nope" })).rejects.toMatchObject({ code: "23514" });
     expect(row?.visit_count).toBe(3);
     expect(row?.last_visited_on).toBe("2026-03-01");
   });
@@ -64,12 +68,11 @@ describe("shop_index", () => {
     expect(row?.rating_count).toBe(0);
   });
 
-  it("日付なしの記録は最新扱いにならない（smoking・price_range・last_visited_on）", async () => {
+  it("日付なしの記録は最新扱いにならない（price_range・last_visited_on）", async () => {
     const shop = await createShop(a.id);
-    await createVisit(shop, a.id, { visited_on: "2026-01-01", smoking: "smoking_ok", price_range: "3000_4999" });
-    await createVisit(shop, a.id, { visited_on: null, smoking: "no_smoking", price_range: "5000_6999" });
+    await createVisit(shop, a.id, { visited_on: "2026-01-01", price_range: "3000_4999" });
+    await createVisit(shop, a.id, { visited_on: null, price_range: "5000_6999" });
     const row = await indexRow(a.client, shop);
-    expect(row?.smoking).toBe("smoking_ok");
     expect(row?.last_visited_on).toBe("2026-01-01");
     // 件数が同じなら日付のある方（nulls last）
     expect(row?.price_range).toBe("3000_4999");
@@ -124,15 +127,15 @@ describe("shop_index", () => {
 
   it("削除済みの記録は集計に含めない", async () => {
     const shop = await createShop(a.id);
-    await createVisit(shop, a.id, { visited_on: "2026-01-01", smoking: "smoking_ok" });
+    await createVisit(shop, a.id, { visited_on: "2026-01-01", price_range: "3000_4999" });
     await createVisit(shop, a.id, {
       visited_on: "2026-02-01",
-      smoking: "no_smoking",
+      price_range: "5000_6999",
       deleted_at: new Date().toISOString(),
     });
     const row = await indexRow(a.client, shop);
     expect(row?.visit_count).toBe(1);
-    expect(row?.smoking).toBe("smoking_ok");
+    expect(row?.price_range).toBe("3000_4999");
   });
 
   it("論理削除した店は出ない", async () => {

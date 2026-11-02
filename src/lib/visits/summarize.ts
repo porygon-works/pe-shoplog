@@ -1,5 +1,4 @@
 export type VisitLike = {
-  smoking: string;
   priceRange: string;
   purpose: string;
   reservation: string;
@@ -10,7 +9,6 @@ export type VisitLike = {
 export type Count = { value: string; count: number };
 
 export type VisitBreakdown = {
-  smoking: Count[];
   priceRange: Count[];
   purpose: Count[];
   reservation: Count[];
@@ -41,7 +39,6 @@ export function summarizeVisits(visits: VisitLike[]): VisitBreakdown {
     }
   }
   return {
-    smoking: tally(visits.map((v) => v.smoking)),
     priceRange: tally(visits.map((v) => v.priceRange)),
     purpose: tally(visits.map((v) => v.purpose)),
     reservation: tally(visits.map((v) => v.reservation)),

@@ -31,6 +31,7 @@ export async function updateShopAction(
     name: text(formData, "name"),
     genres: formData.getAll("genres").map(String),
     styles: formData.getAll("styles").map(String),
+    smoking: text(formData, "smoking") || "unknown",
     timeSlots: formData.getAll("timeSlots").map(String),
     referenceUrl: text(formData, "referenceUrl").trim(),
   });
@@ -67,6 +68,7 @@ export async function updateShopAction(
       name: parsed.data.name,
       genres: parsed.data.genres,
       styles: parsed.data.styles,
+      smoking: parsed.data.smoking,
       time_slots: parsed.data.timeSlots,
       reference_url: parsed.data.referenceUrl === "" ? null : parsed.data.referenceUrl,
     })

@@ -6,7 +6,7 @@ import { CategoryPicker } from "@/components/category-picker";
 import { ChipGroup } from "@/components/chip-group";
 import { useToast } from "@/components/toast";
 import { genreOptions, selectableOptions } from "@/lib/category-utils";
-import { TIME_SLOTS } from "@/lib/options";
+import { SMOKING, TIME_SLOTS } from "@/lib/options";
 import type { ShopInput } from "@/lib/validation";
 import { createShopAction, type NewShopState } from "./actions";
 import { LocationPicker, type LatLng } from "./location-picker";
@@ -60,6 +60,7 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
   const [genres, setGenres] = useState<ShopInput["genres"]>([]);
   const [styles, setStyles] = useState<ShopInput["styles"]>([]);
   const [timeSlots, setTimeSlots] = useState<ShopInput["timeSlots"]>(["dinner"]);
+  const [smoking, setSmoking] = useState<ShopInput["smoking"]>("unknown");
   const [location, setLocation] = useState<LatLng | null>(picked.location);
   const [mapFailed, setMapFailed] = useState(false);
   const onMapError = useCallback(() => setMapFailed(true), []);
@@ -109,6 +110,11 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">店の形態（複数可）</span>
         <CategoryPicker kind="style" name="styles" label="店の形態" options={selectableOptions(categories.styles)} value={styles} onChange={setStyles} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-[13px] font-bold text-muted">喫煙</span>
+        <ChipGroup name="smoking" options={SMOKING} value={smoking} onChange={setSmoking} aria-label="喫煙" />
       </div>
 
       <div className="flex flex-col gap-2">

@@ -18,7 +18,7 @@ export default async function EditVisitPage({ params }: { params: Promise<{ id: 
   const { data: visit, error } = await supabase
     .from("visits")
     .select(
-      "id, shop_id, user_id, visited_on, rating, party_size, smoking, price_range, purpose, reservation, payment_methods, comment, shops(name)",
+      "id, shop_id, user_id, visited_on, rating, party_size, price_range, purpose, reservation, payment_methods, comment, shops(name)",
     )
     .eq("id", id)
     .is("deleted_at", null)
@@ -69,7 +69,6 @@ export default async function EditVisitPage({ params }: { params: Promise<{ id: 
         initial={{
           visitedOn: visit.visited_on,
           rating: visit.rating,
-          smoking: visit.smoking as VisitInput["smoking"],
           priceRange: visit.price_range as VisitInput["priceRange"],
           purpose: visit.purpose as VisitInput["purpose"],
           reservation: visit.reservation as VisitInput["reservation"],

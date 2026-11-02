@@ -10,6 +10,7 @@ let a: U, b: U;
 const base: Omit<CreateShopInput, "userId" | "placeId"> = {
   name: "テスト店",
   genres: [],
+  smoking: "unknown",
   styles: [],
   timeSlots: ["dinner"],
   referenceUrl: "",

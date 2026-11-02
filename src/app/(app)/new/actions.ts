@@ -34,6 +34,7 @@ export async function createShopAction(
     name: text(formData, "name"),
     genres: formData.getAll("genres").map(String),
     styles: formData.getAll("styles").map(String),
+    smoking: text(formData, "smoking") || "unknown",
     timeSlots: formData.getAll("timeSlots").map(String),
     // 参考リンクは登録時には入力しない（店の編集画面で付ける）。
     referenceUrl: "",

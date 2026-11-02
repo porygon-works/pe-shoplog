@@ -7,7 +7,7 @@ import { useCategories } from "@/components/categories-provider";
 import { CategoryPicker } from "@/components/category-picker";
 import { ChipGroup } from "@/components/chip-group";
 import { genreOptions, selectableOptions } from "@/lib/category-utils";
-import { TIME_SLOTS } from "@/lib/options";
+import { SMOKING, TIME_SLOTS } from "@/lib/options";
 import type { ShopInput } from "@/lib/validation";
 import { updateShopAction, type EditShopState } from "./actions";
 
@@ -17,6 +17,7 @@ export function EditShopForm({
 }: {
   shopId: string;
   initial: { name: string; genres: ShopInput["genres"]; styles: ShopInput["styles"];
+    smoking: ShopInput["smoking"];
     timeSlots: ShopInput["timeSlots"];
     referenceUrl: string };
 }) {
@@ -26,6 +27,7 @@ export function EditShopForm({
   const [genres, setGenres] = useState(initial.genres);
   const [styles, setStyles] = useState(initial.styles);
   const [timeSlots, setTimeSlots] = useState(initial.timeSlots);
+  const [smoking, setSmoking] = useState(initial.smoking);
   const [referenceUrl, setReferenceUrl] = useState(initial.referenceUrl);
   const returnTo = useReturnTo();
   const navigated = useRef(false);
@@ -60,6 +62,11 @@ export function EditShopForm({
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-bold text-muted">店の形態（複数可）</span>
         <CategoryPicker kind="style" name="styles" label="店の形態" options={selectableOptions(categories.styles, initial.styles)} value={styles} onChange={setStyles} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-[13px] font-bold text-muted">喫煙</span>
+        <ChipGroup name="smoking" options={SMOKING} value={smoking} onChange={setSmoking} aria-label="喫煙" />
       </div>
 
       <div className="flex flex-col gap-2">

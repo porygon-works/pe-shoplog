@@ -37,7 +37,6 @@ export default async function NewVisitPage({ params }: { params: Promise<{ id: s
         initial={{
           visitedOn: today,
           rating: null,
-          smoking: "unknown",
           priceRange: "unknown",
           purpose: "unknown",
           reservation: "unknown",

@@ -11,8 +11,9 @@ async function fixture(withPlace = true) {
     genre: "yakitori",
     styles: ["izakaya"],
     place_id: placeId,
+    smoking: "no_smoking",
   });
-  // 古い記録は喫煙可、新しい記録は禁煙 → 代表値は新しい方（禁煙）
+  // 喫煙は店の項目。記録に残っている古い喫煙の値は表示に使わない。
   await createVisit(shopId, user.id, {
     visited_on: "2026-01-10",
     smoking: "smoking_ok",
@@ -32,13 +33,13 @@ async function fixture(withPlace = true) {
   return { shopId, userId: user.id, loginId };
 }
 
-test("詳細ページに喫煙・値段感の代表値と内訳、行った記録が出る", async ({ page }) => {
+test("詳細ページに店の喫煙・値段感の代表値、行った記録が出る", async ({ page }) => {
   const { shopId } = await fixture();
   await page.goto(`/shops/${shopId}`);
   await expect(page.getByTestId("shop-name")).toHaveText("詳細テスト酒場");
   const smoking = page.getByTestId("stat-smoking");
   await expect(smoking).toContainText("禁煙");
-  await expect(smoking).toContainText("喫煙可 1件");
+  await expect(smoking).not.toContainText("喫煙可");
   await expect(page.getByTestId("stat-price")).toContainText("3,000〜4,999");
   await expect(page.getByTestId("stat-max")).toContainText("12人");
   await expect(page.getByText("新しい記録のコメント")).toBeVisible();
@@ -142,11 +143,13 @@ test("店情報を編集すると詳細ページに反映される", async ({ pa
   // ジャンルは複数選べる（元の焼き鳥に、ラーメンとカレーを足す）
   await page.getByRole("button", { name: "ラーメン", exact: true }).click();
   await page.getByRole("button", { name: "カレー", exact: true }).click();
+  await page.getByRole("group", { name: "喫煙" }).getByRole("button", { name: "分煙・喫煙室あり" }).click();
   await page.getByLabel("予約・参考リンク").fill("https://example.com/reserve");
   await page.getByRole("button", { name: "保存" }).click();
   await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
   await expect(page.getByTestId("shop-name")).toHaveText("名前を変えた酒場");
   await expect(page.getByTestId("shop-categories")).toContainText("焼き鳥・串・ラーメン・カレー");
+  await expect(page.getByTestId("stat-smoking")).toContainText("分煙・喫煙室あり");
   await expect(page.getByRole("link", { name: "https://example.com/reserve" })).toBeVisible();
 });
 

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { summarizeVisits, type VisitLike } from "@/lib/visits/summarize";
 
 const visit = (o: Partial<VisitLike> = {}): VisitLike => ({
-  smoking: "unknown",
   priceRange: "unknown",
   purpose: "unknown",
   reservation: "unknown",
