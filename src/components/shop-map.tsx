@@ -10,6 +10,7 @@ import {
   type MapMouseEvent,
 } from "@vis.gl/react-google-maps";
 import { IKEBUKURO_STATION } from "@/lib/default-location";
+import { MAP_LIMIT_MESSAGE, useMapLoadQuota } from "@/lib/maps/use-map-load-quota";
 
 export const MAP_ERROR_MESSAGE = "地図を読み込めませんでした";
 
@@ -129,6 +130,8 @@ export function ShopMap({
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID";
   const [failed, setFailed] = useState(false);
   const onError = useCallback(() => setFailed(true), []);
+  // 地図を読み込む前に表示回数を数える（上限に達していたら Google の地図を読み込まない）。
+  const quota = useMapLoadQuota(!!apiKey);
 
   useEffect(() => {
     const w = window as unknown as { gm_authFailure?: () => void };
@@ -139,15 +142,16 @@ export function ShopMap({
     };
   }, [onError]);
 
-  if (!apiKey || failed) {
+  if (!apiKey || failed || quota === "limit" || quota === "error") {
     return (
       <div className="grid h-full place-items-center bg-surface-2 p-6">
         <p role="alert" className="m-0 text-[13px] text-shu">
-          {MAP_ERROR_MESSAGE}
+          {quota === "limit" ? MAP_LIMIT_MESSAGE : MAP_ERROR_MESSAGE}
         </p>
       </div>
     );
   }
+  if (quota === "checking") return <div aria-hidden="true" className="h-full bg-surface-2" />;
 
   const click = (e: MapMouseEvent) => {
     const placeId = e.detail.placeId;
