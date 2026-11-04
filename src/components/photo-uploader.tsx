@@ -1,5 +1,6 @@
 "use client";
 
+import { describeError, reportClientError } from "@/lib/log/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageDecodeError, resizeToJpeg } from "@/lib/images/resize";
 import { PHOTO_KINDS } from "@/lib/options";
@@ -72,6 +73,7 @@ export function PhotoUploader({
           try {
             resized = await resizeToJpeg(item.file);
           } catch (e) {
+            reportClientError("photo_resize_failed", { visitId, type: item.file.type, size: item.file.size, ...describeError(e) });
             patch(key, { status: "error", decodeFailed: e instanceof ImageDecodeError });
             return;
           }
@@ -86,6 +88,7 @@ export function PhotoUploader({
             .from("photos")
             .upload(path, resized.blob, { contentType: "image/jpeg" });
           if (error) {
+            reportClientError("photo_upload_failed", { visitId, message: error.message });
             patch(key, { status: "error" });
             return;
           }
@@ -108,6 +111,7 @@ export function PhotoUploader({
         patch(key, { status: "done", photoId: res.photoId });
       } catch (e) {
         console.error("photo upload failed", e);
+        reportClientError("photo_upload_failed", { visitId, ...describeError(e) });
         patch(key, { status: "error" });
       } finally {
         inFlight.current.delete(key);

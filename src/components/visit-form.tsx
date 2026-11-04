@@ -10,6 +10,7 @@ import { CategoryPicker } from "@/components/category-picker";
 import { selectableOptions } from "@/lib/category-utils";
 import { PAYMENT_METHODS, PRICE_RANGES, RESERVATIONS } from "@/lib/options";
 import { createVisitAction, updateVisitAction } from "@/lib/visits/actions";
+import { describeError, reportClientError } from "@/lib/log/client";
 import type { VisitInput } from "@/lib/validation";
 
 export type VisitFormInitial = Pick<
@@ -78,6 +79,8 @@ export function VisitForm({
       setSaved(true);
     } catch (err) {
       console.error("save visit failed", err);
+      // 保存の要求がサーバーに届かなかった（圏外など）。サーバー側には何も残らないので、画面から知らせる。
+      reportClientError("visit_save_failed", { shopId, visitId: editingId, ...describeError(err) });
       setError("保存に失敗しました。時間をおいてもう一度お試しください");
     } finally {
       setSaving(false);

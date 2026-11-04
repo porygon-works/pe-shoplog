@@ -31,9 +31,14 @@ export default async function AdminPage() {
       <BackButton />
       <h1 className="m-0 text-lg font-bold">管理画面</h1>
 
-      <Link href="/admin/categories" className="btn self-start">
-        ジャンル・形態・用途の編集
-      </Link>
+      <div className="flex flex-wrap gap-2">
+        <Link href="/admin/categories" className="btn">
+          ジャンル・形態・用途の編集
+        </Link>
+        <Link href="/admin/logs" className="btn">
+          操作ログ
+        </Link>
+      </div>
 
       <section className="flex flex-col gap-2">
         <h2 className="m-0 text-[13px] font-bold text-muted">店の位置</h2>

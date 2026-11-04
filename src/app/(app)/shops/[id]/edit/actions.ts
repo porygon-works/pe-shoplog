@@ -2,6 +2,7 @@
 
 import { isUuid } from "@/lib/ids";
 import { revalidatePath } from "next/cache";
+import { logResult } from "@/lib/log/server";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
 import { CHECK_VIOLATION, INVALID_CATEGORY_MESSAGE, hasInvalidCategory } from "@/lib/category-utils";
@@ -18,7 +19,7 @@ function text(formData: FormData, key: string): string {
 }
 
 /** 店名・ジャンル・形態・時間帯・参考リンクだけを更新する（位置や place_id は変えない）。 */
-export async function updateShopAction(
+async function updateShopImpl(
   _prev: EditShopState,
   formData: FormData,
 ): Promise<EditShopState> {
@@ -86,4 +87,8 @@ export async function updateShopAction(
   revalidatePath("/", "layout");
   // 画面側で詳細へ戻る（redirect で進むと、戻るで編集画面と詳細を行き来してしまう）。
   return { ok: true };
+}
+
+export async function updateShopAction(prev: EditShopState, formData: FormData) {
+  return logResult("shop_update", await updateShopImpl(prev, formData), { shopId: formData.get("shopId") });
 }

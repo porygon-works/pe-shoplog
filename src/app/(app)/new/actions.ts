@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { errorInfo, logEvent, logResult } from "@/lib/log/server";
 import { redirect, RedirectType } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
@@ -21,6 +22,16 @@ function text(formData: FormData, key: string): string {
 }
 
 export async function createShopAction(
+  prev: NewShopState,
+  formData: FormData,
+): Promise<NewShopState> {
+  const res = await createShopImpl(prev, formData);
+  // 成功時は redirect（例外）で抜けるので、ここに来るのは入力エラーなどで画面に戻すときだけ。
+  logResult("shop_create", res, { mode: text(formData, "mode"), placeId: text(formData, "placeId") || null });
+  return res;
+}
+
+async function createShopImpl(
   _prev: NewShopState,
   formData: FormData,
 ): Promise<NewShopState> {
@@ -74,16 +85,39 @@ export async function createShopAction(
 
   // 画面の一時保存（staleTimes）を破棄して、地図や一覧に最新の状態を出す。
   revalidatePath("/", "layout");
-  if (existed) redirect(`/shops/${shopId}?notice=exists`, RedirectType.replace);
+  if (existed) {
+    logEvent({ action: "shop_create", detail: { mode, shopId, existed: true } });
+    redirect(`/shops/${shopId}?notice=exists`, RedirectType.replace);
+  }
 
-  if (mode === "visit") redirect(`/shops/${shopId}/visits/new`, RedirectType.replace);
+  if (mode === "visit") {
+    // 「行った」はこの時点で記録を 1 件作る（入力画面を閉じても「行った」が残るように）。
+    // 日付や★・コメントは、続く編集画面で任意で書き足す。
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+    const { data: visit, error: visitError } = await supabase
+      .from("visits")
+      .insert({ shop_id: shopId, user_id: user.id, visited_on: today })
+      .select("id")
+      .single();
+    if (visitError || !visit) {
+      console.error("create visit on register failed", visitError);
+      logEvent({ action: "shop_create", level: "error", detail: { mode, shopId, step: "visit", ...errorInfo(visitError) } });
+      // 店はできているので、これまでどおり記録の入力画面へ進める。
+      redirect(`/shops/${shopId}/visits/new`, RedirectType.replace);
+    }
+    logEvent({ action: "shop_create", detail: { mode, shopId, visitId: visit.id } });
+    revalidatePath("/", "layout");
+    redirect(`/visits/${visit.id}/edit?new=1`, RedirectType.replace);
+  }
 
   try {
     await addShopToDefaultList(supabase, user.id, shopId, "want");
   } catch (e) {
     console.error("addShopToDefaultList failed", e);
+    logEvent({ action: "shop_create", level: "error", detail: { mode, shopId, step: "want_list", ...errorInfo(e) } });
     // 店は作成済みなので、やり直しで重複させず詳細ページへ進めて知らせる。
     redirect(`/shops/${shopId}?notice=list_failed`, RedirectType.replace);
   }
+  logEvent({ action: "shop_create", detail: { mode, shopId } });
   redirect(`/shops/${shopId}`, RedirectType.replace);
 }

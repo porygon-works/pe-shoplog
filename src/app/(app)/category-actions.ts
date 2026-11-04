@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logResult } from "@/lib/log/server";
 import { requireUser } from "@/lib/auth/current-user";
 import { categoryLabelSchema, generateCategoryValue, isCategoryKind, type CategoryKind } from "@/lib/category-utils";
 import { consumePlacesQuota } from "@/lib/places/quota";
@@ -16,7 +17,7 @@ const UNIQUE_VIOLATION = "23505";
  * 同じ名前がすでにあればそれを返す（重複して作らない）。管理者が非表示にした名前は使えない。
  * 名前の変更・非表示は今までどおり管理画面（管理者のみ）で行う。
  */
-export async function quickAddCategoryAction(kind: CategoryKind, rawLabel: string): Promise<QuickAddResult> {
+async function quickAddCategoryImpl(kind: CategoryKind, rawLabel: string): Promise<QuickAddResult> {
   const user = await requireUser();
   if (!isCategoryKind(kind)) return { error: SERVER_ERROR };
   const parsed = categoryLabelSchema.safeParse(rawLabel);
@@ -64,4 +65,8 @@ export async function quickAddCategoryAction(kind: CategoryKind, rawLabel: strin
     }
   }
   return { error: SERVER_ERROR };
+}
+
+export async function quickAddCategoryAction(kind: CategoryKind, rawLabel: string) {
+  return logResult("category_add", await quickAddCategoryImpl(kind, rawLabel), { kind, label: rawLabel });
 }

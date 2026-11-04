@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
+import { logResult } from "@/lib/log/server";
 import { isUuid } from "@/lib/ids";
 import { PHOTO_KINDS, values } from "@/lib/options";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -72,7 +73,7 @@ function visitColumns(d: NonNullable<ReturnType<typeof parseVisit>["data"]>) {
   };
 }
 
-export async function createVisitAction(
+async function createVisitImpl(
   shopId: string,
   formData: FormData,
 ): Promise<{ visitId: string } | ActionError> {
@@ -109,7 +110,7 @@ export async function createVisitAction(
   return { visitId: data.id as string };
 }
 
-export async function updateVisitAction(
+async function updateVisitImpl(
   visitId: string,
   formData: FormData,
 ): Promise<{ ok: true } | ActionError> {
@@ -138,7 +139,7 @@ export async function updateVisitAction(
 }
 
 /** 論理削除。写真もまとめて論理削除する。 */
-export async function deleteVisitAction(visitId: string): Promise<{ ok: true } | ActionError> {
+async function deleteVisitImpl(visitId: string): Promise<{ ok: true } | ActionError> {
   const user = await requireUser();
   if (!isUuid(visitId)) return { error: "記録の情報が正しくありません" };
 
@@ -183,7 +184,7 @@ export type AddPhotoInput = {
 const FILE_PART = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.jpg";
 const KINDS: readonly string[] = values(PHOTO_KINDS);
 
-export async function addPhotoAction(
+async function addPhotoImpl(
   input: AddPhotoInput,
 ): Promise<{ photoId: string } | ActionError> {
   const user = await requireUser();
@@ -273,7 +274,7 @@ export async function updatePhotoKindAction(
   return { ok: true };
 }
 
-export async function deletePhotoAction(photoId: string): Promise<{ ok: true } | ActionError> {
+async function deletePhotoImpl(photoId: string): Promise<{ ok: true } | ActionError> {
   const user = await requireUser();
   if (!isUuid(photoId)) return { error: "写真の情報が正しくありません" };
   const supabase = await createServerClient();
@@ -297,4 +298,32 @@ export async function deletePhotoAction(photoId: string): Promise<{ ok: true } |
   if (rmError) console.error("deletePhoto storage remove failed", rmError);
   revalidatePath(`/shops/${data[0].shop_id}`);
   return { ok: true };
+}
+
+// ---------------------------------------------------------------- 操作ログを残す公開用の Server Action
+
+export async function createVisitAction(shopId: string, formData: FormData) {
+  const res = await createVisitImpl(shopId, formData);
+  return logResult("visit_create", res, { shopId, visitId: "visitId" in res ? res.visitId : null });
+}
+
+export async function updateVisitAction(visitId: string, formData: FormData) {
+  return logResult("visit_update", await updateVisitImpl(visitId, formData), { visitId });
+}
+
+export async function deleteVisitAction(visitId: string) {
+  return logResult("visit_delete", await deleteVisitImpl(visitId), { visitId });
+}
+
+export async function addPhotoAction(input: AddPhotoInput) {
+  const res = await addPhotoImpl(input);
+  return logResult("photo_add", res, {
+    visitId: input.visitId,
+    shopId: input.shopId,
+    photoId: "photoId" in res ? res.photoId : null,
+  });
+}
+
+export async function deletePhotoAction(photoId: string) {
+  return logResult("photo_delete", await deletePhotoImpl(photoId), { photoId });
 }

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+import { adminClient } from "../db/helpers";
 
 const json = (body: unknown, status = 200) => ({
   status,
@@ -47,7 +48,7 @@ test("地図で店を検索 → カードの「気になる」で登録 → 詳�
   await expect(page.getByTestId("place-sheet")).toHaveCount(0);
 });
 
-test("地図で店を検索 → カードの「行った」で登録 → 記録の入力へ進む", async ({ page }) => {
+test("地図で店を検索 → カードの「行った」で登録すると、その時点で記録が 1 件でき、入力画面を閉じても「気になる」にならない。操作ログにも残る", async ({ page }) => {
   const placeId = `e2e_${randomUUID().replaceAll("-", "")}`;
   const name = `池袋の行ったテスト食堂 ${placeId.slice(-6)}`;
   await mockPlace(page, placeId, name);
@@ -57,5 +58,25 @@ test("地図で店を検索 → カードの「行った」で登録 → 記録�
   await page.getByRole("button", { name: new RegExp(name) }).click();
   await page.getByTestId("place-sheet").getByRole("button", { name: "行った（記録する）" }).click();
 
-  await expect(page).toHaveURL(/\/shops\/[0-9a-f-]{36}\/visits\/new$/);
+  await expect(page).toHaveURL(/\/visits\/[0-9a-f-]{36}\/edit\?new=1$/);
+  await expect(page.getByTestId("visit-created-notice")).toBeVisible();
+
+  // 何も書かずに「← 戻る」で離れても、行った記録は残っている
+  await page.getByRole("link", { name: "← 戻る" }).click();
+  await expect(page).toHaveURL(/\/shops\/[0-9a-f-]{36}$/);
+  const shopId = new URL(page.url()).pathname.split("/").pop()!;
+  await expect(page.getByText("気になる（未訪問）")).toHaveCount(0);
+  await expect(page.getByText("1件")).toBeVisible();
+
+  // 操作ログ（店の登録と、作った記録の id）
+  await expect
+    .poll(async () => {
+      const { data } = await adminClient()
+        .from("app_logs")
+        .select("action, level, detail")
+        .eq("action", "shop_create")
+        .filter("detail->>shopId", "eq", shopId);
+      return data?.[0] ?? null;
+    })
+    .toMatchObject({ level: "info", detail: { mode: "visit", shopId } });
 });

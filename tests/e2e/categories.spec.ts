@@ -84,7 +84,8 @@ test.describe("管理者", () => {
 
     // 非表示にすると /new から消える。店の表示は変わらない
     await row2.getByRole("button", { name: "非表示にする" }).click();
-    await expect(row2).toContainText("非表示");
+    // 「非表示にする」というボタンの文字にも「非表示」が含まれるので、保存が終わってボタンが「表示する」に変わるのを待つ。
+    await expect(row2.getByRole("button", { name: "表示する" })).toBeVisible();
     await openNewForm(page, `e2e_${randomUUID().replaceAll("-", "")}`, `${shopName}B`);
     await expect(page.getByRole("button", { name: "和食", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: renamed, exact: true })).toHaveCount(0);
@@ -119,5 +120,40 @@ test.describe("管理者", () => {
 
     await page.getByRole("button", { name: `${b}を上へ` }).click();
     await expect.poll(order).toEqual([b, a]);
+  });
+
+  test("操作ログ: 管理者は記録の保存などの操作を一覧で見られ、人とエラーで絞り込める", async ({ page }) => {
+    const loginId = uniqueId("lg");
+    await createTestUser(loginId, { admin: true });
+    await loginAs(page, loginId);
+    // 記録を 1 件保存して、ログを作る
+    const { createShop } = await import("../db/helpers");
+    const shopId = await createShop(null, { name: `ログテスト酒場${loginId.slice(-4)}` });
+    await page.goto(`/shops/${shopId}/visits/new`);
+    await page.getByRole("button", { name: "記録を保存" }).click();
+    await expect(page).toHaveURL(new RegExp(`/shops/${shopId}$`));
+
+    await page.goto("/admin");
+    await page.getByRole("link", { name: "操作ログ" }).click();
+    await expect(page).toHaveURL(/\/admin\/logs$/);
+    await page.getByLabel("ログインID").fill(loginId);
+    await page.getByRole("button", { name: "絞り込む" }).click();
+    const logs = page.getByTestId("app-logs");
+    await expect(logs).toContainText("記録の保存");
+    await expect(logs).toContainText(loginId);
+
+    await page.getByRole("checkbox", { name: "エラーだけ" }).check();
+    await page.getByRole("button", { name: "絞り込む" }).click();
+    await expect(page.getByText("該当するログはありません")).toBeVisible();
+  });
+
+  test("操作ログは管理者以外には見えない（画面も DB も）", async ({ page }) => {
+    const loginId = uniqueId("ln");
+    const u = await createTestUser(loginId);
+    await loginAs(page, loginId);
+    await page.goto("/admin/logs");
+    await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
+    const { data } = await u.client.from("app_logs").select("id").limit(1);
+    expect(data ?? []).toEqual([]);
   });
 });

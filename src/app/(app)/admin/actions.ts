@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logResult } from "@/lib/log/server";
 import {
   deletePhoto,
   deleteUser,
@@ -69,7 +70,7 @@ export async function grantAdminAction(userId: string, on: boolean): Promise<Out
 
 export async function softDeleteShopAction(shopId: string): Promise<Out> {
   const user = await requireAdmin();
-  const res = toOut(await softDeleteShop(user.id, shopId));
+  const res = logResult("shop_delete", toOut(await softDeleteShop(user.id, shopId)), { shopId });
   if ("ok" in res) revalidatePath(`/shops/${shopId}`);
   return res;
 }

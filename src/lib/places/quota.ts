@@ -18,6 +18,8 @@ export const PLACES_LIMITS = {
   mapload: { daily: 150, monthly: 9000 },
   // Google ではないが、だれでもできる区分（ジャンル・形態）の追加も、いたずらで増やされないよう回数を絞る。
   category: { daily: 20, monthly: 300 },
+  // 画面（スマホ側）から送られるエラーのログ。大量に送られないよう絞る。
+  clientlog: { daily: 200, monthly: 50000 },
 } as const;
 export type PlacesKind = keyof typeof PLACES_LIMITS;
 

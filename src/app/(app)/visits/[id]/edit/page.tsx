@@ -9,9 +9,17 @@ import type { VisitInput } from "@/lib/validation";
 
 const SIGNED_URL_SECONDS = 3600;
 
-export default async function EditVisitPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditVisitPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ new?: string }>;
+}) {
   const user = await requireUser();
   const { id } = await params;
+  // 地図などの「行った」から来たとき（記録は作成済み）。
+  const justCreated = (await searchParams).new === "1";
   if (!isUuid(id)) notFound();
 
   const supabase = await createServerClient();
@@ -59,8 +67,13 @@ export default async function EditVisitPage({ params }: { params: Promise<{ id: 
         <ReturnLink href={`/shops/${visit.shop_id}`} className="text-[13px] text-ai no-underline">
           ← 戻る
         </ReturnLink>
-        <h1 className="m-0 text-base font-bold">行った記録を編集</h1>
+        <h1 className="m-0 text-base font-bold">{justCreated ? "行った記録" : "行った記録を編集"}</h1>
       </header>
+      {justCreated && (
+        <p role="status" data-testid="visit-created-notice" className="m-0 mx-4 mt-4 rounded-[10px] bg-ok-soft p-3 text-[13px] text-ok">
+          「行った」を記録しました。★や用途・コメント・写真は、このまま書き足せます（あとからでも書けます）。
+        </p>
+      )}
       <VisitForm
         shopId={visit.shop_id}
         shopName={shop?.name ?? ""}

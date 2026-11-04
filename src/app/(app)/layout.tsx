@@ -3,6 +3,7 @@ import { CategoriesProvider } from "@/components/categories-provider";
 import { ConfirmProvider } from "@/components/confirm-dialog";
 import { NavTracker } from "@/components/nav-tracker";
 import { ScrollRestorer } from "@/components/scroll-restorer";
+import { ClientErrorReporter } from "@/components/client-error-reporter";
 import { ToastProvider } from "@/components/toast";
 import { MapHost, MapHostProvider } from "./map/map-host";
 import { requireUser } from "@/lib/auth/current-user";
@@ -18,6 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <MapHostProvider>
             <NavTracker />
             <ScrollRestorer />
+            <ClientErrorReporter />
             <div className="flex min-h-[calc(100dvh-env(safe-area-inset-top))] flex-1 flex-col">
               <div className="flex flex-1 flex-col">
                 {children}
