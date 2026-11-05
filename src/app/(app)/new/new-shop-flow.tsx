@@ -5,6 +5,7 @@ import { useCategories } from "@/components/categories-provider";
 import { CategoryPicker } from "@/components/category-picker";
 import { ChipGroup } from "@/components/chip-group";
 import { useToast } from "@/components/toast";
+import { useBackOrHome } from "@/lib/nav/use-back-or-home";
 import { genreOptions, selectableOptions } from "@/lib/category-utils";
 import { SMOKING, TIME_SLOTS } from "@/lib/options";
 import type { ShopInput } from "@/lib/validation";
@@ -17,11 +18,15 @@ type Picked = { placeId: string | null; name: string; location: LatLng | null; m
 export function NewShopFlow({
   initialPlace,
   initialError,
+  intent = "any",
 }: {
   initialPlace: PickedPlace | null;
   initialError: boolean;
+  /** "visit": 地図の「行った」から来た。行った記録を付ける登録だけを出す。 */
+  intent?: "any" | "visit";
 }) {
   const toast = useToast();
+  const back = useBackOrHome();
   const [picked, setPicked] = useState<Picked | null>(
     initialPlace
       ? {
@@ -50,10 +55,11 @@ export function NewShopFlow({
       />
     );
   }
-  return <ShopForm picked={picked} onBack={() => setPicked(null)} />;
+  // 地図の「行った」から来たときは、戻ると地図へ（店の検索には戻さない）。
+  return <ShopForm picked={picked} onBack={intent === "visit" ? back : () => setPicked(null)} intent={intent} />;
 }
 
-function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
+function ShopForm({ picked, onBack, intent }: { picked: Picked; onBack: () => void; intent: "any" | "visit" }) {
   const [state, action, pending] = useActionState<NewShopState, FormData>(createShopAction, {});
   const categories = useCategories();
   const [name, setName] = useState(picked.name);
@@ -122,15 +128,26 @@ function ShopForm({ picked, onBack }: { picked: Picked; onBack: () => void }) {
         <ChipGroup name="timeSlots" multiple options={TIME_SLOTS} value={timeSlots} onChange={setTimeSlots} aria-label="時間帯" />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <button type="submit" name="mode" value="want" className="btn btn-primary" disabled={blocked}>
-          気になるで登録
-        </button>
-        <button type="submit" name="mode" value="visit" className="btn btn-accent" disabled={blocked}>
-          行った記録を付ける
-        </button>
-      </div>
-      <p className="m-0 text-xs text-muted">「気になるで登録」は、自分の「気になる」リストにも追加します。</p>
+      {intent === "visit" ? (
+        <>
+          <button type="submit" name="mode" value="visit" className="btn btn-accent" disabled={blocked}>
+            登録して行った記録を付ける
+          </button>
+          <p className="m-0 text-xs text-muted">店の情報はみんなで共有されます。ジャンルなどはあとから「店情報を編集」でも直せます。</p>
+        </>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            <button type="submit" name="mode" value="want" className="btn btn-primary" disabled={blocked}>
+              気になるで登録
+            </button>
+            <button type="submit" name="mode" value="visit" className="btn btn-accent" disabled={blocked}>
+              行った記録を付ける
+            </button>
+          </div>
+          <p className="m-0 text-xs text-muted">「気になるで登録」は、自分の「気になる」リストにも追加します。</p>
+        </>
+      )}
     </form>
   );
 }

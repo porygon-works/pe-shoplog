@@ -75,15 +75,25 @@ export function PlaceSheet({
         >
           気になる
         </button>
-        <button
-          type="submit"
-          name="mode"
-          value="visit"
-          className="btn btn-accent !py-2 text-[13px]"
-          disabled={!ready || pending}
-        >
-          行った（記録する）
-        </button>
+        {/* 「行った」は店の情報（ジャンルなど）も入れてから登録する。地図で取った名前と位置を渡し、Google は呼び直さない。 */}
+        {ready && !pending ? (
+          <Link
+            href={`/new?${new URLSearchParams({
+              placeId,
+              name: place.name,
+              lat: String(place.lat),
+              lng: String(place.lng),
+              mode: "visit",
+            })}`}
+            className="btn btn-accent !py-2 text-[13px]"
+          >
+            行った（記録する）
+          </Link>
+        ) : (
+          <button type="button" className="btn btn-accent !py-2 text-[13px]" disabled>
+            行った（記録する）
+          </button>
+        )}
       </form>
       <div className="flex items-center justify-between">
         <Link href={`/new?placeId=${encodeURIComponent(placeId)}`} className="text-xs text-ai underline">

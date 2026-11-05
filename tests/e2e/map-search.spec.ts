@@ -48,7 +48,7 @@ test("地図で店を検索 → カードの「気になる」で登録 → 詳�
   await expect(page.getByTestId("place-sheet")).toHaveCount(0);
 });
 
-test("地図で店を検索 → カードの「行った」で登録すると、その時点で記録が 1 件でき、入力画面を閉じても「気になる」にならない。操作ログにも残る", async ({ page }) => {
+test("地図で店を検索 → カードの「行った」→ ジャンルなどを入れて登録すると、その時点で記録が 1 件でき、入力画面を閉じても「気になる」にならない。操作ログにも残る", async ({ page }) => {
   const placeId = `e2e_${randomUUID().replaceAll("-", "")}`;
   const name = `池袋の行ったテスト食堂 ${placeId.slice(-6)}`;
   await mockPlace(page, placeId, name);
@@ -56,7 +56,15 @@ test("地図で店を検索 → カードの「行った」で登録すると、
   await page.goto("/map");
   await page.getByRole("searchbox", { name: "お店をさがす" }).fill("池袋 食堂");
   await page.getByRole("button", { name: new RegExp(name) }).click();
-  await page.getByTestId("place-sheet").getByRole("button", { name: "行った（記録する）" }).click();
+  await page.getByTestId("place-sheet").getByRole("link", { name: "行った（記録する）" }).click();
+
+  // まず店の情報（ジャンルなど）を入れる画面。地図で取った名前が入っている
+  await expect(page).toHaveURL(/\/new\?.*mode=visit/);
+  await expect(page.getByRole("heading", { name: "行ったお店を登録" })).toBeVisible();
+  await expect(page.getByLabel("店名（必須）")).toHaveValue(name);
+  await expect(page.getByRole("button", { name: "気になるで登録" })).toHaveCount(0);
+  await page.getByRole("button", { name: "ラーメン", exact: true }).click();
+  await page.getByRole("button", { name: "登録して行った記録を付ける" }).click();
 
   await expect(page).toHaveURL(/\/visits\/[0-9a-f-]{36}\/edit\?new=1$/);
   await expect(page.getByTestId("visit-created-notice")).toBeVisible();
@@ -67,6 +75,7 @@ test("地図で店を検索 → カードの「行った」で登録すると、
   const shopId = new URL(page.url()).pathname.split("/").pop()!;
   await expect(page.getByText("気になる（未訪問）")).toHaveCount(0);
   await expect(page.getByText("1件")).toBeVisible();
+  await expect(page.getByTestId("shop-categories")).toContainText("ラーメン");
 
   // 操作ログ（店の登録と、作った記録の id）
   await expect
