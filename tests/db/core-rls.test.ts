@@ -331,3 +331,30 @@ describe("profiles", () => {
     expect(r.data ?? []).toHaveLength(0);
   });
 });
+
+describe("お知らせ（0016）", () => {
+  it("だれでも読めるが、書けるのは管理者だけ。既読は自分の分だけ読み書きできる", async () => {
+    const svc = adminClient();
+    const member = await createTestUser(uniqueId("am"));
+    const adm = await createTestUser(uniqueId("aa"), { admin: true });
+
+    const denied = await member.client.from("announcements").insert({ title: "x", created_by: member.id });
+    expect(denied.error).not.toBeNull();
+
+    const ok = await adm.client.from("announcements").insert({ title: "テストのお知らせ", body: "本文", created_by: adm.id }).select("id").single();
+    expect(ok.error).toBeNull();
+    const seen = await member.client.from("announcements").select("id").eq("id", ok.data!.id);
+    expect(seen.data).toHaveLength(1);
+
+    const upd = await member.client.from("announcements").update({ title: "書き換え" }).eq("id", ok.data!.id).select("id");
+    expect(upd.data ?? []).toHaveLength(0);
+
+    expect((await member.client.from("announcement_reads").upsert({ user_id: member.id })).error).toBeNull();
+    const other = await member.client.from("announcement_reads").upsert({ user_id: adm.id });
+    expect(other.error).not.toBeNull();
+    const reads = await member.client.from("announcement_reads").select("user_id");
+    expect(reads.data?.map((r) => r.user_id)).toEqual([member.id]);
+
+    await svc.from("announcements").delete().eq("id", ok.data!.id);
+  });
+});

@@ -1,6 +1,8 @@
+import { AnnouncementBell } from "@/components/announcement-bell";
 import { ListCard } from "@/components/list-card";
 import { SharedListTab } from "@/components/shared-list-tab";
 import { VisitLogList } from "@/components/visit-log-list";
+import { hasUnreadAnnouncements } from "@/lib/announcements";
 import { requireUser } from "@/lib/auth/current-user";
 import { listSummariesOf, sharedListSummariesOf, visitLogOf } from "@/lib/lists/queries";
 import { createServerClient } from "@/lib/supabase/server";
@@ -13,10 +15,11 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
   const user = await requireUser();
   const { tab } = await searchParams;
   const supabase = await createServerClient();
-  const [lists, shared, visits] = await Promise.all([
+  const [lists, shared, visits, unread] = await Promise.all([
     listSummariesOf(supabase, user.id),
     sharedListSummariesOf(supabase, user.id),
     visitLogOf(supabase, user.id),
+    hasUnreadAnnouncements(supabase, user.id),
   ]);
 
   return (
@@ -24,6 +27,7 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
         <h1 className="m-0 flex-1 text-base font-bold">マイページ</h1>
         <span className="text-xs text-muted">{user.loginId}</span>
+        <AnnouncementBell unread={unread} />
       </header>
       <div className="flex flex-col gap-3 p-4">
         <MeTabs

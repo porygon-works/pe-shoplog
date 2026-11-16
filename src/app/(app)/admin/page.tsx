@@ -35,6 +35,9 @@ export default async function AdminPage() {
         <Link href="/admin/categories" className="btn">
           ジャンル・形態・用途の編集
         </Link>
+        <Link href="/admin/announcements" className="btn">
+          お知らせ
+        </Link>
         <Link href="/admin/logs" className="btn">
           操作ログ
         </Link>
