@@ -2,7 +2,7 @@ import { AnnouncementBell } from "@/components/announcement-bell";
 import { ListCard } from "@/components/list-card";
 import { SharedListTab } from "@/components/shared-list-tab";
 import { VisitLogList } from "@/components/visit-log-list";
-import { hasUnreadAnnouncements } from "@/lib/announcements";
+import { unreadAnnouncementCount } from "@/lib/announcements";
 import { requireUser } from "@/lib/auth/current-user";
 import { listSummariesOf, sharedListSummariesOf, visitLogOf } from "@/lib/lists/queries";
 import { createServerClient } from "@/lib/supabase/server";
@@ -19,7 +19,7 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
     listSummariesOf(supabase, user.id),
     sharedListSummariesOf(supabase, user.id),
     visitLogOf(supabase, user.id),
-    hasUnreadAnnouncements(supabase, user.id),
+    unreadAnnouncementCount(supabase, user.id),
   ]);
 
   return (

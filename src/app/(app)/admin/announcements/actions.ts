@@ -38,9 +38,11 @@ async function createImpl(formData: FormData): Promise<AnnouncementFormState & {
   const p = parse(formData);
   if (!p.data) return { error: p.error };
   const supabase = await createServerClient();
+  // 「自分だけ」は確認用。あとで「全員に出す」で全員に出せる。
+  const onlyMe = formData.get("audience") === "me";
   const { data, error } = await supabase
     .from("announcements")
-    .insert({ title: p.data.title, body: p.data.body, created_by: user.id })
+    .insert({ title: p.data.title, body: p.data.body, created_by: user.id, target_user_ids: onlyMe ? [user.id] : null })
     .select("id")
     .single();
   if (error || !data) {
@@ -81,6 +83,28 @@ async function deleteImpl(id: string): Promise<AnnouncementFormState> {
   }
   if (!data || data.length === 0) return { error: "お知らせが見つかりませんでした" };
   return done();
+}
+
+async function publishToAllImpl(id: string): Promise<AnnouncementFormState> {
+  await requireAdmin();
+  if (!isUuid(id)) return { error: "お知らせが見つかりませんでした" };
+  const supabase = await createServerClient();
+  // 出した時刻を今にして、全員に未読として出す。
+  const { data, error } = await supabase
+    .from("announcements")
+    .update({ target_user_ids: null, published_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id");
+  if (error) {
+    console.error("publishAnnouncement failed", error);
+    return { error: SERVER_ERROR };
+  }
+  if (!data || data.length === 0) return { error: "お知らせが見つかりませんでした" };
+  return done();
+}
+
+export async function publishAnnouncementToAllAction(id: string) {
+  return logResult("announcement_publish", await publishToAllImpl(id), { announcementId: id });
 }
 
 export async function createAnnouncementAction(_prev: AnnouncementFormState, formData: FormData) {

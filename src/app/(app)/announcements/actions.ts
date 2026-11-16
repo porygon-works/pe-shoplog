@@ -15,5 +15,6 @@ export async function markAnnouncementsReadAction(): Promise<void> {
     console.error("markAnnouncementsRead failed", error);
     return;
   }
-  revalidatePath("/me");
+  // 下のメニューのバッジ（レイアウト）とマイページの鈴を更新する。
+  revalidatePath("/", "layout");
 }

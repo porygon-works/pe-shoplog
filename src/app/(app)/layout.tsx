@@ -8,10 +8,21 @@ import { ToastProvider } from "@/components/toast";
 import { MapHost, MapHostProvider } from "./map/map-host";
 import { requireUser } from "@/lib/auth/current-user";
 import { getCategories } from "@/lib/categories";
+import { unreadAnnouncementCount } from "@/lib/announcements";
+import { createServerClient } from "@/lib/supabase/server";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  await requireUser();
-  const categories = await getCategories();
+  const user = await requireUser();
+  const [categories, unread] = await Promise.all([
+    getCategories(),
+    // 下のメニュー「マイページ」に出す、お知らせの未読件数。失敗しても画面は出す。
+    createServerClient()
+      .then((s) => unreadAnnouncementCount(s, user.id))
+      .catch((e) => {
+        console.error("unread announcements failed", e);
+        return 0;
+      }),
+  ]);
   return (
     <ToastProvider>
       <ConfirmProvider>
@@ -25,7 +36,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 {children}
                 <MapHost />
               </div>
-              <BottomNav />
+              <BottomNav unread={unread} />
             </div>
           </MapHostProvider>
         </CategoriesProvider>

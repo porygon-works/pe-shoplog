@@ -358,3 +358,15 @@ describe("お知らせ（0016）", () => {
     await svc.from("announcements").delete().eq("id", ok.data!.id);
   });
 });
+
+describe("お知らせの対象（0017）", () => {
+  it("対象を絞ったお知らせは、対象の人と管理者だけが読める", async () => {
+    const svc = adminClient();
+    const a = await createTestUser(uniqueId("ta"));
+    const b = await createTestUser(uniqueId("tb"));
+    const { data } = await svc.from("announcements").insert({ title: "a さんだけ", target_user_ids: [a.id] }).select("id").single();
+    expect((await a.client.from("announcements").select("id").eq("id", data!.id)).data).toHaveLength(1);
+    expect((await b.client.from("announcements").select("id").eq("id", data!.id)).data).toHaveLength(0);
+    await svc.from("announcements").delete().eq("id", data!.id);
+  });
+});

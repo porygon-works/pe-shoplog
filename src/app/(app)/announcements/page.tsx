@@ -8,8 +8,8 @@ import { MarkAnnouncementsRead } from "./mark-read";
 export const metadata = { title: "お知らせ" };
 
 export default async function AnnouncementsPage() {
-  await requireUser();
-  const items = await listAnnouncements(await createServerClient());
+  const user = await requireUser();
+  const items = await listAnnouncements(await createServerClient(), { userId: user.id });
 
   return (
     <main className="flex flex-1 flex-col bg-surface">
@@ -24,7 +24,7 @@ export default async function AnnouncementsPage() {
         <ul data-testid="announcements" className="m-0 flex list-none flex-col p-0">
           {items.map((a) => (
             <li key={a.id} className="flex flex-col gap-1.5 border-b border-line px-4 py-3">
-              <span className="text-xs text-muted">{announcementDate(a.createdAt)}</span>
+              <span className="text-xs text-muted">{announcementDate(a.publishedAt)}</span>
               <h2 className="m-0 text-[15px] font-bold">{a.title}</h2>
               {a.body && <LinkifiedText text={a.body} className="text-sm" />}
             </li>

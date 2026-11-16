@@ -21,6 +21,7 @@ const ACTION_LABELS: Record<string, string> = {
   category_add: "区分の追加",
   announcement_create: "お知らせを出す",
   announcement_update: "お知らせの編集",
+  announcement_publish: "お知らせを全員に出す",
   announcement_delete: "お知らせの削除",
   visit_save_failed: "記録の保存（送信できず）",
   photo_upload_failed: "写真の送信失敗",

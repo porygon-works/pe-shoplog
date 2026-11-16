@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UnreadBadge } from "@/components/unread-badge";
 
 const stroke = {
   viewBox: "0 0 24 24",
@@ -50,7 +51,7 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function BottomNav() {
+export function BottomNav({ unread = 0 }: { unread?: number }) {
   const pathname = usePathname();
   return (
     <nav
@@ -64,7 +65,8 @@ export function BottomNav() {
             key={t.href}
             href={t.href}
             aria-current={on ? "page" : undefined}
-            className={`flex flex-col items-center gap-0.5 pb-2.5 pt-2 text-[11px] no-underline ${
+            aria-label={t.href === "/me" && unread > 0 ? `マイページ（お知らせ未読 ${unread} 件）` : undefined}
+            className={`relative flex flex-col items-center gap-0.5 pb-2.5 pt-2 text-[11px] no-underline ${
               on ? "font-bold text-ai" : "text-muted"
             }`}
           >
@@ -77,6 +79,9 @@ export function BottomNav() {
               </span>
             )}
             {t.href === "/new" ? <span>登録</span> : t.label}
+            {t.href === "/me" && (
+              <UnreadBadge count={unread} testId="nav-unread" className="absolute left-1/2 top-1 ml-1.5" />
+            )}
           </Link>
         );
       })}
