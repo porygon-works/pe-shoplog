@@ -116,13 +116,13 @@ describe("URL パラメータの検証", () => {
       smoking: '"x,no_smoking,unknown,bogus',
       genre: "unknown,ramen",
       styles: "izakaya;evil,bar",
-      price: "unknown,under_3000",
+      price: "unknown,under_2000,under_3000",
       purpose: "x),celebration",
     });
     expect(f.smoking).toEqual(["no_smoking"]);
     expect(f.genre).toEqual(["ramen"]);
     expect(f.styles).toEqual(["bar"]);
-    expect(f.price).toEqual(["under_3000"]);
+    expect(f.price).toEqual(["under_2000", "under_3000"]);
     expect(f.purpose).toEqual(["celebration"]);
   });
 

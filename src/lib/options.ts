@@ -10,6 +10,7 @@ export const SMOKING = [
 ] as const satisfies readonly Option<string>[];
 
 export const PRICE_RANGES = [
+  { value: "under_2000", label: "〜1,999" },
   { value: "under_3000", label: "〜2,999" },
   { value: "3000_4999", label: "3,000〜4,999" },
   { value: "5000_6999", label: "5,000〜6,999" },
